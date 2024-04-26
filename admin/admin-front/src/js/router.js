@@ -67,9 +67,9 @@ let isFirstRouter = true;
 router.beforeEach((to, from, next) => {
 	loadingBar.start();
 	if (to.meta && to.meta.title) {
-		document.title = to.meta.title + ' - 电子发票';
+		document.title = to.meta.title + ' - 进销存';
 	} else {
-		document.title = '电子发票';
+		document.title = '进销存';
 	}
 	isFirstRouter = false;
 	next();

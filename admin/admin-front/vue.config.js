@@ -16,7 +16,7 @@ const globalVars = require('./src/style/var.js');
 module.exports = {
 	pages: {
 		index: {
-			title: "纷析云电子发票服务平台",
+			title: "纷析云进销存系统",
 			entry: 'src/main.js',
 			chunks: ['chunk-vendors', 'chunk-common', 'index']
 		}
