@@ -3,8 +3,8 @@
     <div class="body-wrapper">
       <div class="bg1"></div>
       <div class="gyl">
-        企万慧
-        <div class="gy2">企万慧企业服务平台</div>
+        纷析云
+        <div class="gy2">纷析云进销存管理系统</div>
       </div>
       <div class="bg">
         <div class="form">

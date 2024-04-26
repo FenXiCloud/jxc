@@ -311,7 +311,7 @@ export default {
 
         .tabs-item-background {
           background: #f5f7fa;
-          border-top:#009933 2px solid;
+          border-top:#3d74ff 2px solid;
           border-bottom: none;
         }
 

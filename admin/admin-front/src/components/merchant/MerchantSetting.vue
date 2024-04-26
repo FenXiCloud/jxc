@@ -73,7 +73,7 @@ export default {
 
     &.h-tabs-selected {
       color: @white-color;
-      background-color: #009933;
+      background-color: #3d74ff;
     }
   }
 }

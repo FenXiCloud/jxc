@@ -147,7 +147,7 @@ export default {
       overflow: hidden;
       display: table;
       padding: 20px 0;
-      background-color: #009933;
+      background-color: #3d74ff;
       color: #FFF;
       white-space: nowrap;
       position: relative;
@@ -193,7 +193,7 @@ export default {
 
   .h-menu-first-level:hover{
 
-    background-color: #009933;
+    background-color: #3d74ff;
     .h-menu-show-desc{
       color: @white-color;
     }
@@ -205,7 +205,7 @@ export default {
 
   .h-menu-li-selected {
     color: @white-color;
-    background: #009933;
+    background: #3d74ff;
   }
 }
 </style>

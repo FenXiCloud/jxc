@@ -3,7 +3,7 @@
     <div class="body-wrapper">
       <div class="login-header">
         <div class="login-logo"></div>&nbsp;
-        <div class="login-title">企万慧企业服务平台
+        <div class="login-title">纷析云进销存管理系统
           <div class="login-title-bot">FinXi MART Management System</div>
         </div>
       </div>

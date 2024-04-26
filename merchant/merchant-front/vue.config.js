@@ -12,7 +12,7 @@ const globalVars = require('./src/style/var.js');
 module.exports = {
 	pages: {
 		index: {
-			title: "企万慧",
+			title: "纷析云",
 			entry: 'src/main.js',
 			chunks: ['chunk-vendors', 'chunk-common', 'index']
 		}

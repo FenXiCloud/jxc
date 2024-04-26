@@ -2,7 +2,7 @@
   <div class="app-logo">
     <a aria-current="page" href="/" class="router-link-active router-link-exact-active link">
       <span class="app-logo-icon"></span>
-      <span class="app-logo-text">企万慧</span>
+      <span class="app-logo-text">纷析云</span>
     </a>
   </div>
 </template>
