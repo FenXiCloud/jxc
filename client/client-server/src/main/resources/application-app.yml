@@ -1,0 +1,14 @@
+server:
+  port: 8418
+
+spring:
+  data:
+    redis:
+      database: 8
+  cache:
+    redis:
+      key-prefix: i_b_c_
+      cache-null-values: false
+
+sa-token:
+  token-name: i-b-c-token

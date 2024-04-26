@@ -1,0 +1,23 @@
+dependencies {
+    implementation project(":kernel")
+
+    implementation "com.github.binarywang:weixin-java-pay:${weixin}"
+    implementation "com.github.binarywang:weixin-java-open:${weixin}"
+    implementation "com.github.binarywang:weixin-java-pay:${weixin}"
+    implementation "com.github.binarywang:weixin-java-mp:${weixin}"
+    implementation "com.github.binarywang:weixin-java-cp:${weixin}"
+    implementation "com.github.binarywang:weixin-java-miniapp:${weixin}"
+
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+}
+
+bootJar {
+    archivesBaseName = 'invoice-client'
+    archiveVersion = '0.1'
+    launchScript()
+}
+
+tasks.withType(Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+

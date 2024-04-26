@@ -1,0 +1,12 @@
+dependencies {
+    implementation project(":kernel")
+}
+bootJar {
+    archivesBaseName = 'invoice-admin'
+    archiveVersion = '0.1'
+    launchScript()
+}
+
+tasks.withType(Jar) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

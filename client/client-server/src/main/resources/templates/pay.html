@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="https://www.thymeleaf.org/">
+<head>
+  <meta charset="UTF-8">
+  <title><th:block th:text="${sysName}" />-收银台</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script src="//res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+  <script th:inline="javascript">
+    window.onload = function () {
+      wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: [[${signature.appId}]], // 必填，公众号的唯一标识
+        timestamp: [[${signature.timestamp}]], // 必填，生成签名的时间戳
+        nonceStr: [[${signature.nonceStr}]], // 必填，生成签名的随机串
+        signature: [[${signature.signature}]],// 必填，签名
+        jsApiList: ['chooseWXPay'] // 必填，需要使用的JS接口列表
+      });
+
+      wx.ready(function () {
+        wx.chooseWXPay({
+          appId: [[${jsapiResult.appId}]],
+          nonceStr: [[${jsapiResult.nonceStr}]],
+          paySign: [[${jsapiResult.paySign}]],
+          signType: [[${jsapiResult.signType}]],
+          package: [[${jsapiResult.packageValue}]],
+          timestamp: [[${jsapiResult.timeStamp}]],
+          success: (res) => {
+            document.getElementById("msg").innerText = "支付成功~";
+          },
+          cancel: () => {
+            fetch('/api/is/cancel/' + [[${order.id}]]).finally(() => {
+              wx.closeWindow();
+            })
+          }
+        });
+      });
+
+
+      wx.error(function (res) {
+        alert(res.message)
+      });
+    }
+  </script>
+</head>
+<body style="text-align: center;">
+<h1>
+  <th:block th:text="${sysName}"/>
+</h1>
+<div>订单号</div>
+<div th:text="${order.orderId}"></div>
+<div th:text="${order.title}"></div>
+<div id="msg" style="font-size: 18px;color: red;margin-top: 32px"></div>
+<div style="font-size: 12px;margin-top: 32px" th:text="${companyName}"></div>
+</body>
+</html>
