@@ -21,11 +21,6 @@ const fullMenus = [
 		key: 'UserList',
 		icon: 'h-icon-user'
 	},
-	{
-		title: '公众号设置',
-		key: 'WechatSetting',
-		icon: 'h-icon-setting'
-	}
 ];
 
 const getMenus = function (menuIdList = []) {

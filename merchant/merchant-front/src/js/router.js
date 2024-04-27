@@ -8,6 +8,9 @@ import AdminList from '@components/group/setting/AdminList';
 import RoleList from '@components/group/setting/RoleList';
 import AccountBasic from '@components/common/AccountBasic';
 
+import Customers from '@components/group/basics/CustomersList';
+
+
 const groupRoutes = [
 	{
 		path: '/login',
@@ -48,6 +51,12 @@ const groupRoutes = [
 				name: 'AccountBasic',
 				component: AccountBasic,
 				meta: {title: '账号信息', icon: 'icon-monitor'}
+			},
+			{
+				path: 'customers',
+				name: 'Customers',
+				component: Customers,
+				meta: {title: '客户档案', icon: 'icon-monitor'}
 			},
 		]
 	}, {
