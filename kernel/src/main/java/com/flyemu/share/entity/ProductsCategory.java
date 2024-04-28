@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.DynamicUpdate;
 
 /**
- * @功能描述: 供货商分类
+ * @功能描述: 商品分类
  * @创建时间: 2024年04月28日
  * @公司官网: www.fenxi365.com
  * @公司信息: 纷析云（杭州）科技有限公司
@@ -15,29 +15,26 @@ import org.hibernate.annotations.Comment;
  */
 @Getter
 @Setter
-@Entity
 @NoArgsConstructor
+@Entity
 @Table
-public class VendorsCategory {
+@DynamicUpdate
+public class ProductsCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 32, nullable = false)
-    private String name;
-
+    @Column(length = 64, nullable = false)
     private String code;
 
-    @Comment("父id")
+    @Column(length = 64, nullable = false)
+    private String name;
+
     private Integer pid;
 
-    @Comment("组织ID")
-    @Column(nullable = false)
     private Integer organizationId;
 
-    @Comment("商户ID")
-    @Column(nullable = false)
     private Integer merchantId;
 
 }

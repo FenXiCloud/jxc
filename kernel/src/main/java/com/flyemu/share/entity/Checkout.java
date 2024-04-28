@@ -4,10 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Comment;
+
+import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
- * @功能描述: 供货商分类
+ * @功能描述: 月度结账
  * @创建时间: 2024年04月28日
  * @公司官网: www.fenxi365.com
  * @公司信息: 纷析云（杭州）科技有限公司
@@ -17,27 +19,29 @@ import org.hibernate.annotations.Comment;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table
-public class VendorsCategory {
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"checkYear", "checkMonth", "organizationId", "merchantId"})})
+public class Checkout implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 32, nullable = false)
-    private String name;
+    private Integer checkYear;
 
-    private String code;
+    private Integer checkMonth;
 
-    @Comment("父id")
-    private Integer pid;
+    private Status status;
 
-    @Comment("组织ID")
+    private LocalDate checkDate;
+
     @Column(nullable = false)
     private Integer organizationId;
 
-    @Comment("商户ID")
     @Column(nullable = false)
     private Integer merchantId;
 
+    public enum Status {
+        未结账,已结账
+    }
 }
