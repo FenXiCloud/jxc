@@ -11,7 +11,7 @@ import org.hibernate.annotations.Comment;
 @Entity
 @NoArgsConstructor
 @Table
-public class Customers {
+public class CustomersCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,8 @@ public class Customers {
 
     private String code;
 
-    private String linkman;
-
-    private String phone;
-
-    private String remark;
-
-    private Integer customersCategoryId;
+    @Comment("父id")
+    private Integer pid;
 
     @Comment("组织ID")
     @Column(nullable = false)

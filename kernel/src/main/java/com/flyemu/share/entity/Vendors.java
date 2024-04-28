@@ -11,7 +11,7 @@ import org.hibernate.annotations.Comment;
 @Entity
 @NoArgsConstructor
 @Table
-public class Customers {
+public class Vendors {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class Customers {
 
     private String remark;
 
-    private Integer customersCategoryId;
+    private Integer vendorsCategoryId;
 
     @Comment("组织ID")
     @Column(nullable = false)
