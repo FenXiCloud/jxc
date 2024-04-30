@@ -33,6 +33,8 @@ public class ProductsCategory {
 
     private Integer pid;
 
+    private Integer sort;
+
     private Integer organizationId;
 
     private Integer merchantId;
