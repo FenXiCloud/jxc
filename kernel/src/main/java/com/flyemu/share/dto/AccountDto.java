@@ -1,8 +1,6 @@
 package com.flyemu.share.dto;
 
-import com.flyemu.share.entity.Admin;
-import com.flyemu.share.entity.Merchant;
-import com.flyemu.share.entity.Role;
+import com.flyemu.share.entity.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,17 +23,22 @@ public class AccountDto implements Serializable {
 
     private Merchant merchant;
 
+    private Organization organization;
+
     private Role role;
+
+    private Checkout checkout;
 
     /**
      * 授权功能
      */
     private List<String> granted;
 
-    public AccountDto(Admin admin, Merchant merchant, Role role) {
+    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization) {
         this.admin = admin;
         this.merchant = merchant;
         this.role = role;
+        this.organization = organization;
     }
 
     public Integer getAdminId() {
@@ -44,6 +47,11 @@ public class AccountDto implements Serializable {
 
     public Integer getMerchantId() {
         return merchant.getId();
+    }
+
+    //TODO
+    public Integer getOrganizationId() {
+        return 1;
     }
 
 }

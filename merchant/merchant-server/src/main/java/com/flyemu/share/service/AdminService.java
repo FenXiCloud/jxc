@@ -45,6 +45,8 @@ public class AdminService extends AbsService {
 
     private final static QMerchant qMerchant = QMerchant.merchant;
 
+    private final static QOrganization qOrganization = QOrganization.organization;
+
     private final static QMerchantMenu qMerchantMenu = QMerchantMenu.merchantMenu;
 
     private final AdminRepository adminRepository;
@@ -142,7 +144,11 @@ public class AdminService extends AbsService {
 
         Role role = bqf.selectFrom(qRole).where(qRole.id.eq(admin.getRoleId())).fetchFirst();
 
-        return new AccountDto(admin, merchant, role);
+        //TODO 登录后获取上次选择的组织ID
+        Organization organization = new Organization();
+        organization.setId(1);
+
+        return new AccountDto(admin, merchant, role,organization);
     }
 
     @Transactional
