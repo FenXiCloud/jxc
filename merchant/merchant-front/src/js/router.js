@@ -19,8 +19,8 @@ import UnitsList from '@components/group/basics/UnitsList';
 import ProductsList from '@components/group/basics/ProductsList';
 import ProductsCategoryList from '@components/group/basics/ProductsCategoryList';
 
-import SalesDeliveryForm from '@components/group/sales/SalesDeliveryForm';
-import SalesDeliveryList from '@components/group/sales/SalesDeliveryList';
+import SalesOrderForm from '@components/group/sales/SalesOrderForm';
+import SalesOrderList from '@components/group/sales/SalesOrderList';
 import SalesDetail from '@components/group/sales/SalesDetail';
 import SalesSummary from '@components/group/sales/SalesSummary';
 import SalesReturnForm from '@components/group/sales/SalesReturnForm';
@@ -28,8 +28,8 @@ import SalesReturnList from '@components/group/sales/SalesReturnList';
 
 import PurchaseDetail from '@components/group/purchase/PurchaseDetail';
 import PurchaseSummary from '@components/group/purchase/PurchaseSummary';
-import PurchaseReceiptForm from '@components/group/purchase/PurchaseReceiptForm';
-import PurchaseReceiptList from '@components/group/purchase/PurchaseReceiptList';
+import PurchaseOrderForm from '@components/group/purchase/PurchaseOrderForm';
+import PurchaseOrderList from '@components/group/purchase/PurchaseOrderList';
 import PurchaseReturnForm from '@components/group/purchase/PurchaseReturnForm';
 import PurchaseReturnList from '@components/group/purchase/PurchaseReturnList';
 
@@ -155,13 +155,13 @@ const groupRoutes = [
 			{
 				path: 'salesDeliveryForm',
 				name: 'SalesDeliveryForm',
-				component: SalesDeliveryForm,
+				component: SalesOrderForm,
 				meta: {title: '销售出库单', icon: 'icon-monitor'}
 			},
 			{
 				path: 'salesDeliveryList',
 				name: 'SalesDeliveryList',
-				component: SalesDeliveryList,
+				component: SalesOrderList,
 				meta: {title: '销售出库单列表', icon: 'icon-monitor'}
 			},
 			{
@@ -204,13 +204,13 @@ const groupRoutes = [
 			{
 				path: 'purchaseReceiptForm',
 				name: 'PurchaseReceiptForm',
-				component: PurchaseReceiptForm,
+				component: PurchaseOrderForm,
 				meta: {title: '采购入库单', icon: 'icon-monitor'}
 			},
 			{
 				path: 'purchaseReceiptList',
 				name: 'PurchaseReceiptList',
-				component: PurchaseReceiptList,
+				component: PurchaseOrderList,
 				meta: {title: '采购入库单列表', icon: 'icon-monitor'}
 			},
 			{
