@@ -51,7 +51,7 @@ import {layer} from "@layui/layer-vue";
 import {h} from "vue";
 import CheckoutForm from "@components/group/setting/CheckoutForm";
 import Checkout from "@js/api/Checkout";
-import {confirm, message} from "heyui";
+import {confirm, message} from "heyui.ext";
 
 
 export default {

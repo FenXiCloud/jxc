@@ -66,7 +66,7 @@
 <script>
 
 import Organization from "@js/api/Organization";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
 import manba from "manba";
 

@@ -60,7 +60,7 @@
 
 <script>
 import Organization from "@js/api/Organization";
-import {confirm, message} from "heyui";
+import {confirm, message} from "heyui.ext";
 import OrganizationForm from "./OrganizationForm.vue";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";

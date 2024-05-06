@@ -24,7 +24,7 @@
 
 <script>
 import Warehouses from "@js/api/Warehouses";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
 
 export default {

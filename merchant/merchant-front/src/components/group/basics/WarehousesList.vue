@@ -54,7 +54,7 @@ import {layer} from "@layui/layer-vue";
 import {h} from "vue";
 import WarehousesForm from "@components/group/basics/WarehousesForm";
 import Warehouses from "@js/api/Warehouses";
-import {confirm, message} from "heyui";
+import {confirm, message} from "heyui.ext";
 
 
 export default {
