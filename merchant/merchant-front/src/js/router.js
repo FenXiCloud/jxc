@@ -33,19 +33,19 @@ import PurchaseReceiptList from '@components/group/purchase/PurchaseReceiptList'
 import PurchaseReturnForm from '@components/group/purchase/PurchaseReturnForm';
 import PurchaseReturnList from '@components/group/purchase/PurchaseReturnList';
 
-import Inventory from '@components/group/inventory/Inventory';
-import InventoryDetail from '@components/group/inventory/InventoryDetail';
-import InventorySummary from '@components/group/inventory/InventorySummary';
-import InventoryCostAdjustmentForm from '@components/group/inventory/InventoryCostAdjustmentForm';
-import InventoryCostAdjustmentList from '@components/group/inventory/InventoryCostAdjustmentList';
-import InventoryCountForm from '@components/group/inventory/InventoryCountForm';
-import InventoryCountList from '@components/group/inventory/InventoryCountList';
-import InventoryInboundForm from '@components/group/inventory/InventoryInboundForm';
-import InventoryInboundList from '@components/group/inventory/InventoryInboundList';
-import InventoryOutboundForm from '@components/group/inventory/InventoryOutboundForm';
-import InventoryOutboundList from '@components/group/inventory/InventoryOutboundList';
-import InventoryTransferForm from '@components/group/inventory/InventoryTransferForm';
-import InventoryTransferList from '@components/group/inventory/InventoryTransferList';
+import Stock from '@components/group/stock/Stock';
+import StockDetail from '@components/group/stock/StockDetail';
+import StockSummary from '@components/group/stock/StockSummary';
+import StockCostAdjustmentForm from '@components/group/stock/StockCostAdjustmentForm';
+import StockCostAdjustmentList from '@components/group/stock/StockCostAdjustmentList';
+import StockCountForm from '@components/group/stock/StockCountForm';
+import StockCountList from '@components/group/stock/StockCountList';
+import StockInboundForm from '@components/group/stock/StockInboundForm';
+import StockInboundList from '@components/group/stock/StockInboundList';
+import StockOutboundForm from '@components/group/stock/StockOutboundForm';
+import StockOutboundList from '@components/group/stock/StockOutboundList';
+import StockTransferForm from '@components/group/stock/StockTransferForm';
+import StockTransferList from '@components/group/stock/StockTransferList';
 
 
 const groupRoutes = [
@@ -227,81 +227,81 @@ const groupRoutes = [
 			},
 
 			{
-				path: 'inventory',
-				name: 'Inventory',
-				component: Inventory,
+				path: 'Stock',
+				name: 'Stock',
+				component: Stock,
 				meta: {title: '库存查询', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryDetail',
-				name: 'InventoryDetail',
-				component: InventoryDetail,
+				path: 'StockDetail',
+				name: 'StockDetail',
+				component: StockDetail,
 				meta: {title: '进销存明细表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventorySummary',
-				name: 'InventorySummary',
-				component: InventorySummary,
+				path: 'StockSummary',
+				name: 'StockSummary',
+				component: StockSummary,
 				meta: {title: '进销存汇总表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryCostAdjustmentForm',
-				name: 'InventoryCostAdjustmentForm',
-				component: InventoryCostAdjustmentForm,
+				path: 'StockCostAdjustmentForm',
+				name: 'StockCostAdjustmentForm',
+				component: StockCostAdjustmentForm,
 				meta: {title: '成本调整单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryCostAdjustmentList',
-				name: 'InventoryCostAdjustmentList',
-				component: InventoryCostAdjustmentList,
+				path: 'StockCostAdjustmentList',
+				name: 'StockCostAdjustmentList',
+				component: StockCostAdjustmentList,
 				meta: {title: '成本调整单列表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryCountForm',
-				name: 'InventoryCountForm',
-				component: InventoryCountForm,
+				path: 'StockCountForm',
+				name: 'StockCountForm',
+				component: StockCountForm,
 				meta: {title: '库存盘点单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryCountList',
-				name: 'InventoryCountList',
-				component: InventoryCountList,
+				path: 'StockCountList',
+				name: 'StockCountList',
+				component: StockCountList,
 				meta: {title: '库存盘点单列表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryInboundForm',
-				name: 'InventoryInboundForm',
-				component: InventoryInboundForm,
+				path: 'StockInboundForm',
+				name: 'StockInboundForm',
+				component: StockInboundForm,
 				meta: {title: '其他入库单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryInboundList',
-				name: 'InventoryInboundList',
-				component: InventoryInboundList,
+				path: 'StockInboundList',
+				name: 'StockInboundList',
+				component: StockInboundList,
 				meta: {title: '其他入库单列表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryOutboundForm',
-				name: 'InventoryOutboundForm',
-				component: InventoryOutboundForm,
+				path: 'StockOutboundForm',
+				name: 'StockOutboundForm',
+				component: StockOutboundForm,
 				meta: {title: '其他出库单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'inventoryOutboundList',
-				name: 'InventoryOutboundList',
-				component: InventoryOutboundList,
+				path: 'StockOutboundList',
+				name: 'StockOutboundList',
+				component: StockOutboundList,
 				meta: {title: '其他出库单列表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'InventoryTransferForm',
-				name: 'InventoryTransferForm',
-				component: InventoryTransferForm,
+				path: 'StockTransferForm',
+				name: 'StockTransferForm',
+				component: StockTransferForm,
 				meta: {title: '库存调拨单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'InventoryTransferList',
-				name: 'InventoryTransferList',
-				component: InventoryTransferList,
+				path: 'StockTransferList',
+				name: 'StockTransferList',
+				component: StockTransferList,
 				meta: {title: '库存调拨单列表', icon: 'icon-monitor'}
 			}
 		]
