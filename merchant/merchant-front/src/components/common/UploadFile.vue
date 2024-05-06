@@ -1,6 +1,6 @@
 <script>
 import VueCropper from "vue-cropperjs";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import Compressor from "compressorjs";
 import {Upload} from "@js/api/App";
 

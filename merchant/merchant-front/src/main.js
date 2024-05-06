@@ -3,7 +3,7 @@ import App from './components/App.vue'
 import router from './js/router'
 import store from './js/store'
 import {useTable} from '@common/xe-table'
-import heyui from 'heyui';
+import heyui from 'heyui.ext';
 
 import './style/app.less'
 import 'font-awesome/css/font-awesome.css'

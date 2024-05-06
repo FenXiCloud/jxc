@@ -32,7 +32,7 @@
  */
 import {onMounted, onUnmounted} from 'vue';
 import {mapState} from 'vuex';
-import {loading, confirm, message} from 'heyui';
+import {loading, confirm, message} from 'heyui.ext';
 import { Logout} from "@js/api/App";
 
 export default {

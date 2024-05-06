@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import {loadingBar} from "heyui";
+import {loadingBar} from "heyui.ext";
 
 import Login from '@components/Login';
 import DashboardMain from '@components/group/dashboard/DashboardMain';

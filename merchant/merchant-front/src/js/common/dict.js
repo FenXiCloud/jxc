@@ -9,7 +9,7 @@
  * </ul>
  * <p>****************************************************************************</p>
  */
-import {heyuiConfig} from "heyui";
+import {heyuiConfig} from "heyui.ext";
 
 heyuiConfig.initDict({
   defaultRadios: [{key: true, title: '是'}, {key: false, title: '否'}],

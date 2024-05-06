@@ -23,7 +23,7 @@
 
 <script>
 import Role from "@js/api/Role";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import {mapState} from "vuex";
 import Menu from "@js/api/Menu";
 

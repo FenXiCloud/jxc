@@ -46,7 +46,7 @@
 <script>
 
 import {Login} from "@js/api/App";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 
 export default {
   name: "Login",

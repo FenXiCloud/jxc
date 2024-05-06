@@ -40,7 +40,7 @@
 
 import {mapState} from "vuex"
 import {clone} from "xe-utils"
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import Admin from "@js/api/Admin";
 
 export default {
