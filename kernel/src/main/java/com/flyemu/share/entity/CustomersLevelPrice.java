@@ -34,7 +34,7 @@ public class CustomersLevelPrice implements Serializable {
     private Integer id;
 
     @Comment("商品id")
-    private Integer productsId;
+    private Long productsId;
 
     @Comment("客户分类id")
     private Integer customersLevelId;

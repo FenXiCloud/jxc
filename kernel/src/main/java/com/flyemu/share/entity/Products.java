@@ -1,10 +1,17 @@
 package com.flyemu.share.entity;
 
+import com.flyemu.share.dto.UnitPrice;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.List;
 
 /**
  * @功能描述: 商品管理
@@ -52,5 +59,17 @@ public class Products {
     @Column(nullable = false)
     private Integer merchantId;
 
+    @Comment("商品图片")
+    private String imgPath;
+
+    @Comment("是否启动辅助单位")
+    @JdbcTypeCode(SqlTypes.BOOLEAN)
+    @Column(nullable = false)
+    @ColumnDefault("b'0'")
+    private Boolean enableMultiUnit;
+
+    @Comment("辅助单位")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<UnitPrice> multiUnit;
 
 }

@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @Table
-public class InventoryItem {
+public class StockItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

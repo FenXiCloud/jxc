@@ -24,7 +24,7 @@
         </div>
         <vxe-table row-id="id"
                    :stripe="false"
-                   :tree-config="{transform:true, rowField: 'id', parentField: 'parentId'}"
+                   :tree-config="{transform:true, rowField: 'id', parentField: 'pid'}"
                    ref="table"
                    :data="dataList"
                    highlight-hover-row
@@ -95,7 +95,7 @@ export default {
     download() {
 
     },
-    showForm(goodsCategory, parent) {
+    showForm(productsCategory, parent) {
       let layerId = layer.open({
         title: "分类信息",
         shadeClose: false,

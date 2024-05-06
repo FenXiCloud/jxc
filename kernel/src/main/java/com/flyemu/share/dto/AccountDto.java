@@ -51,7 +51,7 @@ public class AccountDto implements Serializable {
 
     //TODO
     public Integer getOrganizationId() {
-        return 1;
+        return organization.getId();
     }
 
 }

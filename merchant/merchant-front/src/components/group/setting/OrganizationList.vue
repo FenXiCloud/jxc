@@ -31,14 +31,13 @@
                    :loading="loading">
           <vxe-column type="seq" width="60" align="center"/>
           <vxe-column title="编码" field="code" width="100"/>
-          <vxe-column title="名称" field="name" width="150"/>
+          <vxe-column title="名称" field="name" min-width="150"/>
           <vxe-column title="联系人" field="linkman" width="100"/>
-          <vxe-column title="联系人电话" field="phone" width="100"/>
-          <vxe-column title="联系人邮箱" field="email" width="100"/>
+          <vxe-column title="联系人电话" field="phone" width="160"/>
           <vxe-column title="启用日期" field="startDate" width="120" formatter="formatMonth"/>
-          <vxe-column title="地址" field="address"/>
+          <vxe-column title="地址" field="address" min-width="300"/>
           <vxe-column title="创建时间" field="createDate" width="140"/>
-          <vxe-column title="状态" field="enabled" width="80" align="center" fixed="right">
+          <vxe-column title="状态" field="enabled" width="80" align="center" >
             <template #default="{row}">
               <Tag color="green" v-if="row.enabled" @click="trigger(row)" class="cursor-pointer">启用</Tag>
               <Tag color="red" v-else @click="trigger(row)" class="cursor-pointer">禁用</Tag>

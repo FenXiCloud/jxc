@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
+import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.CustomersLevel;
 import com.flyemu.share.service.CustomersLevelService;
@@ -29,6 +30,7 @@ public class CustomersLevelController {
     @GetMapping
     public JsonResult list(@SaAccountVal AccountDto accountDto, CustomersLevelService.Query query) {
         query.setMerchantId(accountDto.getMerchantId());
+        query.setOrganizationId(accountDto.getOrganizationId());
         return JsonResult.successful(customersLevelService.query(query));
     }
 
@@ -38,6 +40,7 @@ public class CustomersLevelController {
     public JsonResult save(@RequestBody @Valid CustomersLevel customersLevel, @SaAccountVal AccountDto accountDto) {
         Assert.isNull(customersLevel.getId(), "新增Id必须为空~");
         customersLevel.setMerchantId(accountDto.getMerchantId());
+        customersLevel.setOrganizationId(accountDto.getOrganizationId());
         customersLevelService.save(customersLevel);
         return JsonResult.successful();
     }
@@ -47,19 +50,20 @@ public class CustomersLevelController {
     public JsonResult update(@RequestBody @Valid CustomersLevel customersLevel, @SaAccountVal AccountDto accountDto) {
         Assert.notNull(customersLevel.getId(), "更新Id不允许为空~");
         customersLevel.setMerchantId(accountDto.getMerchantId());
+        customersLevel.setOrganizationId(accountDto.getOrganizationId());
         customersLevelService.save(customersLevel);
         return JsonResult.successful();
     }
 
 
     @DeleteMapping("/{customersLevelId}")
-    public JsonResult delete(@PathVariable Integer customersLevelId, @SaMerchantId Integer merchantId) {
-        customersLevelService.delete(customersLevelId, merchantId);
+    public JsonResult delete(@PathVariable Integer customersLevelId, @SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+        customersLevelService.delete(customersLevelId, merchantId,organizationId);
         return JsonResult.successful();
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Integer merchantId) {
-        return JsonResult.successful(customersLevelService.select(merchantId));
+    public JsonResult select(@SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+        return JsonResult.successful(customersLevelService.select(merchantId,organizationId));
     }
 }

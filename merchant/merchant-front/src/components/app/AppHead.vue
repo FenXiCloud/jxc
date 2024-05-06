@@ -2,7 +2,7 @@
   <div class="app-header">
     <div class="flex">
       <div class="account">
-        <Select v-model="select1" :datas="param2"></Select>
+        <Select v-model="selectOrgId" :datas="orgs"  @change="changeCurrent"></Select>
       </div>
     </div>
     <div class="flex app-header-info flex items-center" v-if="user.admin">
@@ -34,17 +34,13 @@ import {onMounted, onUnmounted} from 'vue';
 import {mapState} from 'vuex';
 import {loading, confirm, message} from 'heyui.ext';
 import { Logout} from "@js/api/App";
+import organization from "@js/api/Organization";
 
 export default {
   name: "AppHead",
   data() {
     return {
-      select1:'a1',
-      param2: [
-        { title: '纷析云（杭州）科技有限公司', key: 'a1' },
-        { title: '纷析云（株洲）科技有限公司', key: 'a2' },
-        { title: '时逸（苏州）财税咨询有限责任公司', key: 'a3' }
-      ],
+      selectOrgId:null,
       searchText: '',
       infoMenu: [
         {key: 'info', title: '个人信息', icon: 'h-icon-user'},
@@ -53,7 +49,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['user','checkout']),
+    ...mapState(['user','checkout','orgs','org']),
     siderCollapsed: {
       get() {
         return this.$store.state.siderCollapsed;
@@ -85,6 +81,14 @@ export default {
     });
   },
   methods: {
+    changeCurrent(){
+      loading("正在切换，请稍后...");
+      organization.changeCurrent(this.selectOrgId).then(() => {
+        message('切换成功！');
+        localStorage.removeItem("currentTab");
+        window.location.replace("/")
+      });
+    },
     trigger(data) {
       if (data === 'logout') {
         confirm({
@@ -102,6 +106,11 @@ export default {
         this.$router.push({name: 'AccountBasic'});
       }
     },
+  },
+  created() {
+    if (this.orgs) {
+      this.selectOrgId = this.org.key;
+    }
   }
 };
 </script>

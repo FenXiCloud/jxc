@@ -144,9 +144,7 @@ public class AdminService extends AbsService {
 
         Role role = bqf.selectFrom(qRole).where(qRole.id.eq(admin.getRoleId())).fetchFirst();
 
-        //TODO 登录后获取上次选择的组织ID
-        Organization organization = new Organization();
-        organization.setId(1);
+        Organization organization = bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(admin.getMerchantId()).and(qOrganization.current.isTrue())).fetchFirst();
 
         return new AccountDto(admin, merchant, role,organization);
     }

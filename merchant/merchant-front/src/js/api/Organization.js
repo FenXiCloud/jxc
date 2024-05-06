@@ -27,4 +27,7 @@ export default {
 	select(param) {
 		return Ajax.get('/organization/select', param)
 	},
+	changeCurrent(id) {
+		return Ajax.put('/organization/current/'+id)
+	},
 }

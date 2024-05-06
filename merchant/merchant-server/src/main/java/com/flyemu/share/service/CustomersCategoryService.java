@@ -61,17 +61,17 @@ public class CustomersCategoryService extends AbsService {
      * @param customersCategoryId
      */
     @Transactional
-    public void delete(Integer customersCategoryId, Integer merchantId) {
+    public void delete(Integer customersCategoryId, Integer merchantId,Integer organizationId) {
         QCustomers qCustomers = QCustomers.customers;
-        Assert.isFalse(bqf.selectFrom(qCustomers).where(qCustomers.merchantId.eq(merchantId).and(qCustomers.customersCategoryId.eq(customersCategoryId))).fetchCount() > 0, "已被客户使用，不能删除");
+        Assert.isFalse(bqf.selectFrom(qCustomers).where(qCustomers.merchantId.eq(merchantId).and(qCustomers.customersCategoryId.eq(customersCategoryId)).and(qCustomers.organizationId.eq(organizationId))).fetchCount() > 0, "已被客户使用，不能删除");
 
         jqf.delete(qCustomersCategory)
-                .where(qCustomersCategory.id.eq(customersCategoryId).and(qCustomersCategory.merchantId.eq(merchantId)))
+                .where(qCustomersCategory.id.eq(customersCategoryId).and(qCustomersCategory.merchantId.eq(merchantId)).and(qCustomersCategory.organizationId.eq(organizationId)))
                 .execute();
     }
 
-    public List<CustomersCategory> select(Integer merchantId) {
-        return bqf.selectFrom(qCustomersCategory).where(qCustomersCategory.merchantId.eq(merchantId)).fetch();
+    public List<CustomersCategory> select(Integer merchantId, Integer organizationId) {
+        return bqf.selectFrom(qCustomersCategory).where(qCustomersCategory.merchantId.eq(merchantId).and(qCustomersCategory.organizationId.eq(organizationId))).fetch();
     }
 
 
@@ -81,6 +81,12 @@ public class CustomersCategoryService extends AbsService {
         public void setMerchantId(Integer merchantId) {
             if (merchantId != null) {
                 builder.and(qCustomersCategory.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Integer organizationId) {
+            if (organizationId != null) {
+                builder.and(qCustomersCategory.organizationId.eq(organizationId));
             }
         }
     }

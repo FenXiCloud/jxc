@@ -31,7 +31,7 @@ public class OrderDetail {
     private Integer orderId;
 
     @Comment("产品ID")
-    private Integer productsId;
+    private Long productsId;
 
     @Comment("单据日期")
     private LocalDate billDate;

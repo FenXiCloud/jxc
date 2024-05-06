@@ -67,18 +67,14 @@ public class UnitsService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer unitsId, Integer merchantId) {
-        Map<String, Object> params = new LinkedHashMap<>();
-        params.put("merchantId", merchantId);
-        params.put("unitsId", unitsId);
-        params.put("unitsStr", "{\"unitsId\": " + unitsId + "}");
+    public void delete(Integer unitsId, Integer merchantId, Integer organizationId) {
         jqf.delete(qUnits)
-                .where(qUnits.id.eq(unitsId).and(qUnits.merchantId.eq(merchantId)))
+                .where(qUnits.id.eq(unitsId).and(qUnits.merchantId.eq(merchantId)).and(qUnits.organizationId.eq(organizationId)))
                 .execute();
     }
 
-    public List<Units> select(Integer merchantId) {
-        return bqf.selectFrom(qUnits).where(qUnits.merchantId.eq(merchantId)).fetch();
+    public List<Units> select(Integer merchantId, Integer organizationId) {
+        return bqf.selectFrom(qUnits).where(qUnits.merchantId.eq(merchantId).and(qUnits.organizationId.eq(organizationId))).fetch();
     }
 
 
@@ -88,6 +84,12 @@ public class UnitsService extends AbsService {
         public void setMerchantId(Integer merchantId) {
             if (merchantId != null) {
                 builder.and(qUnits.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Integer organizationId) {
+            if (organizationId != null) {
+                builder.and(qUnits.organizationId.eq(organizationId));
             }
         }
     }

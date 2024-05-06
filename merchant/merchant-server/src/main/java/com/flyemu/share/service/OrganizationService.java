@@ -3,6 +3,7 @@ package com.flyemu.share.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.controller.Page;
@@ -55,6 +56,36 @@ public class OrganizationService extends AbsService {
         });
 
         return new PageResults<>(dtos, page, fetchPage.getTotalSize());
+    }
+
+
+    /**
+     *  init 加载组织列表
+     * @param merchantId
+     * @return
+     */
+    public List<Dict> loadOrg(Integer merchantId) {
+        List<Dict> dictList = new ArrayList<>();
+         bqf.selectFrom(qOrganization).select(qOrganization.id,qOrganization.name,qOrganization.current).where(qOrganization.merchantId.eq(merchantId))
+                .orderBy(qOrganization.id.desc()).fetch().forEach(tuple->{
+                    Dict dict = new Dict().set("key",tuple.get(qOrganization.id))
+                            .set("title",tuple.get(qOrganization.name))
+                            .set("current",tuple.get(qOrganization.current));
+                    dictList.add(dict);
+                 });
+        return dictList;
+    }
+
+    @Transactional
+    public Organization changeOrgCurrent(Integer merchantId, Integer orgId) {
+        jqf.update(qOrganization)
+                .set(qOrganization.current,false)
+                .where(qOrganization.merchantId.eq(merchantId)).execute();
+        jqf.update(qOrganization)
+                .set(qOrganization.current,true)
+                .where(qOrganization.merchantId.eq(merchantId).and(qOrganization.id.eq(orgId))).execute();
+
+        return bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(merchantId).and(qOrganization.id.eq(orgId))).fetchFirst();
     }
 
 

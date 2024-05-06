@@ -2,6 +2,7 @@ package com.flyemu.share.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.flyemu.share.annotation.SaMerchantId;
+import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.entity.Products;
 import com.flyemu.share.service.ProductsService;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +26,15 @@ public class ProductsController {
     private final ProductsService productsService;
 
     @GetMapping
-    public JsonResult list(@SaMerchantId Integer merchantId, Page page, ProductsService.Query query) {
+    public JsonResult list( Page page, ProductsService.Query query,@SaMerchantId Integer merchantId,@SaOrganizationId Integer organizationId) {
         query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
         return JsonResult.successful(productsService.query(page, query));
     }
 
     @PostMapping
-    public JsonResult save(@RequestBody Products products, @SaMerchantId Integer merchantId) {
-        productsService.save(products, merchantId);
+    public JsonResult save(@RequestBody Products products, @SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+//        productsService.save(products, merchantId);
         return JsonResult.successful();
     }
 

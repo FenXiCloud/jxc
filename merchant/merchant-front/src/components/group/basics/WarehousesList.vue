@@ -83,14 +83,14 @@ export default {
     }
   },
   methods: {
-    showForm(warehouse) {
+    showForm(warehouse = null) {
       let layerId = layer.open({
         title: "仓库信息",
         shadeClose: false,
         closeBtn: false,
         area: ['400px', '350px'],
         content: h(WarehousesForm, {
-          warehouses,
+          warehouse,
           onClose: () => {
             layer.close(layerId);
           },

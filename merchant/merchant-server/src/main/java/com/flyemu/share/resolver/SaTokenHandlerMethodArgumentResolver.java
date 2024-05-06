@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaAdminId;
 import com.flyemu.share.annotation.SaMerchantId;
+import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.dto.AccountDto;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,8 @@ public class SaTokenHandlerMethodArgumentResolver implements SaHandlerMethodArgu
     public boolean supportsParameter(MethodParameter parameter) {
         return ((parameter.getParameterType().isAssignableFrom(AccountDto.class)) && parameter.hasParameterAnnotation(SaAccountVal.class))
                 || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaMerchantId.class))
-                || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaAdminId.class));
+                || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaAdminId.class))
+                || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaOrganizationId.class));
     }
 
 
@@ -50,6 +52,10 @@ public class SaTokenHandlerMethodArgumentResolver implements SaHandlerMethodArgu
 
         if (parameter.hasParameterAnnotation(SaAdminId.class)) {
             return accountDto.getAdminId();
+        }
+
+        if (parameter.hasParameterAnnotation(SaOrganizationId.class)) {
+            return accountDto.getOrganizationId();
         }
 
         return null;

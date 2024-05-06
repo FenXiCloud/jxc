@@ -35,6 +35,8 @@ public class OrganizationDto {
 
     private Boolean enabled;
 
+    private Boolean current;
+
     private Integer areaId;
 
     private String areaName;

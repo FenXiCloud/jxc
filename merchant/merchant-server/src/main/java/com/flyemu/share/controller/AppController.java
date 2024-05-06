@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.StrUtil;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaAdminId;
@@ -41,6 +42,7 @@ public class AppController {
 
     private final AdminService adminService;
 
+    private final OrganizationService orgService;
 
     @GetMapping("/")
     public JsonResult index() {
@@ -53,9 +55,12 @@ public class AppController {
             //获取菜单数据
             List<MenuDto> menus = adminService.loadMenu(accountDto.getMerchantId(), accountDto.getRole());
 
+            List<Dict> orgs = orgService.loadOrg(accountDto.getMerchantId());
+
             return JsonResult.successful()
                     .data("account", accountDto)
-                    .data("menus", menus);
+                    .data("menus", menus)
+                    .data("orgs", orgs);
         }
         return JsonResult.failure();
     }

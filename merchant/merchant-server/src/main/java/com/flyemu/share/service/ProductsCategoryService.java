@@ -75,17 +75,17 @@ public class ProductsCategoryService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer merchantId, Integer productsCategoryId) {
+    public void delete(Integer merchantId, Integer productsCategoryId,Integer organizationId) {
         ProductsCategory productsCategory = productsCategoryRepository.getReferenceById(productsCategoryId);
 
         List<Integer> ids = bqf.selectFrom(qProductsCategory)
                 .select(qProductsCategory.id)
-                .where(qProductsCategory.merchantId.eq(merchantId)).fetch();
+                .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId))).fetch();
 
         QProducts qProducts = QProducts.products;
 
         jqf.delete(qProductsCategory)
-                .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.id.in(ids)))
+                .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId)).and(qProductsCategory.id.in(ids)))
                 .execute();
     }
 
@@ -101,15 +101,15 @@ public class ProductsCategoryService extends AbsService {
                 .fetchFirst();
     }
 
-    public List<ProductsCategory> listAll(Integer merchantId) {
+    public List<ProductsCategory> listAll(Integer merchantId,Integer organizationId) {
         return bqf.selectFrom(qProductsCategory)
-                .where(qProductsCategory.merchantId.eq(merchantId))
+                .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId)))
                 .orderBy(qProductsCategory.sort.desc(), qProductsCategory.id.asc())
                 .fetch();
     }
 
-    public List<ProductsCategory> select(Integer merchantId) {
-        return bqf.selectFrom(qProductsCategory).where(qProductsCategory.merchantId.eq(merchantId)).orderBy(qProductsCategory.sort.desc()).fetch();
+    public List<ProductsCategory> select(Integer merchantId,Integer organizationId) {
+        return bqf.selectFrom(qProductsCategory).where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId))).orderBy(qProductsCategory.sort.desc()).fetch();
     }
 
 
@@ -129,6 +129,12 @@ public class ProductsCategoryService extends AbsService {
         public void setMerchantId(Integer merchantId) {
             if (merchantId != null) {
                 builder.and(qProductsCategory.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Integer organizationId) {
+            if (organizationId != null) {
+                builder.and(qProductsCategory.organizationId.eq(organizationId));
             }
         }
     }

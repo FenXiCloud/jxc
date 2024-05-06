@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 /**
  * @功能描述: 库存表-存储每个产品的库存总量和加权平均成本。
@@ -21,7 +20,7 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor
 @Table
-public class Inventory {
+public class Stock {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

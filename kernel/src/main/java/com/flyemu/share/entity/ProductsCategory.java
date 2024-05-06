@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicUpdate;
 
 /**
@@ -35,8 +36,16 @@ public class ProductsCategory {
 
     private Integer sort;
 
+    @Comment("查询路径")
+    private String path;
+
+    @Comment("分类图片")
+    private String imgPath;
+
+    @Column( nullable = false)
     private Integer organizationId;
 
+    @Column( nullable = false)
     private Integer merchantId;
 
 }

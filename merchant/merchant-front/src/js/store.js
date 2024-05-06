@@ -7,12 +7,18 @@ export default createStore({
     siderCollapsed: false,
     user: {},
     menus: [],
+    orgs: [],
+    org: {},
     granted: [],
     currentTab:  'DashboardMain',
   },
   mutations: {
     updateMenus(state, data) {
       state.menus = data;
+    },
+    updateOrgs(state, {orgs}) {
+      state.orgs = orgs;
+      state.org = orgs.find(val=>val.current===true)
     },
     updateAccount(state, { account}) {
       state.user = account;
@@ -34,6 +40,7 @@ export default createStore({
         Init().then(({success, data}) => {
           if (success) {
             commit('updateAccount', data);
+            commit('updateOrgs', data);
             commit('updateMenus', toArrayTree(data.menus, {strict: true}));
             resolve(data.account);
           } else {

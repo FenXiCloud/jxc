@@ -1,7 +1,11 @@
 package com.flyemu.share.controller;
 
+import cn.dev33.satoken.session.SaSession;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaMerchantId;
+import com.flyemu.share.common.Constants;
+import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.dto.OrganizationDto;
 import com.flyemu.share.entity.Organization;
 import com.flyemu.share.service.OrganizationService;
@@ -46,6 +50,7 @@ public class OrganizationController {
     @PostMapping
     public JsonResult save(@RequestBody @Valid OrganizationDto organization, @SaMerchantId Integer merchantId) {
         Assert.isNull(organization.getId(), "新增组织Id必须为空~");
+        organization.setCurrent(false);
         organization.setMerchantId(merchantId);
         organization.setEnabled(true);
         organizationService.save(organization);
@@ -62,6 +67,22 @@ public class OrganizationController {
     public JsonResult update(@RequestBody @Valid Organization organization) {
         Assert.notNull(organization.getId(), "更新组织Id不允许为空~");
         organizationService.update(organization);
+        return JsonResult.successful();
+    }
+
+    /**
+     * 修改默认组织
+     * @param merchantId
+     * @param orgId
+     * @return
+     */
+    @PutMapping("/current/{orgId}")
+    public  JsonResult changeCurrent(@SaMerchantId Integer merchantId,@PathVariable Integer orgId){
+        Organization organization = organizationService.changeOrgCurrent(merchantId,orgId);
+        AccountDto accountDto = (AccountDto) StpUtil.getTokenSession().get(Constants.SESSION_ACCOUNT);
+        accountDto.setOrganization(organization);
+        SaSession session = StpUtil.getTokenSession();
+        session.set(Constants.SESSION_ACCOUNT, accountDto);
         return JsonResult.successful();
     }
 

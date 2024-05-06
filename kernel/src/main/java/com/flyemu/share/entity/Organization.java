@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
@@ -64,11 +66,20 @@ public class Organization implements Serializable {
     @Column(updatable = false)
     private LocalDateTime createDate;
 
+
+    @CreationTimestamp
+    private LocalDate startDate;
+
     private Boolean enabled;
 
     @Column(nullable = false)
     private Integer merchantId;
 
+
+    @Comment("是否是当前组织")
+    @ColumnDefault("b'0'")
+    @Column(nullable = false)
+    private Boolean current;
 
 
     public enum OrgType {

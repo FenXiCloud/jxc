@@ -28,12 +28,12 @@
                  :loading="loading">
         <vxe-column type="seq" width="60" title="#"/>
         <vxe-column title="名称" field="name"/>
-        <vxe-column title="是否默认" field="systemDefault" width="100">
-          <template #default="{row}">
-            <Tag color="green" v-if="row.systemDefault">是</Tag>
-            <Tag color="gray" v-else >否</Tag>
-          </template>
-        </vxe-column>
+<!--        <vxe-column title="是否默认" field="systemDefault" width="100">-->
+<!--          <template #default="{row}">-->
+<!--            <Tag color="green" v-if="row.systemDefault">是</Tag>-->
+<!--            <Tag color="gray" v-else >否</Tag>-->
+<!--          </template>-->
+<!--        </vxe-column>-->
         <vxe-column title="操作" align="center" width="200">
           <template #default="{row}">
             <i class="primary-color h-icon-edit ml-10px" @click="showForm(row)"></i>
