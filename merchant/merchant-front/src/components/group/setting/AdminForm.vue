@@ -39,7 +39,7 @@
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
  */
 import Admin from "@js/api/Admin";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
 import Role from "@js/api/Role";
 

@@ -9,7 +9,7 @@
  * </ul>
  * <p>****************************************************************************</p>
  */
-const vars = require('heyui/themes/var.js');
+const vars = require('heyui.ext/themes/var.js');
 Object.assign(vars, {
 	'primary-color': '#3d74ff',
 	'link-color': '#3d74ff',

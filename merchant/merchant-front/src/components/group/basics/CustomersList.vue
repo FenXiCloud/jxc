@@ -38,7 +38,7 @@
 <script>
 import CustomersForm from "./CustomersForm.vue";
 import Customers from "@js/api/Customers";
-import {confirm, message} from "heyui";
+import {confirm, message} from "heyui.ext";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
 

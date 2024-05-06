@@ -49,7 +49,7 @@
 import Role from "@js/api/Role";
 import RoleForm from "./RoleForm.vue";
 import GrantMenu from "./GrantMenu.vue";
-import {confirm, message} from "heyui";
+import {confirm, message} from "heyui.ext";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
 

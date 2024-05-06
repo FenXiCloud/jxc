@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {loadingBar, message} from 'heyui';
+import {loadingBar, message} from 'heyui.ext';
 
 axios.defaults.headers.common = {
 	'X-Requested-With': 'XMLHttpRequest',

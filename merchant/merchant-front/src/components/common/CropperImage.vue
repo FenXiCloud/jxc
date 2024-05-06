@@ -23,7 +23,7 @@
 
 import VueCropper from 'vue-cropperjs';
 import 'cropperjs/dist/cropper.css';
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import {OssUpload, Upload} from "@js/api/App";
 import Compressor from 'compressorjs';
 //https://img-home.csdnimg.cn/images/20201124032511.png

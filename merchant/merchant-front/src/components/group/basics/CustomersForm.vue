@@ -27,7 +27,7 @@
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
  */
 import Customers from "@js/api/Customers";
-import {message} from "heyui";
+import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
 
 export default {
