@@ -36,7 +36,7 @@ public class Admin implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -65,12 +65,12 @@ public class Admin implements Serializable {
     @Comment("最后登录时间")
     private LocalDateTime lastLoginDate;
 
-    private Integer roleId;
+    private Long roleId;
 
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
-    public Admin(Integer id) {
+    public Admin(Long id) {
         this.id = id;
     }
 

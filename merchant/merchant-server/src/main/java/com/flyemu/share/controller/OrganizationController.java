@@ -31,13 +31,13 @@ public class OrganizationController {
      * @return
      */
     @GetMapping
-    public JsonResult list(Page page, @SaMerchantId Integer merchantId, OrganizationService.Query query) {
+    public JsonResult list(Page page, @SaMerchantId Long merchantId, OrganizationService.Query query) {
         query.setMerchantId(merchantId);
         return JsonResult.successful(organizationService.query(page, query));
     }
 
     @GetMapping("all")
-    public JsonResult listAll(@SaMerchantId Integer merchantId) {
+    public JsonResult listAll(@SaMerchantId Long merchantId) {
         return JsonResult.successful(organizationService.listAll(merchantId));
     }
 
@@ -48,7 +48,7 @@ public class OrganizationController {
      * @return
      */
     @PostMapping
-    public JsonResult save(@RequestBody @Valid OrganizationDto organization, @SaMerchantId Integer merchantId) {
+    public JsonResult save(@RequestBody @Valid OrganizationDto organization, @SaMerchantId Long merchantId) {
         Assert.isNull(organization.getId(), "新增组织Id必须为空~");
         organization.setCurrent(false);
         organization.setMerchantId(merchantId);
@@ -77,7 +77,7 @@ public class OrganizationController {
      * @return
      */
     @PutMapping("/current/{orgId}")
-    public  JsonResult changeCurrent(@SaMerchantId Integer merchantId,@PathVariable Integer orgId){
+    public  JsonResult changeCurrent(@SaMerchantId Long merchantId,@PathVariable Long orgId){
         Organization organization = organizationService.changeOrgCurrent(merchantId,orgId);
         AccountDto accountDto = (AccountDto) StpUtil.getTokenSession().get(Constants.SESSION_ACCOUNT);
         accountDto.setOrganization(organization);
@@ -93,13 +93,13 @@ public class OrganizationController {
      * @return
      */
     @DeleteMapping("/{organizationId}")
-    public JsonResult delete(@PathVariable Integer organizationId, Integer merchantId) {
+    public JsonResult delete(@PathVariable Long organizationId, Long merchantId) {
         organizationService.delete(merchantId, organizationId);
         return JsonResult.successful();
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Integer merchantId) {
+    public JsonResult select(@SaMerchantId Long merchantId) {
         return JsonResult.successful(organizationService.select(merchantId));
     }
 }

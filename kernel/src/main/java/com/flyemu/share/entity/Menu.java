@@ -25,7 +25,7 @@ public class Menu implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Comment("组件")
     private String component;
@@ -40,7 +40,7 @@ public class Menu implements Serializable {
     private Boolean requireAuth;
 
     @Comment("父id")
-    private Integer parentId;
+    private Long parentId;
 
     @Comment("是否启用")
     private Boolean enabled;

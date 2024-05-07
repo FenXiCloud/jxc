@@ -28,7 +28,7 @@ public class OrderDetail {
     private Long id;
 
     @Comment("订单主表ID")
-    private Integer orderId;
+    private Long orderId;
 
     @Comment("产品ID")
     private Long productsId;
@@ -52,7 +52,10 @@ public class OrderDetail {
     private BigDecimal discountAmount;
 
     @Comment("基本单位ID")
-    private Integer unitId;
+    private Long unitId;
+
+    @Comment("基本单位")
+    private String unitName;
 
     @Comment("批次号")
     private String batchDate;
@@ -62,11 +65,11 @@ public class OrderDetail {
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 
 

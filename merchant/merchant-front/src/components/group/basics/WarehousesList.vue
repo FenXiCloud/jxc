@@ -4,8 +4,7 @@
       <div class="h-panel-body">
         <div class="table-toolbar">
           <Row :space-x="10">
-            <Cell width="20" class="flex items-center">
-              <label for="name" class="mr-10px">仓库名称:</label>
+            <Cell width="30" class="flex items-center">
               <Input id="name" v-model="params.name" class="flex-1" placeholder="请输入仓库名称"/>
               <Button color="primary" icon="fa fa-search" :loading="loading" @click="doSearch">查询</Button>
             </Cell>
@@ -19,15 +18,15 @@
                    show-overflow
                    :loading="loading">
           <vxe-column type="seq" width="60" align="center"/>
-          <vxe-column title="仓库编码" field="code"/>
+          <vxe-column title="仓库编码" field="code" width="200"/>
           <vxe-column title="仓库名称" field="name"/>
           <vxe-column title="仓库地址" field="address"/>
-          <vxe-column title="是否默认" field="isDefault" width="80">
-            <template #default="{row:{setMeal}}">
-              <Tag color="primary" v-if="setMeal">是</Tag>
-              <Tag color="yellow" v-else>否</Tag>
-            </template>
-          </vxe-column>
+<!--          <vxe-column title="是否默认" field="isDefault" width="80">-->
+<!--            <template #default="{row:{setMeal}}">-->
+<!--              <Tag color="primary" v-if="setMeal">是</Tag>-->
+<!--              <Tag color="yellow" v-else>否</Tag>-->
+<!--            </template>-->
+<!--          </vxe-column>-->
           <vxe-column title="状态" field="enabled" width="80">
             <template #default="{row:{enabled}}">
               <Tag color="green" v-if="enabled">启用</Tag>
@@ -88,7 +87,7 @@ export default {
         title: "仓库信息",
         shadeClose: false,
         closeBtn: false,
-        area: ['400px', '350px'],
+        area: ['500px', '400px'],
         content: h(WarehousesForm, {
           warehouse,
           onClose: () => {

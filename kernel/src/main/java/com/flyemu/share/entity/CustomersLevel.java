@@ -22,17 +22,17 @@ public class CustomersLevel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 32, nullable = false)
     private String name;
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 }

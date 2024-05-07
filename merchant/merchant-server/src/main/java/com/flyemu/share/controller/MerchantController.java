@@ -66,7 +66,7 @@ public class MerchantController {
      * @return
      */
     @DeleteMapping("/{merchantId}")
-    public JsonResult delete(@PathVariable Integer merchantId) {
+    public JsonResult delete(@PathVariable Long merchantId) {
         merchantService.delete(merchantId);
         return JsonResult.successful();
     }

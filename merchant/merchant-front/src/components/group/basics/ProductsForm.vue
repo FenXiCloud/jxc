@@ -25,11 +25,11 @@
               <FormItem label="商品分类" required prop="categoryId">
                 <CategoryPicker :option="categoryOption" type="key" filterable v-model="model.categoryId"></CategoryPicker>
               </FormItem>
-              <FormItem label="规格" required prop="spec">
-                <Input placeholder="请输入规格" v-model="model.spec" maxlength="120"/>
+              <FormItem label="规格" required prop="specification">
+                <Input placeholder="请输入规格" v-model="model.specification" maxlength="120"/>
               </FormItem>
-              <FormItem label="是否启用" prop="enable">
-                <Radio v-model="model.enable" dict="statusRadios"/>
+              <FormItem label="是否启用" prop="enabled">
+                <Radio v-model="model.enabled" dict="statusRadios"/>
               </FormItem>
               <FormItem label="排序号" required prop="sort">
                 <Input placeholder="请输入排序号" v-model="model.sort"/>
@@ -92,14 +92,15 @@
             </vxe-table>
           </div>
         </div>
-      </div></div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 /**
  * @功能描述: 商品FORM
- * @创建时间: 2023年08月08日
+ * @创建时间: 2024年05月06日
  * @公司官网: www.fenxi365.com
  * @公司信息: 纷析云（杭州）科技有限公司
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
@@ -124,13 +125,10 @@ export default {
         keyName: 'id',
         titleName: 'name',
         dataMode: 'list',
-        parentName: 'parentId',
+        parentName: 'pid',
         datas: []
       },
       unitList: [],
-      supplierList: [],
-      brandList: [],
-      tagList: [],
       customLevel: [],
       customLevelPriceList: [],
       model: {
@@ -139,21 +137,13 @@ export default {
         name: null,
         categoryId: null,
         imgPath: null,
-        goodsType: 'GOODS',
         unitId: null,
-        orderUnitId: null,
-        orderNum: 1,
-        supplierId: null,
         enableMultiUnit: false,
         multiUnit: [],
-        spec: null,
+        specification: null,
         sort: 0,
         remarks: null,
-        brandId: null,
-        tagIds: [],
-        auxiliarys: [],
-        enable: true,
-        isTemporary: false,
+        enabled: true,
       },
       validationRules: {}
     }
@@ -277,10 +267,7 @@ export default {
     },
     confirm() {
       this.loading = true;
-      if (this.model.auxiliarys) {
-        this.model.auxiliarys = this.model.auxiliarys.filter(val => val.title && val.value);
-      }
-      Products.save({goods: this.model, levelPriceList: this.customLevelPriceList}).then(() => {
+      Products.save({products: this.model, levelPriceList: this.customLevelPriceList}).then(() => {
         message("保存成功~");
         this.$emit('success');
       }).finally(() => this.loading = false);
@@ -312,7 +299,7 @@ export default {
       this.categoryOption.datas = categoryOptionList;
       this.unitList = results[1].data;
       if (this.entity) {
-        Goods.levelPrice(this.entity.id).then(({data}) => {
+        Products.levelPrice(this.entity.id).then(({data}) => {
           let levelPrice = data;
           if (results[2].data) {
             let customLevelPriceList = [];
@@ -331,6 +318,7 @@ export default {
               }
               customLevelPriceList.push(cp);
             })
+            console.log(customLevelPriceList)
             this.customLevelPriceList = customLevelPriceList;
           }
         })
@@ -349,9 +337,6 @@ export default {
 
     if (this.entity) {
       CopyObj(this.model, this.entity);
-      if (!this.model.auxiliarys) {
-        this.model.auxiliarys = [];
-      }
       if (this.model.enableMultiUnit) {
         if (this.model.multiUnit && this.model.multiUnit.length > 0 && this.model.multiUnit.length < 3) {
           let multiUnit = []

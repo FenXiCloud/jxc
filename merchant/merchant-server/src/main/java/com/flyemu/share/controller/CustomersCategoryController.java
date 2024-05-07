@@ -56,13 +56,13 @@ public class CustomersCategoryController {
     }
 
     @DeleteMapping("/{customersCategoryId}")
-    public JsonResult delete(@PathVariable Integer customersCategoryId, @SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+    public JsonResult delete(@PathVariable Long customersCategoryId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         customersCategoryService.delete(customersCategoryId, merchantId,organizationId);
         return JsonResult.successful();
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+    public JsonResult select(@SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         return JsonResult.successful(customersCategoryService.select(merchantId,organizationId));
     }
 }

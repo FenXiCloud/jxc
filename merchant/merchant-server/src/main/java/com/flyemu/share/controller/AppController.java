@@ -94,13 +94,13 @@ public class AppController {
 
     @GetMapping("/logout")
     @SaCheckLogin
-    public JsonResult logout(@SaAdminId Integer adminId) {
+    public JsonResult logout(@SaAdminId Long adminId) {
         StpUtil.logout(adminId, "pc");
         return JsonResult.successful();
     }
 
     @GetMapping("/py")
-    public JsonResult loadPY(@SaAdminId Integer adminId,String name) {
+    public JsonResult loadPY(@SaAdminId Long adminId,String name) {
         if (StrUtil.isNotEmpty(name)){
             return JsonResult.successful( PinYinUtil.getFirstLettersUp(name));
         }

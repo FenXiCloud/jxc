@@ -2,6 +2,9 @@
   <div class="modal-column">
     <div class="modal-column-full-body">
       <Form ref="form" :model="model" :rules="validationRules" mode="block">
+        <FormItem label="编码" required prop="code">
+          <Input placeholder="请输入分类编码" :disabled="model.id" v-model="model.code"/>
+        </FormItem>
         <FormItem label="名称" required prop="name">
           <Input placeholder="请输入名称" v-model="model.name"/>
         </FormItem>
@@ -35,6 +38,7 @@ export default {
       model: {
         id: null,
         name: null,
+        code: null,
       },
       validationRules: {}
     }

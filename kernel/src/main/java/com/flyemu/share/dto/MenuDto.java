@@ -16,6 +16,6 @@ public class MenuDto {
     private String key;
     private String icon;
     private String group;
-    private Integer id;
-    private Integer parentId;
+    private Long id;
+    private Long parentId;
 }

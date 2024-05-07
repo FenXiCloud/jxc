@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UnitPrice {
-    private Integer unitId;
+    private Long unitId;
     private String unitName;
     private Boolean isDefault = false;
     private Double num = 1d; //换算值
     private Double price = 0d;
 
-    public UnitPrice(Integer unitId, String unitName, Boolean isDefault, Double num, Double price) {
+    public UnitPrice(Long unitId, String unitName, Boolean isDefault, Double num, Double price) {
         this.unitId = unitId;
         this.unitName = unitName;
         this.isDefault = isDefault;

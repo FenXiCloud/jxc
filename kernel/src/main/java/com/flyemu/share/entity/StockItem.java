@@ -31,7 +31,7 @@ public class StockItem {
     private String code;
 
     @Comment("产品ID")
-    private Integer productsId;
+    private Long productsId;
 
     @Comment("单据日期")
     private LocalDate billDate;
@@ -56,11 +56,11 @@ public class StockItem {
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
     public enum InventoryType {
         采购入库,采购退货,销售出库,销售退货,盘盈,盘亏,其他出库,其他入库,调拨

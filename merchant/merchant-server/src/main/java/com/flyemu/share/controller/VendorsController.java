@@ -38,6 +38,7 @@ public class VendorsController {
     public JsonResult save(@RequestBody @Valid Vendors vendors, @SaAccountVal AccountDto accountDto) {
         Assert.isNull(vendors.getId(), "新增Id必须为空~");
         vendors.setMerchantId(accountDto.getMerchantId());
+        vendors.setOrganizationId(accountDto.getOrganizationId());
         vendorsService.save(vendors);
         return JsonResult.successful();
     }
@@ -47,19 +48,20 @@ public class VendorsController {
     public JsonResult update(@RequestBody @Valid Vendors vendors, @SaAccountVal AccountDto accountDto) {
         Assert.notNull(vendors.getId(), "更新Id不允许为空~");
         vendors.setMerchantId(accountDto.getMerchantId());
+        vendors.setOrganizationId(accountDto.getOrganizationId());
         vendorsService.save(vendors);
         return JsonResult.successful();
     }
 
 
     @DeleteMapping("/{vendorsId}")
-    public JsonResult delete(@PathVariable Integer vendorsId, @SaMerchantId Integer merchantId) {
+    public JsonResult delete(@PathVariable Long vendorsId, @SaMerchantId Long merchantId) {
         vendorsService.delete(vendorsId, merchantId);
         return JsonResult.successful();
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Integer merchantId) {
+    public JsonResult select(@SaMerchantId Long merchantId) {
         return JsonResult.successful(vendorsService.select(merchantId));
     }
 }

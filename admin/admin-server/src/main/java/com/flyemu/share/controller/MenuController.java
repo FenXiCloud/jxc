@@ -45,7 +45,7 @@ public class MenuController {
 
 
     @DeleteMapping("/{menuId}")
-    public JsonResult delete(@PathVariable Integer menuId) {
+    public JsonResult delete(@PathVariable Long menuId) {
         menuService.delete(menuId);
         return JsonResult.successful();
     }
@@ -59,13 +59,13 @@ public class MenuController {
 
 
     @GetMapping("/query/grant/{merchantId}")
-    public JsonResult queryGrantMenu(@PathVariable Integer merchantId) {
+    public JsonResult queryGrantMenu(@PathVariable Long merchantId) {
         return JsonResult.successful(menuService.queryGrantMenu(merchantId));
     }
 
 
     @GetMapping("/query/merchant/{merchantId}")
-    public JsonResult merchantMenu(@PathVariable Integer merchantId) {
+    public JsonResult merchantMenu(@PathVariable Long merchantId) {
         return JsonResult.successful(menuService.queryMerchantMenu(merchantId));
     }
 }

@@ -1,6 +1,10 @@
 package com.flyemu.share.controller;
 
 import cn.hutool.core.lang.Assert;
+import com.flyemu.share.annotation.SaAccountVal;
+import com.flyemu.share.annotation.SaMerchantId;
+import com.flyemu.share.annotation.SaOrganizationId;
+import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.Customers;
 import com.flyemu.share.entity.Merchant;
 import com.flyemu.share.service.CustomersService;
@@ -30,8 +34,10 @@ public class CustomersController {
      * @return
      */
     @GetMapping
-    public JsonResult list(Page page) {
-        return JsonResult.successful(customersService.query(page));
+    public JsonResult list(Page page,CustomersService.Query query, @SaOrganizationId Long organizationId, @SaMerchantId Long merchantId) {
+        query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
+        return JsonResult.successful(customersService.query(page,query));
     }
 
     /**
@@ -41,9 +47,11 @@ public class CustomersController {
      * @return
      */
     @PostMapping
-    public JsonResult save(@RequestBody @Valid Customers customers) {
+    public JsonResult save(@RequestBody @Valid Customers customers, @SaOrganizationId Long organizationId, @SaMerchantId Long merchantId, @SaAccountVal AccountDto accountDto) {
         Assert.isNull(customers.getId(), "新增商户Id必须为空~");
-        customersService.save(customers);
+        customers.setMerchantId(merchantId);
+        customers.setOrganizationId(organizationId);
+        customersService.save(customers,accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
 
@@ -54,9 +62,9 @@ public class CustomersController {
      * @return
      */
     @PutMapping
-    public JsonResult update(@RequestBody @Valid Customers customers) {
+    public JsonResult update(@RequestBody @Valid Customers customers, @SaAccountVal AccountDto accountDto) {
         Assert.notNull(customers.getId(), "更新商户Id不允许为空~");
-        customersService.save(customers);
+        customersService.save(customers,accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
 
@@ -67,8 +75,8 @@ public class CustomersController {
      * @return
      */
     @DeleteMapping("/{customersId}")
-    public JsonResult delete(@PathVariable Integer customersId) {
-        customersService.delete(customersId);
+    public JsonResult delete(@PathVariable Long customersId, @SaOrganizationId Long organizationId, @SaMerchantId Long merchantId) {
+        customersService.delete(customersId,merchantId,organizationId);
         return JsonResult.successful();
     }
 

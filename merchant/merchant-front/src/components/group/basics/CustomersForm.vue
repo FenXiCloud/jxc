@@ -1,9 +1,25 @@
 <template>
   <div class="modal-column">
     <div class="modal-column-full-body">
-      <Form ref="form" :model="model" :rules="validationRules">
-        <FormItem label="客户名称" required prop="name">
+      <Form ref="form" :model="model" :rules="validationRules" mode="twocolumn" :label-width="110">
+        <FormItem label="客户编码" prop="code" single>
+          <Input placeholder="编码（不填写系统自动生成）" v-model="model.code"/>
+        </FormItem>
+        <FormItem label="客户名称" required prop="name" single>
           <Input placeholder="请输入客户名称" v-model="model.name"/>
+        </FormItem>
+        <FormItem label="客户分类" required prop="customersCategoryId" single>
+          <Select :datas="customCategoryList" keyName="id" titleName="name" v-model="model.customersCategoryId"
+                  placeholder="请选择客户分类" :deletable="false"/>
+        </FormItem>
+        <FormItem label="联系人" prop="linkman" >
+          <Input placeholder="联系人" v-model.trim="model.linkman"/>
+        </FormItem>
+        <FormItem label="电话" prop="phone" >
+          <Input placeholder="电话" v-model.trim="model.phone"/>
+        </FormItem>
+        <FormItem label="客户描述" prop="remark" single>
+          <Textarea v-wordcount="150" rows="3" placeholder="客户描述" v-model="model.remark"/>
         </FormItem>
       </Form>
     </div>
@@ -29,6 +45,7 @@
 import Customers from "@js/api/Customers";
 import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
+import CustomersCategory from "@js/api/CustomersCategory";
 
 export default {
   name: "CustomersForm",
@@ -40,18 +57,17 @@ export default {
   data() {
     return {
       loading: false,
-      roleList: [],
-      adminRoles: [],
+      customCategoryList: [],
       model: {
         id: null,
+        code: null,
         name: null,
-        username: null,
-        password: null,
-        roleId: null,
-        mobile: null
+        linkman: null,
+        phone: null,
+        customersCategoryId: null,
+        remark: null
       },
       validationRules: {
-        name: ['name']
       }
     }
   },
@@ -69,6 +85,11 @@ export default {
   },
   created() {
     CopyObj(this.model, this.entity);
+    Promise.all([
+      CustomersCategory.select(),
+    ]).then((results) => {
+      this.customCategoryList = results[0].data || [];
+    }).finally(() => this.loading = false);
   }
 }
 </script>

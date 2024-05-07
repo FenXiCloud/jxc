@@ -22,7 +22,7 @@ public class Customers {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 32, nullable = false)
     private String name;
@@ -35,14 +35,14 @@ public class Customers {
 
     private String remark;
 
-    private Integer customersCategoryId;
+    private Long customersCategoryId;
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 }

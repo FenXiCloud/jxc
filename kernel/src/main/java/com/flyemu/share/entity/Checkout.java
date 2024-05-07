@@ -25,7 +25,7 @@ public class Checkout implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private Integer checkYear;
 
@@ -36,10 +36,10 @@ public class Checkout implements Serializable {
     private LocalDate checkDate;
 
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
     public enum Status {
         未结账,已结账

@@ -3,6 +3,7 @@ package com.flyemu.share.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -26,7 +27,7 @@ public class CodeSeed {
     private Long id;
 
     @Column(name = "merchant_id")
-    private Integer merchantId;
+    private Long merchantId;
 
     @Column(nullable = false)
     private Integer code;

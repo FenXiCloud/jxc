@@ -30,13 +30,13 @@ public class AdminController {
 
 
     @GetMapping
-    public JsonResult list(@SaMerchantId Integer merchantId, @SaAccountVal AccountDto accountDto, AdminService.Query query) {
+    public JsonResult list(@SaMerchantId Long merchantId, @SaAccountVal AccountDto accountDto, AdminService.Query query) {
         return JsonResult.successful(adminService.query(merchantId,  query));
     }
 
 
     @PostMapping
-    public JsonResult save(@RequestBody @Valid Admin admin, @SaMerchantId Integer merchantId, @SaAccountVal AccountDto accountDto) {
+    public JsonResult save(@RequestBody @Valid Admin admin, @SaMerchantId Long merchantId, @SaAccountVal AccountDto accountDto) {
         Assert.isNull(admin.getId(), "新增管理员Id必须为空~");
         admin.setMerchantId(merchantId);
         adminService.save(admin);
@@ -45,7 +45,7 @@ public class AdminController {
 
 
     @PutMapping
-    public JsonResult update(@RequestBody @Valid Admin admin, @SaMerchantId Integer merchantId) {
+    public JsonResult update(@RequestBody @Valid Admin admin, @SaMerchantId Long merchantId) {
         Assert.notNull(admin.getId(), "更新管理员Id不允许为空~");
         admin.setMerchantId(merchantId);
         adminService.save(admin);
@@ -54,7 +54,7 @@ public class AdminController {
 
 
     @DeleteMapping("/{adminId}")
-    public JsonResult delete(@PathVariable Integer adminId, @SaAdminId Integer saAdminId, @SaMerchantId Integer merchantId) {
+    public JsonResult delete(@PathVariable Long adminId, @SaAdminId Integer saAdminId, @SaMerchantId Long merchantId) {
         Assert.isFalse(saAdminId.equals(adminId), "不允许删除自己~");
         adminService.delete(adminId, merchantId);
         return JsonResult.successful();
@@ -62,14 +62,14 @@ public class AdminController {
 
 
     @PutMapping("/reset/password/{adminId}")
-    public JsonResult resetPassword(@PathVariable Integer adminId, @SaMerchantId Integer merchantId) {
+    public JsonResult resetPassword(@PathVariable Long adminId, @SaMerchantId Long merchantId) {
         adminService.resetPassword(adminId, merchantId);
         return JsonResult.successful();
     }
 
 
     @PutMapping("/update/password")
-    public JsonResult updatePassword(@SaAdminId Integer adminId, String oldPassword, String newPassword, @SaMerchantId Integer merchantId) {
+    public JsonResult updatePassword(@SaAdminId Long adminId, String oldPassword, String newPassword, @SaMerchantId Long merchantId) {
         adminService.updatePassword(adminId, oldPassword, newPassword, merchantId);
         return JsonResult.successful();
     }

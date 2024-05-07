@@ -13,6 +13,6 @@ import lombok.Setter;
 @Getter
 public class RoleSimpleDto {
 
-    private Integer id;
+    private Long id;
     private String name;
 }

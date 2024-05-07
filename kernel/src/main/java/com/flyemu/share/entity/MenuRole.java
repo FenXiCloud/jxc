@@ -23,13 +23,13 @@ public class MenuRole implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
-    private Integer menuId;
+    private Long menuId;
 
     @Column(nullable = false)
-    private Integer roleId;
+    private Long roleId;
 
 }
 

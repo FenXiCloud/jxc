@@ -45,19 +45,19 @@ public class MerchantUserController {
 
 
     @DeleteMapping("/{userId}")
-    public JsonResult delete(@PathVariable Integer userId, Integer merchantId) {
+    public JsonResult delete(@PathVariable Long userId, Long merchantId) {
         merchantUserService.delete(userId, merchantId);
         return JsonResult.successful();
     }
 
     @PutMapping("/update/password/{userId}")
-    public JsonResult updatePassword(@PathVariable Integer userId, String oldPassword, String newPassword) {
+    public JsonResult updatePassword(@PathVariable Long userId, String oldPassword, String newPassword) {
         merchantUserService.updatePassword(userId, oldPassword, newPassword);
         return JsonResult.successful();
     }
 
     @PutMapping("/reset/password/{userId}")
-    public JsonResult resetPassword(@PathVariable Integer userId, Integer merchantId) {
+    public JsonResult resetPassword(@PathVariable Long userId, Long merchantId) {
         merchantUserService.resetPassword(userId, merchantId);
         return JsonResult.successful();
     }

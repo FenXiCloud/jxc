@@ -31,32 +31,31 @@ public class CustomersLevelPrice implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Comment("商品id")
     private Long productsId;
 
     @Comment("客户分类id")
-    private Integer customersLevelId;
+    private Long customersLevelId;
 
     @Comment("基础单位")
-    private Integer unitId;
+    private Long unitId;
 
     @Comment("基础单位价格")
     private Double price;
 
     @Comment("客户单位辅助价格")
-    @Transient
     @JdbcTypeCode(SqlTypes.JSON)
     private List<UnitPrice> unitPrice;
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 }
 

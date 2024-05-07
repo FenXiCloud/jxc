@@ -36,18 +36,16 @@
                    :sort-config="{remote:true}"
                    @sort-change="sortChangeEvent"
                    show-overflow
-                   :edit-config="{trigger: 'click', mode: 'cell'}"
-                   @edit-closed="onEditClosed"
                    :row-config="{height: 50}"
                    :column-config="{resizable: true}"
                    :loading="loading">
-          <vxe-column type="checkbox" width="50" align="center"/>
+<!--          <vxe-column type="checkbox" width="50" align="center"/>-->
           <vxe-column title="商品分类" field="categoryName" sortable width="150"/>
           <vxe-column title="商品" width="300" field="imgPath">
             <template #default="{row}">
               <div class="flex">
                 <div class="flex">
-                  <img v-if="row.scalePath" :src="OSSPATH+row.scalePath" style="width: 40px;height: 40px;">
+                  <img v-if="row.imgPath" :src="row.imgPath" style="width: 40px;height: 40px;">
                   <img v-else src="@/assets/good-img-bg.png" style="height: 40px;width: 40px"/>
                 </div>
                 <div class="flex1 ml-8px">
@@ -57,7 +55,7 @@
               </div>
             </template>
           </vxe-column>
-          <vxe-column title="规格" field="spec" min-width="120"/>
+          <vxe-column title="规格" field="specification" min-width="120"/>
           <vxe-column title="单位" field="unitName" width="90"/>
           <vxe-column title="副单位" field="unitName1" width="90">
             <template #default="{row}">
@@ -68,20 +66,19 @@
               </template>
             </template>
           </vxe-column>
-          <vxe-column title="排序" field="sort" width="100" sortable align="center" :edit-render="{}">
+          <vxe-column title="排序" field="sort" width="100" sortable align="center" >
             <template #edit="{row}">
               <vxe-input placeholder.number="排序" v-model="row.sort" min="0" type="integer"></vxe-input>
             </template>
           </vxe-column>
-          <vxe-column title="状态" field="enable" width="80" sortable align="center">
+          <vxe-column title="状态" field="enabled" width="80" sortable align="center">
             <template #default="{row}">
-              <Tag color="green" v-if="row.enable" class="cursor-pointer">正常</Tag>
+              <Tag color="green" v-if="row.enabled" class="cursor-pointer">正常</Tag>
               <Tag color="gray" v-else class="cursor-pointer">禁用</Tag>
             </template>
           </vxe-column>
           <vxe-column title="操作" width="90" align="center" fixed="right">
             <template #default="{row}">
-              <i class="primary-color icon-paper-clip ml-10px" @click="introForm(row.id)"></i>
               <i class="primary-color h-icon-edit ml-10px" @click="showForm(row)"></i>
               <i class="primary-color h-icon-trash ml-10px" @click="doRemove(row)"></i>
             </template>
@@ -91,12 +88,11 @@
     </div>
     <div class="flex justify-between items-center pt-5px">
       <div>
-        <template v-if="selectionRows.length">
-          <span class="mr-9px text-10px primary-color">已选择{{ selectionRows.length }}个商品</span>
-          <vxe-button @click="batchEnabled(true,'启用')">启用</vxe-button>
-          <vxe-button @click="batchEnabled(false,'禁用')">禁用</vxe-button>
-          <vxe-button @click="batchDelete">批量删除</vxe-button>
-        </template>
+<!--        <template v-if="selectionRows.length">-->
+<!--          <span class="mr-9px text-10px primary-color">已选择{{ selectionRows.length }}个商品</span>-->
+<!--          <vxe-button @click="batchEnabled(true,'启用')">启用</vxe-button>-->
+<!--          <vxe-button @click="batchEnabled(false,'禁用')">禁用</vxe-button>-->
+<!--        </template>-->
       </div>
       <vxe-pager background @page-change="loadList"
                  v-model:current-page="pagination.page"
@@ -122,7 +118,7 @@ import ProductsForm from "@components/group/basics/ProductsForm.vue";
 
 /**
  * @功能描述: 商品列表
- * @创建时间: 2023年08月08日
+ * @创建时间: 2024年05月06日
  * @公司官网:    www.fenxi365.com
  * @公司信息:    纷析云（杭州）科技有限公司
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
@@ -151,7 +147,7 @@ export default {
         keyName: 'id',
         titleName: 'name',
         dataMode: 'list',
-        parentName: 'parentId',
+        parentName: 'pid',
         datas: []
       },
       selectionRows: [],
@@ -178,17 +174,6 @@ export default {
       this.params.sortCol = field;
       this.params.sort = order;
       this.loadList();
-    },
-    onEditClosed(row) {
-      if (!row.row.sort) {
-        row.row.sort = 1
-      }
-      this.loading = true
-      Products.upSort(row.row.id, row.row.sort).then(({data}) => {
-        message("保存成功")
-      }).finally(() => {
-        this.loading = false
-      })
     },
     categorySelect(item) {
       this.category = Object.freeze(item);
@@ -230,23 +215,8 @@ export default {
         title: "系统提示",
         content: `确认删除：${row.name}?`,
         onConfirm: () => {
-          Goods.remove(row.id).then(() => {
+          Products.remove(row.id).then(() => {
             message("删除成功~");
-            this.loadList();
-          })
-        }
-      })
-    },
-    batchDelete() {
-      let ids = this.selectionRows.map(val => ({id: val.id, name: val.name}));
-      confirm({
-        title: "系统提示",
-        content: `确认批量删除 ${this.selectionRows.length} 个商品?`,
-        onConfirm: () => {
-          Products.batchDelete(ids).then(() => {
-            message("批量操作成功~");
-            this.selectionRows = [];
-            this.$refs.table.clearCheckboxRow();
             this.loadList();
           })
         }

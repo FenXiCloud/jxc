@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
+import com.flyemu.share.dto.VendorsDto;
 import com.flyemu.share.entity.QVendors;
 import com.flyemu.share.entity.QVendorsCategory;
 import com.flyemu.share.entity.Vendors;
@@ -48,8 +49,9 @@ public class VendorsService extends AbsService {
                 .where(query.builder)
                 .orderBy(qVendors.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
-        ArrayList<Vendors> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
-            Vendors dto = BeanUtil.toBean(tuple.get(qVendors), Vendors.class);
+        ArrayList<VendorsDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
+            VendorsDto dto = BeanUtil.toBean(tuple.get(qVendors), VendorsDto.class);
+            dto.setCategoryName(tuple.get(qVendorsCategory.name));
             list.add(dto);
         }, List::addAll);
         return new PageResults<>(collect, page, pagedList.getTotalSize());
@@ -72,13 +74,13 @@ public class VendorsService extends AbsService {
     }
 
     @Transactional
-    public void delete(Integer vendorsId, Integer merchantId) {
+    public void delete(Long vendorsId, Long merchantId) {
         jqf.delete(qVendors)
                 .where(qVendors.id.eq(vendorsId).and(qVendors.merchantId.eq(merchantId)))
                 .execute();
     }
 
-    public List<Vendors> select(Integer merchantId) {
+    public List<Vendors> select(Long merchantId) {
         return bqf.selectFrom(qVendors).where(qVendors.merchantId.eq(merchantId)).fetch();
     }
 
@@ -86,9 +88,15 @@ public class VendorsService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qVendors.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Long organizationId) {
+            if (organizationId != null) {
+                builder.and(qVendors.organizationId.eq(organizationId));
             }
         }
 

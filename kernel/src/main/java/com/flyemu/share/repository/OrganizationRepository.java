@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.support.JpaRepositoryImplementati
 
 
 
-public interface OrganizationRepository extends JpaRepositoryImplementation<Organization,Integer> {
+public interface OrganizationRepository extends JpaRepositoryImplementation<Organization,Long> {
 
 }

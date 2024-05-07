@@ -22,7 +22,7 @@ public class VendorsCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 32, nullable = false)
     private String name;
@@ -30,14 +30,14 @@ public class VendorsCategory {
     private String code;
 
     @Comment("父id")
-    private Integer pid;
+    private Long pid;
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 }

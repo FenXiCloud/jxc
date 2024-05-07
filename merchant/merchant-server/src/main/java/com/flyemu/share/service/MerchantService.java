@@ -88,7 +88,7 @@ public class MerchantService extends AbsService {
     }
 
     @Transactional
-    public void delete(Integer merchantId) {
+    public void delete(Long merchantId) {
         merchantRepository.deleteById(merchantId);
     }
 

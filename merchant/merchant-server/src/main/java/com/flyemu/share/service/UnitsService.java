@@ -67,13 +67,13 @@ public class UnitsService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer unitsId, Integer merchantId, Integer organizationId) {
+    public void delete(Long unitsId, Long merchantId, Long organizationId) {
         jqf.delete(qUnits)
                 .where(qUnits.id.eq(unitsId).and(qUnits.merchantId.eq(merchantId)).and(qUnits.organizationId.eq(organizationId)))
                 .execute();
     }
 
-    public List<Units> select(Integer merchantId, Integer organizationId) {
+    public List<Units> select(Long merchantId, Long organizationId) {
         return bqf.selectFrom(qUnits).where(qUnits.merchantId.eq(merchantId).and(qUnits.organizationId.eq(organizationId))).fetch();
     }
 
@@ -81,13 +81,13 @@ public class UnitsService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qUnits.merchantId.eq(merchantId));
             }
         }
 
-        public void setOrganizationId(Integer organizationId) {
+        public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qUnits.organizationId.eq(organizationId));
             }

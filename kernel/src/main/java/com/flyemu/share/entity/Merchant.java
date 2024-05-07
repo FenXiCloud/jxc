@@ -29,7 +29,7 @@ public class Merchant implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Comment("商户编码")
     @Column(nullable = false, unique = true, length = 64)

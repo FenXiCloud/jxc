@@ -73,7 +73,7 @@ public class MenuService extends AbsService {
     }
 
     @Transactional
-    public void delete(Integer menuId) {
+    public void delete(Long menuId) {
         if (jqf.selectFrom(qMenu).where(qMenu.parentId.eq(menuId)).fetch().size() > 0) {
             throw new ServiceException("请删除所有下级~");
         }
@@ -101,13 +101,13 @@ public class MenuService extends AbsService {
         });
     }
 
-    public List<Integer> queryGrantMenu(Integer merchantId) {
+    public List<Long> queryGrantMenu(Long merchantId) {
         return bqf.selectFrom(qMerchantMenu).select(qMerchantMenu.menuId).innerJoin(qMenu).on(qMerchantMenu.menuId.eq(qMenu.id))
                 .where(qMerchantMenu.merchantId.eq(merchantId).and(qMenu.enabled.isTrue())).fetch();
     }
 
 
-    public List<Menu> queryMerchantMenu(Integer merchantId) {
+    public List<Menu> queryMerchantMenu(Long merchantId) {
         return bqf.selectFrom(qMerchantMenu)
                 .select(qMenu)
                 .innerJoin(qMenu)
@@ -119,8 +119,8 @@ public class MenuService extends AbsService {
 
     @Data
     public static class MerchantMenuVo {
-        private List<Integer> merchants;
-        private List<Integer> menus;
+        private List<Long> merchants;
+        private List<Long> menus;
     }
 
     public static class Query {

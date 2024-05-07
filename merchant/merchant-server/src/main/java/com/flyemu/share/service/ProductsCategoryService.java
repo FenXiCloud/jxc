@@ -49,6 +49,8 @@ public class ProductsCategoryService extends AbsService {
             String path = "";
             if (productsCategory.getPid() != null) {
                 ProductsCategory parent = productsCategoryRepository.getReferenceById(productsCategory.getPid());
+                parent.setLeaf(false);
+                path = parent.getPath();
                 productsCategoryRepository.save(parent);
             }
 
@@ -59,11 +61,16 @@ public class ProductsCategoryService extends AbsService {
                 BeanUtil.copyProperties(productsCategory, original, CopyOptions.create().ignoreNullValue());
                 if (productsCategory.getPid() == null) {
                     original.setPid(null);
+                    original.setLeaf(true);
+                } else {
+                    original.setPath(path + original.getId() + "/");
                 }
                 return productsCategoryRepository.save(original);
             }
 
+            productsCategory.setLeaf(true);
             productsCategoryRepository.save(productsCategory);
+            jqf.update(qProductsCategory).set(qProductsCategory.path, path + productsCategory.getId() + "/").where(qProductsCategory.id.eq(productsCategory.getId())).execute();
             return productsCategory;
         } catch (Exception e) {
             log.error("ProductsCategory", e);
@@ -75,10 +82,10 @@ public class ProductsCategoryService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer merchantId, Integer productsCategoryId,Integer organizationId) {
+    public void delete(Long merchantId, Long productsCategoryId,Long organizationId) {
         ProductsCategory productsCategory = productsCategoryRepository.getReferenceById(productsCategoryId);
 
-        List<Integer> ids = bqf.selectFrom(qProductsCategory)
+        List<Long> ids = bqf.selectFrom(qProductsCategory)
                 .select(qProductsCategory.id)
                 .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId))).fetch();
 
@@ -95,20 +102,20 @@ public class ProductsCategoryService extends AbsService {
      * @param orgId
      * @return
      */
-    public ProductsCategory loadById(Integer merchantId, Integer orgId) {
+    public ProductsCategory loadById(Long merchantId, Long orgId) {
         return bqf.selectFrom(qProductsCategory)
                 .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.id.eq(orgId)))
                 .fetchFirst();
     }
 
-    public List<ProductsCategory> listAll(Integer merchantId,Integer organizationId) {
+    public List<ProductsCategory> listAll(Long merchantId,Long organizationId) {
         return bqf.selectFrom(qProductsCategory)
                 .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId)))
                 .orderBy(qProductsCategory.sort.desc(), qProductsCategory.id.asc())
                 .fetch();
     }
 
-    public List<ProductsCategory> select(Integer merchantId,Integer organizationId) {
+    public List<ProductsCategory> select(Long merchantId,Long organizationId) {
         return bqf.selectFrom(qProductsCategory).where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId))).orderBy(qProductsCategory.sort.desc()).fetch();
     }
 
@@ -126,13 +133,13 @@ public class ProductsCategoryService extends AbsService {
             }
         }
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qProductsCategory.merchantId.eq(merchantId));
             }
         }
 
-        public void setOrganizationId(Integer organizationId) {
+        public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qProductsCategory.organizationId.eq(organizationId));
             }

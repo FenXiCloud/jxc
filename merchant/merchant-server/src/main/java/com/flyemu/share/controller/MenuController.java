@@ -29,7 +29,7 @@ public class MenuController {
      * @return
      */
     @GetMapping
-    public JsonResult list(@SaMerchantId Integer merchantId) {
+    public JsonResult list(@SaMerchantId Long merchantId) {
         return JsonResult.successful(menuService.query(merchantId));
     }
 
@@ -39,7 +39,7 @@ public class MenuController {
      * @return
      */
     @GetMapping("merchant")
-    public JsonResult merchantMenu(@SaMerchantId Integer merchantId, Menu.MenuGroup menuGroup) {
+    public JsonResult merchantMenu(@SaMerchantId Long merchantId, Menu.MenuGroup menuGroup) {
         return JsonResult.successful(menuService.merchantMenu(merchantId,menuGroup));
     }
 

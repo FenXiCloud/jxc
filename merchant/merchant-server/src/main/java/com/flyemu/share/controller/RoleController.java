@@ -85,18 +85,18 @@ public class RoleController {
      * @return
      */
     @DeleteMapping("/{roleId}")
-    public JsonResult delete(@PathVariable Integer roleId, @SaMerchantId Integer merchantId) {
+    public JsonResult delete(@PathVariable Long roleId, @SaMerchantId Long merchantId) {
         roleService.delete(roleId, merchantId);
         return JsonResult.successful();
     }
 
     @GetMapping("/grant/menu/{roleId}")
-    public JsonResult getMenuRole(@PathVariable Integer roleId) {
+    public JsonResult getMenuRole(@PathVariable Long roleId) {
         return JsonResult.successful(roleService.getMenuRole(roleId));
     }
 
     @PostMapping("/grant/{roleId}")
-    public JsonResult grantMenuRole(@PathVariable Integer roleId, @RequestBody List<Integer> menus) {
+    public JsonResult grantMenuRole(@PathVariable Long roleId, @RequestBody List<Long> menus) {
         roleService.grantMenuRole(roleId, menus);
         return JsonResult.successful();
     }

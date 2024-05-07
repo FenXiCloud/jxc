@@ -8,23 +8,26 @@
         <FormItem label="名称" required prop="name">
           <Input placeholder="请输入名称" v-model="model.name"/>
         </FormItem>
-        <FormItem label="货商分类" required prop="categoryId">
-          <Select :datas="vendorsCategoryList" keyName="id" titleName="name" v-model="model.categoryId"
-                  placeholder="请选择货商分类"/>
-        </FormItem>
-        <FormItem label="地址" required prop="address" single>
-          <Input placeholder="地址" v-model="model.address"/>
-        </FormItem>
-        <FormItem label="联系人" required prop="contacts">
-          <Input placeholder="联系人" v-model="model.contacts"/>
+        <FormItem label="联系人" required prop="linkman">
+          <Input placeholder="联系人" v-model="model.linkman"/>
         </FormItem>
         <FormItem label="电话" required prop="phone">
           <Input placeholder="电话" v-model="model.phone"/>
         </FormItem>
-        <FormItem label="登录账号" required prop="username" single>
-          <Input placeholder="登录账号,长度<8" maxlength="8" :disabled="model.id" v-model.trim="model.username"/>
-          <span class="red-color">初始密码:123456</span>
+        <FormItem label="货商分类" required prop="vendorsCategoryId" single>
+          <Select :datas="vendorsCategoryList" keyName="id" titleName="name" v-model="model.vendorsCategoryId"
+                  placeholder="请选择货商分类"/>
         </FormItem>
+        <FormItem label="是否启用" prop="enabled" single>
+          <Radio v-model="model.enabled" dict="enableRadios"/>
+        </FormItem>
+        <FormItem label="地址" required prop="address" single>
+          <Input placeholder="地址" v-model="model.address"/>
+        </FormItem>
+<!--        <FormItem label="登录账号" required prop="username" single>-->
+<!--          <Input placeholder="登录账号,长度<8" maxlength="8" :disabled="model.id" v-model.trim="model.username"/>-->
+<!--          <span class="red-color">初始密码:123456</span>-->
+<!--        </FormItem>-->
       </Form>
     </div>
     <div class="modal-column-between">
@@ -64,21 +67,11 @@ export default {
         id: null,
         code: null,
         name: null,
-        area: null,
-        contacts: null,
+        linkman: null,
         phone: null,
-        categoryId: null,
+        vendorsCategoryId: null,
         address: null,
-        isPart: false,
-        username: null,
-        password: null,
-      },
-      areaOption: {
-        keyName: 'id',
-        titleName: 'name',
-        dataMode: 'list',
-        parentName: 'parentId',
-        datas: []
+        enabled:true,
       },
       validationRules: {}
     }
@@ -100,7 +93,7 @@ export default {
     Promise.all([
       VendorsCategory.select(),
     ]).then((results) => {
-      this.supplierCategoryList = results[0].data;
+      this.vendorsCategoryList = results[0].data;
     }).finally(() => this.loading = false);
   }
 }

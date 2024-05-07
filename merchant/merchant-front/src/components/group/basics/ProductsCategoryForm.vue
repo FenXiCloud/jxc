@@ -48,10 +48,6 @@
 import ProductsCategory from "@js/api/ProductsCategory";
 import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
-import {layer} from "@layui/layer-vue";
-import {h} from "vue";
-import CropperImage from "@components/common/CropperImage.vue";
-import Compressor from "compressorjs";
 import {OssUpload} from "@js/api/App";
 
 export default {
@@ -112,7 +108,6 @@ export default {
       }
     },
     selectImg(e) {
-      console.log(e)
       let file = e.target.files[0]
       if (!/\.(jpg|jpeg|png|JPG|PNG)$/.test(e.target.value)) {
         message.error('图片类型要求：jpeg、jpg、png');

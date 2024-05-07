@@ -55,13 +55,13 @@ public class UnitsController {
 
 
     @DeleteMapping("/{unitsId}")
-    public JsonResult delete(@PathVariable Integer unitsId, @SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+    public JsonResult delete(@PathVariable Long unitsId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         unitsService.delete(unitsId, merchantId,organizationId);
         return JsonResult.successful();
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+    public JsonResult select(@SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         return JsonResult.successful(unitsService.select(merchantId,organizationId));
     }
 }

@@ -57,13 +57,13 @@ public class CustomersLevelController {
 
 
     @DeleteMapping("/{customersLevelId}")
-    public JsonResult delete(@PathVariable Integer customersLevelId, @SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+    public JsonResult delete(@PathVariable Long customersLevelId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         customersLevelService.delete(customersLevelId, merchantId,organizationId);
         return JsonResult.successful();
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Integer merchantId, @SaOrganizationId Integer organizationId) {
+    public JsonResult select(@SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         return JsonResult.successful(customersLevelService.select(merchantId,organizationId));
     }
 }

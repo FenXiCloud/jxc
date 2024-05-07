@@ -27,16 +27,16 @@ public class Units implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 32, nullable = false)
     private String name;
 
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 }
 

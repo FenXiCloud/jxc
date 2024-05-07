@@ -68,7 +68,7 @@ public class RoleService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer roleId, Integer merchantId) {
+    public void delete(Long roleId, Long merchantId) {
         long count = bqf.selectFrom(qAdmin).where(qAdmin.roleId.eq(roleId)).fetchCount();
         Assert.isTrue(count == 0, "已被使用不能删除~");
         jqf.delete(qMenuRole).where(qMenuRole.roleId.eq(roleId)).execute();
@@ -78,7 +78,7 @@ public class RoleService extends AbsService {
     }
 
 
-    public List<RoleSimpleDto> simpleList(Integer merchantId) {
+    public List<RoleSimpleDto> simpleList(Long merchantId) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(qRole.merchantId.eq(merchantId));
         List<RoleSimpleDto> dtos = new ArrayList<>();
@@ -95,12 +95,12 @@ public class RoleService extends AbsService {
     }
 
 
-    public List<Integer> getMenuRole(Integer roleId) {
+    public List<Long> getMenuRole(Long roleId) {
         return bqf.selectFrom(qMenuRole).select(qMenuRole.menuId).where(qMenuRole.roleId.eq(roleId)).fetch();
     }
 
     @Transactional
-    public void grantMenuRole(Integer roleId, List<Integer> menus) {
+    public void grantMenuRole(Long roleId, List<Long> menus) {
         jqf.delete(qMenuRole)
                 .where(qMenuRole.roleId.eq(roleId))
                 .execute();
@@ -119,7 +119,7 @@ public class RoleService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qRole.merchantId.eq(merchantId));
             }

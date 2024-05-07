@@ -60,39 +60,39 @@ public class Order {
     private LocalDateTime createDate;
 
     @Comment("创建人")
-    private Integer userId;
+    private Long userId;
 
     @Comment("审核时间")
     private LocalDateTime checkOutTime;
 
     @Comment("审核人")
-    private Integer checkId;
+    private Long checkId;
 
     @Comment("备注")
     private String remark;
 
     @Comment("供货商ID")
-    private Integer vendorsId;
+    private Long vendorsId;
 
     @Comment("客户ID")
-    private Integer customersId;
+    private Long customersId;
 
     @Comment("仓库ID")
-    private Integer warehouseId;
+    private Long warehouseId;
 
     @Comment("调拨入库仓库ID")
-    private Integer inWarehouseId;
+    private Long inWarehouseId;
 
     @Comment("调拨出库仓库ID")
-    private Integer outWarehouseId;
+    private Long outWarehouseId;
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
     public enum OrderType{
         销售出库单,销售退货单,采购入库单,采购退货单,其他出库单,其他入库单,盘点单,调拨单

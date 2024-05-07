@@ -11,7 +11,7 @@ import java.util.Date;
 @Setter
 public class OrganizationDto {
 
-    private Integer id;
+    private Long id;
 
     private String code;
 
@@ -49,7 +49,7 @@ public class OrganizationDto {
 
     private String warehouseName;
 
-    private Integer merchantId;
+    private Long merchantId;
 
     private String extCode;
 }

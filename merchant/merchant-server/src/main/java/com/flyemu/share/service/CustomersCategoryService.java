@@ -61,7 +61,7 @@ public class CustomersCategoryService extends AbsService {
      * @param customersCategoryId
      */
     @Transactional
-    public void delete(Integer customersCategoryId, Integer merchantId,Integer organizationId) {
+    public void delete(Long customersCategoryId, Long merchantId,Long organizationId) {
         QCustomers qCustomers = QCustomers.customers;
         Assert.isFalse(bqf.selectFrom(qCustomers).where(qCustomers.merchantId.eq(merchantId).and(qCustomers.customersCategoryId.eq(customersCategoryId)).and(qCustomers.organizationId.eq(organizationId))).fetchCount() > 0, "已被客户使用，不能删除");
 
@@ -70,7 +70,7 @@ public class CustomersCategoryService extends AbsService {
                 .execute();
     }
 
-    public List<CustomersCategory> select(Integer merchantId, Integer organizationId) {
+    public List<CustomersCategory> select(Long merchantId, Long organizationId) {
         return bqf.selectFrom(qCustomersCategory).where(qCustomersCategory.merchantId.eq(merchantId).and(qCustomersCategory.organizationId.eq(organizationId))).fetch();
     }
 
@@ -78,13 +78,13 @@ public class CustomersCategoryService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qCustomersCategory.merchantId.eq(merchantId));
             }
         }
 
-        public void setOrganizationId(Integer organizationId) {
+        public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qCustomersCategory.organizationId.eq(organizationId));
             }

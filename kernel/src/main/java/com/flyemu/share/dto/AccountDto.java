@@ -41,16 +41,16 @@ public class AccountDto implements Serializable {
         this.organization = organization;
     }
 
-    public Integer getAdminId() {
+    public Long getAdminId() {
         return admin.getId();
     }
 
-    public Integer getMerchantId() {
+    public Long getMerchantId() {
         return merchant.getId();
     }
 
     //TODO
-    public Integer getOrganizationId() {
+    public Long getOrganizationId() {
         return organization.getId();
     }
 

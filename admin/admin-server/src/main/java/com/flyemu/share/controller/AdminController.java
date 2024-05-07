@@ -45,13 +45,13 @@ public class AdminController {
     }
 
     @DeleteMapping("/{adminId}")
-    public JsonResult delete(@PathVariable Integer adminId, Integer merchantId) {
+    public JsonResult delete(@PathVariable Long adminId, Long merchantId) {
         adminService.delete(adminId, merchantId);
         return JsonResult.successful();
     }
 
     @PutMapping("/reset/password/{adminId}")
-    public JsonResult resetPassword(@PathVariable Integer adminId, Integer merchantId) {
+    public JsonResult resetPassword(@PathVariable Long adminId, Long merchantId) {
         adminService.resetPassword(adminId, merchantId);
         return JsonResult.successful();
     }

@@ -10,11 +10,11 @@ import com.blazebit.persistence.PagedList;
 import com.flyemu.share.common.PinYinUtil;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
+import com.flyemu.share.dto.ProductsDto;
 import com.flyemu.share.dto.UnitPrice;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.form.ProductsForm;
 import com.flyemu.share.repository.CustomersLevelPriceRepository;
-import com.flyemu.share.repository.CustomersLevelRepository;
 import com.flyemu.share.repository.ProductsRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
@@ -44,35 +44,35 @@ public class ProductsService extends AbsService {
     private final static QProducts qProducts = QProducts.products;
     private final static QProductsCategory qProductsCategory = QProductsCategory.productsCategory;
     private final QUnits qUnits = QUnits.units;
-    private final QVendors qVendors = QVendors.vendors;
     private final ProductsRepository productsRepository;
     private final CustomersLevelPriceRepository customersLevelPriceRepository;
     private final QCustomersLevelPrice qCustomersLevelPrice = QCustomersLevelPrice.customersLevelPrice;
-    private final QCustomersLevel qCustomersLevel = QCustomersLevel.customersLevel;
     private final CodeSeedService codeSeedService;
 
 
-    public PageResults<Products> query(Page page, Query query) {
+    public PageResults<ProductsDto> query(Page page, Query query) {
         PagedList<Tuple> pagedList = bqf.selectFrom(qProducts)
                 .select(qProducts, qUnits.name, qProductsCategory.name)
                 .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId))
                 .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId))
-                .where(query.builder)
+                .where(query.builders())
                 .orderBy(qProducts.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
-        ArrayList<Products> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
-            Products dto = BeanUtil.toBean(tuple.get(qProducts), Products.class);
+        ArrayList<ProductsDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
+            ProductsDto dto = BeanUtil.toBean(tuple.get(qProducts), ProductsDto.class);
+            dto.setCategoryName(tuple.get(qProductsCategory.name));
+            dto.setUnitName(tuple.get(qUnits.name));
             list.add(dto);
         }, List::addAll);
         return new PageResults<>(collect, page, pagedList.getTotalSize());
     }
 
     @Transactional
-    public void save(ProductsForm productsForm, Integer merchantId, Integer organizationId) {
+    public void save(ProductsForm productsForm, Long merchantId, Long organizationId) {
         Products products = productsForm.getProducts();
         if (products.getEnableMultiUnit()) {
             Assert.isTrue(CollUtil.isNotEmpty(products.getMultiUnit()), "开启多单位,必须选择一个副单位");
-            Set<Integer> checkUnit = new HashSet<>();
+            Set<Long> checkUnit = new HashSet<>();
             checkUnit.add(products.getUnitId());
             for (UnitPrice up : products.getMultiUnit()) {
                 if (up.getUnitId() != null) {
@@ -81,15 +81,14 @@ public class ProductsService extends AbsService {
             }
         }
         if (products.getId() != null) {
-            //购物车  order orderA 购货单表 购货单退货表
             Products original = productsRepository.getById(products.getId());
             if (!original.getUnitId().equals(products.getUnitId())) {
                 //商品下过单都不行
                 QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
-                Assert.isFalse(bqf.selectFrom(qOrderDetail).where(qOrderDetail.productsId.eq(products.getId()).and(qOrderDetail.merchantId.eq(merchantId))).fetchCount() > 0, "订单已使用计量单位,不能变更~");
+                Assert.isFalse(bqf.selectFrom(qOrderDetail).where(qOrderDetail.productsId.eq(products.getId()).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).fetchCount() > 0, "订单已使用计量单位,不能变更~");
                  }
             if (original.getEnableMultiUnit()) {
-                List<Integer> unitIds;
+                List<Long> unitIds;
                 if (!products.getEnableMultiUnit()) { //关闭多单位需要去检测
                     unitIds = original.getMultiUnit().stream().map(UnitPrice::getUnitId).collect(Collectors.toList());
                 } else {//取有变动的单位去校验
@@ -106,7 +105,7 @@ public class ProductsService extends AbsService {
                 if (CollUtil.isNotEmpty(unitIds)) {
                     //校验商品单位是不是已经使用
                     QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
-                    Assert.isFalse(bqf.selectFrom(qOrderDetail).where(qOrderDetail.unitId.notIn(unitIds).and(qOrderDetail.merchantId.eq(merchantId))).fetchCount() > 0, "订单已使用多单位,不能变更~");
+                    Assert.isFalse(bqf.selectFrom(qOrderDetail).where(qOrderDetail.unitId.notIn(unitIds).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).fetchCount() > 0, "订单已使用多单位,不能变更~");
                 }
             }
             if (!original.getName().equals(products.getName())) {
@@ -116,11 +115,14 @@ public class ProductsService extends AbsService {
             products = productsRepository.save(original);
 
         } else {
+
+            products.setOrganizationId(organizationId);
+            products.setMerchantId(merchantId);
             if (StrUtil.isNotBlank(products.getCode())) {
                 Assert.isFalse(bqf.selectFrom(qProducts).where(qProducts.merchantId.eq(merchantId).and(qProducts.organizationId.eq(organizationId))
                         .and(qProducts.code.eq(products.getCode()))).fetchCount() > 0, products.getCode() + "商品编码已存在~");
             } else {
-                ProductsCategory category = jqf.selectFrom(qProductsCategory).where(qProductsCategory.id.eq(products.getCategoryId()).and(qProductsCategory.merchantId.eq(merchantId))).fetchFirst();
+                ProductsCategory category = jqf.selectFrom(qProductsCategory).where(qProductsCategory.id.eq(products.getCategoryId()).and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId))).fetchFirst();
                 products.setCode(category.getCode() + String.format("%04d", codeSeedService.next(merchantId, "productsCode")));
             }
             products.setMerchantId(merchantId);
@@ -137,7 +139,8 @@ public class ProductsService extends AbsService {
                 levelPrice.setUnitId(products.getUnitId());
                 levelPrice.setPrice(cp.getDouble("price"));
                 levelPrice.setMerchantId(merchantId);
-                levelPrice.setCustomersLevelId(cp.getInteger("customLeveId"));
+                levelPrice.setOrganizationId(organizationId);
+                levelPrice.setCustomersLevelId(cp.getLong("customLeveId"));
                 if (products.getEnableMultiUnit()) {
                     List<UnitPrice> ups = new ArrayList<>();
                     for (UnitPrice multiUnit : products.getMultiUnit()) {
@@ -151,11 +154,11 @@ public class ProductsService extends AbsService {
                 }
                 cps.add(levelPrice);
             }
-            jqf.delete(qCustomersLevelPrice).where(qCustomersLevelPrice.productsId.eq(products.getId()).and(qCustomersLevelPrice.merchantId.eq(merchantId))).
+            jqf.delete(qCustomersLevelPrice).where(qCustomersLevelPrice.productsId.eq(products.getId()).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId))).
                     execute();
             customersLevelPriceRepository.saveAll(cps);
         } else {
-            List<CustomersLevelPrice> priceList = jqf.selectFrom(qCustomersLevelPrice).where(qCustomersLevelPrice.productsId.eq(products.getId()).and(qCustomersLevelPrice.merchantId.eq(merchantId))).fetch();
+            List<CustomersLevelPrice> priceList = jqf.selectFrom(qCustomersLevelPrice).where(qCustomersLevelPrice.productsId.eq(products.getId()).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId))).fetch();
             for (CustomersLevelPrice price : priceList) {
                 price.setUnitId(products.getUnitId());
                 if (products.getEnableMultiUnit()) {
@@ -200,19 +203,34 @@ public class ProductsService extends AbsService {
     }
 
     @Transactional
-    public void delete(Long productsId, Integer merchantId) {
+    public void delete(Long productsId, Long merchantId,Long organizationId) {
 
+        QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
+        Assert.isFalse(bqf.selectFrom(qOrderDetail).where(qOrderDetail.productsId.eq(productsId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).fetchCount() > 0, "订单已使用,不能删除~");
+
+
+        jqf.delete(qCustomersLevelPrice)
+                .where(qCustomersLevelPrice.productsId.eq(productsId).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId)))
+                .execute();
+        jqf.delete(qProducts)
+                .where(qProducts.id.eq(productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
+                .execute();
     }
 
-    public List<Products> select(Integer merchantId) {
+    public List<Products> select(Long merchantId) {
         return bqf.selectFrom(qProducts).where(qProducts.merchantId.eq(merchantId)).fetch();
     }
 
-    public Products load(Long productsId, Integer merchantId) {
+    public Products load(Long productsId, Long merchantId) {
         return jqf.selectFrom(qProducts).where(qProducts.id.eq(productsId).and(qProducts.merchantId.eq(merchantId))).fetchFirst();
     }
 
-    public long findCount(Integer merchantId) {
+
+
+    public Map<Long, CustomersLevelPrice> levelPrice(Long productsId, Long merchantId,Long organizationId) {
+        return jqf.selectFrom(qCustomersLevelPrice).where(qCustomersLevelPrice.productsId.eq(productsId).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId))).fetch().stream().collect(Collectors.toMap(c -> c.getCustomersLevelId(), b -> b));
+    }
+    public long findCount(Long merchantId) {
         return bqf.selectFrom(qProducts).where(qProducts.merchantId.eq(merchantId)).fetchCount();
     }
 
@@ -239,22 +257,37 @@ public class ProductsService extends AbsService {
         private Integer categoryId;
         private Boolean enabled;
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qProducts.merchantId.eq(merchantId));
             }
         }
 
-        public void setOrganizationId(Integer organizationId) {
+        public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qProducts.organizationId.eq(organizationId));
             }
         }
 
-        public void setEnable(Boolean enabled) {
+        public void setEnabled(Boolean enabled) {
             if (enabled != null) {
                 builder.and(qProducts.enabled.eq(enabled));
             }
+        }
+
+        public BooleanBuilder builders() {
+            if (StrUtil.isNotBlank(path)) {
+                builder.and(qProductsCategory.path.like(path + "%"));
+            }
+            if (StrUtil.isNotBlank(filter) && StrUtil.isNotBlank(filter.trim())) {
+                builder.and(qProducts.name.contains(filter)
+                        .or(qProducts.code.contains(filter))
+                        .or(qProducts.pinyin.contains(filter)));
+            }
+            if (enabled != null) {
+                builder.and(qProducts.enabled.eq(enabled));
+            }
+            return builder;
         }
 
     }

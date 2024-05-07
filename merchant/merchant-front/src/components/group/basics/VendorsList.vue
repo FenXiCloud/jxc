@@ -30,10 +30,8 @@
         <vxe-column title="分类" field="categoryName" width="100"/>
         <vxe-column title="编码" field="code" width="80"/>
         <vxe-column title="名称" field="name" min-width="150"/>
-        <vxe-column title="登录账号" field="username" width="100"/>
-        <vxe-column title="联系人" field="contacts" width="100"/>
-        <vxe-column title="电话" field="phone" width="100"/>
-        <vxe-column title="归属区域" field="areaName" width="100"/>
+        <vxe-column title="联系人" field="linkman" width="100"/>
+        <vxe-column title="电话" field="phone" width="150"/>
         <vxe-column title="地址" field="address" min-width="100"/>
         <vxe-column title="创建时间" field="createDate" width="140"/>
         <vxe-column title="状态" field="enabled" width="60">

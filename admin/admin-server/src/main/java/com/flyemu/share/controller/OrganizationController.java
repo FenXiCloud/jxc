@@ -27,7 +27,7 @@ public class OrganizationController {
     }
 
     @GetMapping("all")
-    public JsonResult listAll(Integer merchantId) {
+    public JsonResult listAll(Long merchantId) {
         return JsonResult.successful(organizationService.listAll(merchantId));
     }
 
@@ -64,7 +64,7 @@ public class OrganizationController {
      * @return
      */
     @DeleteMapping("/{organizationId}")
-    public JsonResult delete(@PathVariable Integer organizationId) {
+    public JsonResult delete(@PathVariable Long organizationId) {
         organizationService.delete(organizationId);
         return JsonResult.successful();
     }

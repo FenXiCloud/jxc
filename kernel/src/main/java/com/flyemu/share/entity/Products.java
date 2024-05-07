@@ -2,15 +2,14 @@ package com.flyemu.share.entity;
 
 import com.flyemu.share.dto.UnitPrice;
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.*;
 import org.hibernate.type.SqlTypes;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,19 +47,26 @@ public class Products {
     private Boolean enabled;
 
     @Column(nullable = false)
-    private Integer unitId;
+    private Long unitId;
 
     @Column(nullable = false)
-    private Integer categoryId;
+    private Long categoryId;
 
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
+
+    @Comment("排序")
+    private Integer sort;
 
     @Comment("商品图片")
     private String imgPath;
+
+    @Comment("创建时间")
+    @CreationTimestamp
+    private Date createDate;
 
     @Comment("是否启动辅助单位")
     @JdbcTypeCode(SqlTypes.BOOLEAN)

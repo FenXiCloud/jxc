@@ -37,7 +37,7 @@ public class MenuService extends AbsService {
      *
      * @return
      */
-    public List<Menu> query(Integer merchantId) {
+    public List<Menu> query(Long merchantId) {
         return bqf.selectFrom(qMenu).innerJoin(qMerchantMenu).on(qMerchantMenu.menuId.eq(qMenu.id))
                 .where(qMerchantMenu.merchantId.eq(merchantId).and(qMenu.menuModule.eq(Menu.MenuModule.MERCHANT)).and(qMenu.enabled.isTrue())).fetch();
     }
@@ -55,11 +55,11 @@ public class MenuService extends AbsService {
     }
 
     @Transactional
-    public void delete(Integer menuId) {
+    public void delete(Long menuId) {
         menuRepository.deleteById(menuId);
     }
 
-    public List<Menu> merchantMenu(Integer merchantId, Menu.MenuGroup menuGroup) {
+    public List<Menu> merchantMenu(Long merchantId, Menu.MenuGroup menuGroup) {
         BooleanExpression expression = qMerchantMenu.merchantId.eq(merchantId).and(qMenu.enabled.isTrue());
         if (menuGroup != null) {
             expression = expression.and(qMenu.menuModule.eq(Menu.MenuModule.MERCHANT)).and(qMenu.menuGroup.eq(menuGroup));

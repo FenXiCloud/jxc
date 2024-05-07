@@ -58,7 +58,7 @@ public class CheckoutService extends AbsService {
      * @param organizationId
      * @return
      */
-    public Checkout queryMinDate(Integer organizationId) {
+    public Checkout queryMinDate(Long organizationId) {
         return bqf.selectFrom(qCheckout).where(qCheckout.organizationId.eq(organizationId).and(qCheckout.status.eq(Checkout.Status.已结账)))
                 .orderBy(qCheckout.checkDate.asc())
                 .fetchFirst();
@@ -87,7 +87,7 @@ public class CheckoutService extends AbsService {
      * @param checkoutId
      */
     @Transactional
-    public void delete(Integer checkoutId, Integer merchantId) {
+    public void delete(Long checkoutId, Long merchantId) {
 
         long poCount = bqf.selectFrom(qCheckout).where(qCheckout.id.eq(checkoutId)
                 .and(qCheckout.merchantId.eq(merchantId))).fetchCount();
@@ -99,7 +99,7 @@ public class CheckoutService extends AbsService {
 
 
     @Transactional
-    public List<Order> check(Checkout checkout, Integer organizationId, Checkout minCheck) {
+    public List<Order> check(Checkout checkout, Long organizationId, Checkout minCheck) {
         Map<String, Object> result = new HashMap<>();
         if (checkout != null && (checkout.getCheckDate().isEqual(minCheck.getCheckDate()))) {
             //月末日期
@@ -147,7 +147,7 @@ public class CheckoutService extends AbsService {
         return checkoutRepository.save(checkout);
     }
 
-    public Boolean checkInit(Integer organizationId) {
+    public Boolean checkInit(Long organizationId) {
         return bqf.selectFrom(qCheckout)
                 .where(qCheckout.status.eq(Checkout.Status.已结账)
                         .and(qCheckout.organizationId.eq(organizationId))).fetchCount() <= 0;
@@ -168,13 +168,13 @@ public class CheckoutService extends AbsService {
             }
         }
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qCheckout.merchantId.eq(merchantId));
             }
         }
 
-        public void setOrganizationId(Integer organizationId) {
+        public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qCheckout.organizationId.eq(organizationId));
             }

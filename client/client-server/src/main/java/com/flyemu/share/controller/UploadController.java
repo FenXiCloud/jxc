@@ -149,7 +149,7 @@ public class UploadController {
     @PostMapping("/oss/upload/{type}")
     @ResponseBody
     public JsonResult ossUpload(@RequestParam("file") MultipartFile file,@RequestParam(value = "name", required = false) String name,
-                                       @PathVariable String type,@SaMerchantId Integer merchantId) {
+                                       @PathVariable String type,@SaMerchantId Long merchantId) {
         try {
             String suffix = FileNameUtil.getSuffix(file.getOriginalFilename());
             if (StrUtil.isEmpty(name)) {

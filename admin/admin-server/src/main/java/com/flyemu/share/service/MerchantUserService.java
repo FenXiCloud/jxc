@@ -107,14 +107,14 @@ public class MerchantUserService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer userId, Integer merchantId) {
+    public void delete(Long userId, Long merchantId) {
         jqf.delete(qMerchantUser)
                 .where(qMerchantUser.id.eq(userId).and(qMerchantUser.systemDefault.isFalse()))
                 .execute();
     }
 
     @Transactional
-    public void updatePassword(Integer userId, String oldPassword, String newPassword) {
+    public void updatePassword(Long userId, String oldPassword, String newPassword) {
         MerchantUser merchantUser = jqf.selectFrom(qMerchantUser).where(qMerchantUser.id.eq(userId)).fetchFirst();
         Assert.isTrue(DigestUtil.bcryptCheck(oldPassword, merchantUser.getPassword()), "原密码错误~");
         merchantUser.setPassword(DigestUtil.bcrypt(newPassword));
@@ -127,7 +127,7 @@ public class MerchantUserService extends AbsService {
      * @param userId 管理员ID
      */
     @Transactional
-    public void resetPassword(Integer userId, Integer merchantId) {
+    public void resetPassword(Long userId, Long merchantId) {
         MerchantUser merchantUser = jqf.selectFrom(qMerchantUser).where(qMerchantUser.id.eq(userId)).fetchFirst();
         merchantUser.setPassword(DigestUtil.bcrypt(merchantUser.getUsername().substring(5)));
         merchantUserRepository.save(merchantUser);

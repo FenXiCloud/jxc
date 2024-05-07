@@ -64,7 +64,7 @@ public class OrganizationService extends AbsService {
      * @param merchantId
      * @return
      */
-    public List<Dict> loadOrg(Integer merchantId) {
+    public List<Dict> loadOrg(Long merchantId) {
         List<Dict> dictList = new ArrayList<>();
          bqf.selectFrom(qOrganization).select(qOrganization.id,qOrganization.name,qOrganization.current).where(qOrganization.merchantId.eq(merchantId))
                 .orderBy(qOrganization.id.desc()).fetch().forEach(tuple->{
@@ -77,7 +77,7 @@ public class OrganizationService extends AbsService {
     }
 
     @Transactional
-    public Organization changeOrgCurrent(Integer merchantId, Integer orgId) {
+    public Organization changeOrgCurrent(Long merchantId, Long orgId) {
         jqf.update(qOrganization)
                 .set(qOrganization.current,false)
                 .where(qOrganization.merchantId.eq(merchantId)).execute();
@@ -134,7 +134,7 @@ public class OrganizationService extends AbsService {
      * @param organizationId
      */
     @Transactional
-    public void delete(Integer merchantId, Integer organizationId) {
+    public void delete(Long merchantId, Long organizationId) {
         QOrder qOrder = QOrder.order;
         long count = bqf.selectFrom(qOrder).where(qOrder.organizationId.eq(organizationId)).fetchCount();
         Assert.isTrue(count == 0, "已被使用不能删除~");
@@ -149,20 +149,20 @@ public class OrganizationService extends AbsService {
      * @param orgId
      * @return
      */
-    public Organization loadById(Integer merchantId, Integer orgId) {
+    public Organization loadById(Long merchantId, Long orgId) {
         return bqf.selectFrom(qOrganization)
                 .where(qOrganization.merchantId.eq(merchantId).and(qOrganization.id.eq(orgId)))
                 .fetchFirst();
     }
 
-    public List<Organization> listAll(Integer merchantId) {
+    public List<Organization> listAll(Long merchantId) {
         return bqf.selectFrom(qOrganization)
                 .where(qOrganization.merchantId.eq(merchantId).and(qOrganization.enabled.isTrue()))
                 .orderBy(qOrganization.code.asc())
                 .fetch();
     }
 
-    public List<Organization> select(Integer merchantId) {
+    public List<Organization> select(Long merchantId) {
         return bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(merchantId).and(qOrganization.enabled.isTrue())).fetch();
     }
 
@@ -188,7 +188,7 @@ public class OrganizationService extends AbsService {
             }
         }
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qOrganization.merchantId.eq(merchantId));
             }

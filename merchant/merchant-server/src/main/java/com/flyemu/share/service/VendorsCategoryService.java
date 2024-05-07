@@ -55,13 +55,13 @@ public class VendorsCategoryService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer vendorsCategoryId, Integer merchantId) {
+    public void delete(Long vendorsCategoryId, Long merchantId, Long organizationId) {
         jqf.delete(qVendorsCategory)
-                .where(qVendorsCategory.id.eq(vendorsCategoryId).and(qVendorsCategory.merchantId.eq(merchantId)))
+                .where(qVendorsCategory.id.eq(vendorsCategoryId).and(qVendorsCategory.merchantId.eq(merchantId)).and(qVendorsCategory.organizationId.eq(organizationId)))
                 .execute();
     }
 
-    public List<VendorsCategory> select(Integer merchantId) {
+    public List<VendorsCategory> select(Long merchantId) {
         return bqf.selectFrom(qVendorsCategory).where(qVendorsCategory.merchantId.eq(merchantId)).fetch();
     }
 
@@ -69,9 +69,15 @@ public class VendorsCategoryService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qVendorsCategory.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Long organizationId) {
+            if (organizationId != null) {
+                builder.and(qVendorsCategory.organizationId.eq(organizationId));
             }
         }
     }

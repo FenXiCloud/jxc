@@ -88,11 +88,11 @@ public class OrganizationService extends AbsService {
      * @param organizationId
      */
     @Transactional
-    public void delete(Integer organizationId) {
+    public void delete(Long organizationId) {
         organizationRepository.deleteById(organizationId);
     }
 
-    public List<Organization> listAll(Integer merchantId) {
+    public List<Organization> listAll(Long merchantId) {
         return bqf.selectFrom(qOrganization)
                 .where(qOrganization.merchantId.eq(merchantId).and(qOrganization.enabled.isTrue()))
                 .orderBy(qOrganization.code.asc())
@@ -109,7 +109,7 @@ public class OrganizationService extends AbsService {
             }
         }
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qOrganization.merchantId.eq(merchantId));
             }

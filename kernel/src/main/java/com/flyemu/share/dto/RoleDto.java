@@ -15,5 +15,5 @@ public class RoleDto implements Serializable {
     Integer id;
     String name;
     Boolean systemDefault;
-    Integer merchantId;
+    Long merchantId;
 }

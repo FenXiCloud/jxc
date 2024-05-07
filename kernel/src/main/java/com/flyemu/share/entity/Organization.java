@@ -28,7 +28,7 @@ public class Organization implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     //编码
     @Column(length = 32, nullable = false)
@@ -73,7 +73,7 @@ public class Organization implements Serializable {
     private Boolean enabled;
 
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 
     @Comment("是否是当前组织")

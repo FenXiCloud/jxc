@@ -38,7 +38,7 @@ public class CodeSeedService extends AbsService {
      * @param type
      * @return
      */
-    public Integer next(Integer merchantId, String type) {
+    public Integer next(Long merchantId, String type) {
         String lockName = type + ":" + merchantId;
         RedisLock rLock = new RedisLock(redisTemplate, lockName);
         try {
@@ -66,6 +66,21 @@ public class CodeSeedService extends AbsService {
     }
 
     /**
+     * 获取连续编号:例如0001
+     *
+     * @param merchantId
+     * @param type
+     * @return
+     */
+    public String nextNum(Long merchantId, String type) {
+        Integer next = this.next(merchantId, type);
+        if (next < 1000) {
+            return String.format("%04d", next);
+        } else {
+            return String.valueOf(next);
+        }
+    }
+    /**
      * 按年份递增的编码：例如:2021001
      *
      * @param merchantId
@@ -73,7 +88,7 @@ public class CodeSeedService extends AbsService {
      * @return
      * @throws InterruptedException
      */
-    public String yearIncrease(Integer merchantId, String type) {
+    public String yearIncrease(Long merchantId, String type) {
         long year = LocalDate.now().getYear();
         Integer next = this.next(merchantId, type + ":" + year);
         long code = year * 1000 + next;
@@ -88,7 +103,7 @@ public class CodeSeedService extends AbsService {
      * @return
      * @throws InterruptedException
      */
-    public String monthIncrease(Integer merchantId, String type) {
+    public String monthIncrease(Long merchantId, String type) {
         long yearMonth = Long.parseLong(DateUtil.format(new Date(), "yyyyMM"));
         Integer next = this.next(merchantId, type + ":" + yearMonth);
         long code = yearMonth * 1000 + next;
@@ -103,7 +118,7 @@ public class CodeSeedService extends AbsService {
      * @return
      * @throws InterruptedException
      */
-    public String dayIncrease(Integer merchantId, String type) {
+    public String dayIncrease(Long merchantId, String type) {
         long day = Long.parseLong(DateUtil.format(new Date(), "yyyyMMdd"));
         Integer next = this.next(merchantId, type + ":" + day);
         long code = day * 1000 + next;

@@ -24,11 +24,11 @@ public class AdminDto {
 
     private Boolean enabled;
 
-    private Integer merchantId;
+    private Long merchantId;
 
     private Boolean systemDefault;
 
-    private Integer roleId;
+    private Long roleId;
 
     private Integer roleType;
 

@@ -60,11 +60,11 @@ public class CustomersLevelService extends AbsService {
      * @param customersLevelId
      */
     @Transactional
-    public void delete(Integer customersLevelId, Integer merchantId,Integer organizationId) {
+    public void delete(Long customersLevelId, Long merchantId,Long organizationId) {
         jqf.delete(qCustomersLevel).where(qCustomersLevel.id.eq(customersLevelId).and(qCustomersLevel.merchantId.eq(merchantId)).and(qCustomersLevel.organizationId.eq(organizationId))).execute();
     }
 
-    public List<CustomersLevel> select(Integer merchantId,Integer organizationId) {
+    public List<CustomersLevel> select(Long merchantId,Long organizationId) {
         return bqf.selectFrom(qCustomersLevel).where(qCustomersLevel.merchantId.eq(merchantId).and(qCustomersLevel.organizationId.eq(organizationId))).fetch();
     }
 
@@ -72,12 +72,12 @@ public class CustomersLevelService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qCustomersLevel.merchantId.eq(merchantId));
             }
         }
-        public void setOrganizationId(Integer organizationId) {
+        public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qCustomersLevel.organizationId.eq(organizationId));
             }

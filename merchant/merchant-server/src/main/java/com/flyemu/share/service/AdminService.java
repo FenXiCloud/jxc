@@ -53,7 +53,7 @@ public class AdminService extends AbsService {
 
     private final CodeSeedService codeSeedService;
 
-    public List<AdminDto> query(Integer merchantId, Query query) {
+    public List<AdminDto> query(Long merchantId, Query query) {
         List<Tuple> fetchPage = bqf.selectFrom(qAdmin)
                 .join(qRole).on(qAdmin.roleId.eq(qRole.id))
                 .select(qAdmin, qRole.name)
@@ -122,7 +122,7 @@ public class AdminService extends AbsService {
     }
 
     @Transactional
-    public void delete(Integer adminId, Integer merchantId) {
+    public void delete(Long adminId, Long merchantId) {
         jqf.delete(qAdmin)
                 .where(qAdmin.id.eq(adminId).and(qAdmin.systemDefault.isFalse()).and(qAdmin.merchantId.eq(merchantId)))
                 .execute();
@@ -150,7 +150,7 @@ public class AdminService extends AbsService {
     }
 
     @Transactional
-    public void updatePassword(Integer adminId, String oldPassword, String newPassword, Integer merchantId) {
+    public void updatePassword(Long adminId, String oldPassword, String newPassword, Long merchantId) {
         Admin admin = jqf.selectFrom(qAdmin).where(qAdmin.id.eq(adminId).and(qAdmin.merchantId.eq(merchantId))).fetchFirst();
         Assert.isTrue(DigestUtil.bcryptCheck(oldPassword, admin.getPassword()), "原密码错误~");
         admin.setPassword(DigestUtil.bcrypt(newPassword));
@@ -158,13 +158,13 @@ public class AdminService extends AbsService {
     }
 
     @Transactional
-    public void resetPassword(Integer adminId, Integer merchantId) {
+    public void resetPassword(Long adminId, Long merchantId) {
         Admin admin = jqf.selectFrom(qAdmin).where(qAdmin.id.eq(adminId).and(qAdmin.merchantId.eq(merchantId))).fetchFirst();
         admin.setPassword(DigestUtil.bcrypt(admin.getMobile().substring(5)));
         adminRepository.save(admin);
     }
 
-    public List<MenuDto> loadMenu(Integer merchantId, Role role) {
+    public List<MenuDto> loadMenu(Long merchantId, Role role) {
         List<Tuple> tuples;
         //如果是系统默认角色，则获取所有菜单权限
         if (role.getSystemDefault()) {
@@ -196,7 +196,7 @@ public class AdminService extends AbsService {
         }, List::addAll);
     }
 
-    public List<String> loadFunction(Integer merchantId, Role role) {
+    public List<String> loadFunction(Long merchantId, Role role) {
         return new ArrayList<>(bqf.selectFrom(qMenuRole)
                 .join(qMenu).on(qMenuRole.menuId.eq(qMenu.id))
                 .select(qMenu.component)
@@ -207,7 +207,7 @@ public class AdminService extends AbsService {
                 ).orderBy(qMenu.menuGroup.asc(), qMenu.pos.asc()).fetch());
     }
 
-    public Admin getDefaultAdmin(Integer merchantId) {
+    public Admin getDefaultAdmin(Long merchantId) {
         return bqf.selectFrom(qAdmin)
                 .where(qAdmin.merchantId.eq(merchantId).and(qAdmin.systemDefault.isTrue()))
                 .fetchFirst();

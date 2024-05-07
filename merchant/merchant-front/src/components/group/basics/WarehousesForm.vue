@@ -10,6 +10,9 @@
       <FormItem label="仓库地址"  prop="address">
         <Input placeholder="请输入仓库地址" v-model="model.address"/>
       </FormItem>
+      <FormItem label="是否启用" prop="enabled" single>
+        <Radio v-model="model.enabled" dict="enableRadios"/>
+      </FormItem>
     </Form>
   </div>
   <div class="layui-layer-btn layui-layer-btn-r">
@@ -40,8 +43,8 @@ export default {
         name: null,
         code:null,
         address:null,
+        enabled:true,
         isDefault:0,
-        enabled:0
       },
       validationRules: {
       }

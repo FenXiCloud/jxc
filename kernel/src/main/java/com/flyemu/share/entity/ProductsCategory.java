@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -24,7 +25,7 @@ public class ProductsCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 64, nullable = false)
     private String code;
@@ -32,9 +33,9 @@ public class ProductsCategory {
     @Column(length = 64, nullable = false)
     private String name;
 
-    private Integer pid;
+    private Long pid;
 
-    private Integer sort;
+    private Long sort;
 
     @Comment("查询路径")
     private String path;
@@ -43,9 +44,14 @@ public class ProductsCategory {
     private String imgPath;
 
     @Column( nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Column( nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
+
+    @Comment("是否叶子节点")
+    @ColumnDefault("b'1'")
+    @Column(nullable = false)
+    private Boolean leaf;
 
 }

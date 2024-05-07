@@ -3,13 +3,16 @@ package com.flyemu.share.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
+import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.entity.QOrganization;
 import com.flyemu.share.entity.QWarehouses;
 import com.flyemu.share.entity.Warehouses;
 import com.flyemu.share.repository.WarehousesRepository;
+import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,12 +26,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WarehousesService extends AbsService {
 
-    private final QWarehouses qWarehouses = QWarehouses.warehouses;
+    private static final QWarehouses qWarehouses = QWarehouses.warehouses;
 
     private final WarehousesRepository warehousesRepository;
 
-    public PageResults<Warehouses> query(Page page, Integer merchantId) {
-        PagedList<Warehouses> fetchPage = bqf.selectFrom(qWarehouses).where(qWarehouses.merchantId.eq(merchantId))
+    public PageResults<Warehouses> query(Page page,Query query) {
+        PagedList<Warehouses> fetchPage = bqf.selectFrom(qWarehouses).where(query.builder)
                 .orderBy(qWarehouses.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         return new PageResults<>(fetchPage, page);
@@ -36,26 +39,47 @@ public class WarehousesService extends AbsService {
 
 
     @Transactional
-    public Warehouses save(Warehouses warehouses, Integer merchantId) {
+    public Warehouses save(Warehouses warehouses) {
         if (warehouses.getId() != null) {
             //更新
             Warehouses original = warehousesRepository.getById(warehouses.getId());
             BeanUtil.copyProperties(warehouses, original, CopyOptions.create().ignoreNullValue());
             return warehousesRepository.save(original);
         }
-        warehouses.setMerchantId(merchantId);
         return warehousesRepository.save(warehouses);
     }
 
 
     @Transactional
-    public void delete(Integer warehousesId) {
-        QOrganization qOrganization = QOrganization.organization;
-        long count = bqf.selectFrom(qOrganization).where(qOrganization.id.eq(warehousesId)).fetchCount();
-        warehousesRepository.deleteById(warehousesId);
+    public void delete(Long warehousesId,Long merchantId,  Long organizationId) {
+        jqf.delete(qWarehouses)
+                .where(qWarehouses.merchantId.eq(merchantId).and(qWarehouses.organizationId.eq(organizationId)).and(qWarehouses.id.eq(warehousesId))).execute();
     }
 
-    public List<Warehouses> select(Integer merchantId) {
-        return bqf.selectFrom(qWarehouses).where(qWarehouses.merchantId.eq(merchantId)).fetch();
+    public List<Warehouses> select(Long merchantId,Long organizationId) {
+        return bqf.selectFrom(qWarehouses).where(qWarehouses.merchantId.eq(merchantId).and(qWarehouses.organizationId.eq(organizationId))).fetch();
+    }
+
+    public static class Query {
+        public final BooleanBuilder builder = new BooleanBuilder();
+
+        public void setMerchantId(Long merchantId) {
+            if (merchantId != null) {
+                builder.and(qWarehouses.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Long organizationId) {
+            if (organizationId != null) {
+                builder.and(qWarehouses.organizationId.eq(organizationId));
+            }
+        }
+
+        public void setFilter(String filter) {
+            if (StrUtil.isNotBlank(filter)) {
+                builder.and(qWarehouses.code.contains(filter)
+                        .or(qWarehouses.name.contains(filter)));
+            }
+        }
     }
 }

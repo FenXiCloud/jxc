@@ -22,7 +22,12 @@
                    :column-config="{resizable: true}"
                    :loading="loading">
           <vxe-column type="seq" width="40" title="#"/>
-          <vxe-column title="客户名称" field="name"/>
+          <vxe-column title="编码" field="code" width="120"/>
+          <vxe-column title="客户名称" field="name" min-width="200"/>
+          <vxe-column title="联系人" field="linkman" width="120"/>
+          <vxe-column title="电话" field="phone" width="120"/>
+          <vxe-column title="分类" field="categoryName" width="120"/>
+          <vxe-column title="备注" field="remark" min-width="120"/>
           <vxe-column title="操作" align="center" width="200">
             <template #default="{row}">
                 <i class="primary-color h-icon-edit ml-10px" @click="showForm(row)"></i>
@@ -74,10 +79,10 @@ export default {
   methods: {
     showForm(entity) {
       let layerId = layer.open({
-        title: "用户信息",
+        title: "客户信息",
         shadeClose: false,
         closeBtn: false,
-        area: ['600px', '500px'],
+        area: ['700px', '500px'],
         content: h(CustomersForm, {
           entity,
           onClose: () => {

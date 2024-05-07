@@ -28,7 +28,7 @@ public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 32, nullable = false)
     private String name;
@@ -36,7 +36,7 @@ public class Role implements Serializable {
     @Comment("是否系统默认")
     private Boolean systemDefault;
 
-    private Integer merchantId;
+    private Long merchantId;
 
     @Override
     public boolean equals(Object o) {

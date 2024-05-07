@@ -21,6 +21,7 @@
                    :row-config="{height: 48}"
                    :loading="loading">
           <vxe-column type="seq" width="40" title="#"/>
+          <vxe-column title="编码" field="code"/>
           <vxe-column title="名称" field="name"/>
           <vxe-column title="操作" align="center" width="300">
             <template #default="{row}">
@@ -66,7 +67,7 @@ export default {
         title: "单位信息",
         shadeClose: false,
         closeBtn: false,
-        area: ['400px', '230px'],
+        area: ['400px', '330px'],
         content: h(VendorsCategoryForm, {
           entity, type,
           onClose: () => {

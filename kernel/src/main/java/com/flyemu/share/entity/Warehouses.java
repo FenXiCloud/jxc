@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 /**
  * @功能描述: 仓库管理
@@ -22,25 +25,28 @@ public class Warehouses {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(length = 32, nullable = false)
     private String name;
 
     private String code;
 
-    private String linkman;
-
-    private String phone;
-
     private String remark;
+    private String address;
+
+    private Boolean enabled;
+
+    @Comment("创建时间")
+    @CreationTimestamp
+    private Date createDate;
 
     @Comment("组织ID")
     @Column(nullable = false)
-    private Integer organizationId;
+    private Long organizationId;
 
     @Comment("商户ID")
     @Column(nullable = false)
-    private Integer merchantId;
+    private Long merchantId;
 
 }

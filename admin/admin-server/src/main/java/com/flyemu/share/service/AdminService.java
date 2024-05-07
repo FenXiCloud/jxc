@@ -115,7 +115,7 @@ public class AdminService extends AbsService {
 
 
     @Transactional
-    public void delete(Integer adminId, Integer merchantId) {
+    public void delete(Long adminId, Long merchantId) {
         jqf.delete(qAdmin)
                 .where(qAdmin.id.eq(adminId).and(qAdmin.systemDefault.isFalse()).and(qAdmin.merchantId.eq(merchantId)))
                 .execute();
@@ -132,11 +132,11 @@ public class AdminService extends AbsService {
 
         Role role = bqf.selectFrom(qRole).where(qRole.id.eq(admin.getRoleId())).fetchFirst();
 
-        return new AccountDto(admin, merchant, role);
+        return new AccountDto(admin, merchant, role,null);
     }
 
     @Transactional
-    public void updatePassword(Integer adminId, String oldPassword, String newPassword, Integer merchantId) {
+    public void updatePassword(Long adminId, String oldPassword, String newPassword, Long merchantId) {
         Admin admin = jqf.selectFrom(qAdmin).where(qAdmin.id.eq(adminId).and(qAdmin.merchantId.eq(merchantId))).fetchFirst();
         Assert.isTrue(DigestUtil.bcryptCheck(oldPassword, admin.getPassword()), "原密码错误~");
         admin.setPassword(DigestUtil.bcrypt(newPassword));
@@ -149,7 +149,7 @@ public class AdminService extends AbsService {
      * @param adminId 管理员ID
      */
     @Transactional
-    public void resetPassword(Integer adminId, Integer merchantId) {
+    public void resetPassword(Long adminId, Long merchantId) {
         Admin admin = jqf.selectFrom(qAdmin).where(qAdmin.id.eq(adminId)).fetchFirst();
         admin.setPassword(DigestUtil.bcrypt(admin.getMobile().substring(5)));
         adminRepository.save(admin);
@@ -159,7 +159,7 @@ public class AdminService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
-        public void setMerchantId(Integer merchantId) {
+        public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qAdmin.merchantId.eq(merchantId));
             }
