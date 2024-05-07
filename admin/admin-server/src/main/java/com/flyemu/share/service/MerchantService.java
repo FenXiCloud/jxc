@@ -89,7 +89,7 @@ public class MerchantService extends AbsService {
         } else {
             merchant.setEnabled(true);
             merchant.setCreateDate(LocalDateTime.now());
-            merchant.setCode((1000 + codeSeedService.next(0, "merchant")) + "");
+            merchant.setCode((1000 + codeSeedService.next(0l, "merchant")) + "");
             merchantRepository.save(merchant);
 
             //创建默认角色和管理员账号
