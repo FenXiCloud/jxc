@@ -29,9 +29,9 @@ public class SaTokenHandlerMethodArgumentResolver implements SaHandlerMethodArgu
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return ((parameter.getParameterType().isAssignableFrom(AccountDto.class)) && parameter.hasParameterAnnotation(SaAccountVal.class))
-                || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaMerchantId.class))
-                || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaAdminId.class))
-                || ((parameter.getParameterType().isAssignableFrom(Integer.class)) && parameter.hasParameterAnnotation(SaOrganizationId.class));
+                || ((parameter.getParameterType().isAssignableFrom(Long.class)) && parameter.hasParameterAnnotation(SaMerchantId.class))
+                || ((parameter.getParameterType().isAssignableFrom(Long.class)) && parameter.hasParameterAnnotation(SaAdminId.class))
+                || ((parameter.getParameterType().isAssignableFrom(Long.class)) && parameter.hasParameterAnnotation(SaOrganizationId.class));
     }
 
 
