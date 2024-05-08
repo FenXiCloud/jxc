@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @SaCheckLogin
 public class PurchaseOrderController {
     private final PurchaseOrderService purchaseOrderService;
+
     /**
      * 购货单列表
      *
@@ -41,6 +42,7 @@ public class PurchaseOrderController {
 
     /**
      * 条件内购货单总金额
+     *
      * @param merchantId
      * @param query
      * @return
@@ -53,6 +55,7 @@ public class PurchaseOrderController {
 
     /**
      * 供货商购货单
+     *
      * @param merchantId
      * @param purchaserId
      * @return
@@ -64,52 +67,55 @@ public class PurchaseOrderController {
 
     /**
      * 保存购货单
+     *
      * @param orderForm
      * @param accountDto
      * @return
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
-        purchaseOrderService.save(orderForm,accountDto.getAdminId(), accountDto.getMerchantId(),accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
+        purchaseOrderService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
 
 
-
     /**
      * 更新购货单状态
+     *
      * @param order
      * @param accountDto
      * @return
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        purchaseOrderService.updateState(order,  accountDto.getMerchantId(),accountDto.getOrganizationId());
+        purchaseOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
         return JsonResult.successful();
     }
 
 
     /**
      * 订货单详情
+     *
      * @param merchantId
      * @param orderId
      * @return
      */
     @GetMapping("load/{orderId}")
     public JsonResult load(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
-        return JsonResult.successful(purchaseOrderService.load(merchantId, orderId,organizationId));
+        return JsonResult.successful(purchaseOrderService.load(merchantId, orderId, organizationId));
     }
 
 
     /**
      * 删除购货单
+     *
      * @param orderId
      * @param merchantId
      * @return
      */
     @DeleteMapping("/{orderId}")
-    public JsonResult delete(@PathVariable Long orderId, @SaMerchantId Long merchantId) {
-        purchaseOrderService.delete(orderId, merchantId);
+    public JsonResult delete(@PathVariable Long orderId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
+        purchaseOrderService.delete(orderId, merchantId, organizationId);
         return JsonResult.successful();
     }
 

@@ -36,32 +36,49 @@ public class OrderDetail {
     @Comment("单据日期")
     private LocalDate billDate;
 
+    @Comment("基本数量比例")
+    private Double num;
+
     @Comment("系统数量,盘点使用")
     private BigDecimal sysQuantity;
 
-    @Comment("数量")
-    private BigDecimal quantity;
+    @Comment("下单数量")
+    private BigDecimal orderQuantity;
 
-    @Comment("单价")
-    private BigDecimal price;
+    @Comment("采购单位ID")
+    private Long orderUnitId;
 
-    @Comment("小计金额")
-    private BigDecimal totalAmount;
+    @Comment("采购单位名称")
+    private String orderUnitName;
 
-    @Comment("折扣金额")
-    private BigDecimal discountAmount;
-
-    @Comment("基本单位ID")
+    @Comment("基础单位ID")
     private Long unitId;
 
-    @Comment("基本单位")
+    @Comment("基础单位名称")
     private String unitName;
+
+    @Comment("单价")
+    private BigDecimal orderPrice;
+
+    @Comment("折扣率")
+    @Column(nullable = false, columnDefinition = "double default '100.00'", precision = 3, scale = 2)
+    private Double discount;
+
+    @Comment("优惠金额")
+    private BigDecimal discountAmount ;
+
+    @Comment("折后金额")
+    private BigDecimal discountedAmount ;
 
     @Comment("批次号")
     private String batchDate;
 
     @Comment("备注")
     private String remark;
+
+    @Comment("仓库ID")
+    @Column(nullable = false)
+    private Long warehouseId;
 
     @Comment("组织ID")
     @Column(nullable = false)
@@ -70,9 +87,6 @@ public class OrderDetail {
     @Comment("商户ID")
     @Column(nullable = false)
     private Long merchantId;
-
-
-
 
 
 }

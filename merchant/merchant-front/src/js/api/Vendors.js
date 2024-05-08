@@ -19,5 +19,8 @@ export default {
 	},
 	select(param) {
 		return Ajax.get('/vendors/select', param)
+	},
+	productsSelect(id) {
+		return Ajax.get('/vendors/products/select/'+ id)
 	}
 }

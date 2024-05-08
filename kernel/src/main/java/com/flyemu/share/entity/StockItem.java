@@ -27,6 +27,9 @@ public class StockItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Comment("订单Id")
+    private Long orderId;
+
     @Comment("单号")
     private String code;
 
@@ -41,6 +44,10 @@ public class StockItem {
 
     @Comment("数量")
     private BigDecimal quantity;
+
+    @Comment("仓库ID")
+    @Column(nullable = false)
+    private Long warehouseId;
 
     @Comment("可出库数量")
     private BigDecimal  availableQuantity;

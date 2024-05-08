@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -147,7 +148,7 @@ public class ProductsService extends AbsService {
                         UnitPrice up = new UnitPrice();
                         up.setUnitName(multiUnit.getUnitName());
                         up.setUnitId(multiUnit.getUnitId());
-                        up.setPrice(cp.getDoubleValue(multiUnit.getUnitId() + ""));
+                        up.setPrice(cp.getBigDecimal(multiUnit.getUnitId() + ""));
                         ups.add(up);
                     }
                     levelPrice.setUnitPrice(ups);
@@ -178,7 +179,7 @@ public class ProductsService extends AbsService {
                                 up.setUnitId(gp.getUnitId());
                                 up.setUnitName(gp.getUnitName());
                                 up.setNum(gp.getNum());
-                                up.setPrice(0d);
+                                up.setPrice(BigDecimal.ZERO);
                                 price.getUnitPrice().add(up);
                             }
                         } else {
@@ -188,7 +189,7 @@ public class ProductsService extends AbsService {
                                 up.setUnitName(multiUnit.getUnitName());
                                 up.setUnitId(multiUnit.getUnitId());
                                 up.setNum(gp.getNum());
-                                up.setPrice(0d);
+                                up.setPrice(BigDecimal.ZERO);
                                 ups.add(up);
                             }
                             price.setUnitPrice(ups);
@@ -217,8 +218,9 @@ public class ProductsService extends AbsService {
                 .execute();
     }
 
-    public List<Products> select(Long merchantId) {
-        return bqf.selectFrom(qProducts).where(qProducts.merchantId.eq(merchantId)).fetch();
+    public List<Products> select(Long merchantId,Long organizationId) {
+        return bqf.selectFrom(qProducts).where(qProducts.merchantId.eq(merchantId).and(qProducts.organizationId.eq(organizationId))
+                .and(qProducts.enabled.isTrue())).fetch();
     }
 
     public Products load(Long productsId, Long merchantId) {

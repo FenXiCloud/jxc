@@ -35,17 +35,15 @@
         <vxe-column type="checkbox" width="40" align="center"/>
         <vxe-column type="seq" width="50" title="序号"/>
         <vxe-column title="单号" field="code" width="200"/>
-        <vxe-column title="供应商名称" field="purchaserName" min-width="120"/>
-        <vxe-column title="创建时间" field="createDate" align="center" width="130" sortable/>
+        <vxe-column title="供货商名称" field="vendorsName" min-width="120"/>
+        <vxe-column title="创建时间" field="createDate" align="center" width="200" sortable/>
         <vxe-column title="单据日期" field="billDate" align="center" width="130" sortable/>
-        <vxe-column title="金额" field="amount" width="80"/>
-        <vxe-column title="退货金额" field="returnAmount" width="80"/>
-        <vxe-column title="状态" field="purchaserOrderState" width="80"/>
-        <vxe-column title="付款状态" field="payState" width="80"/>
+        <vxe-column title="金额" field="discountedAmount" width="80"/>
+        <vxe-column title="状态" field="orderStatus" width="80"/>
         <vxe-column title="操作" align="center" width="200">
           <template #default="{row}">
             <span class="primary-color  text-hover ml-10px" @click="showOrderView(row.id,row.purchaserOrderState)">详情</span>
-            <template v-if="row.purchaserOrderState==='待审核'">
+            <template v-if="row.orderStatus==='已保存'">
               <span class="primary-color  text-hover ml-10px" @click="showForm('add',row.id)">编辑</span>
               <span class="primary-color  text-hover ml-10px" @click="updateState(row,'审核','已审核')">审核</span>
               <span class="primary-color  text-hover ml-10px" @click="doRemove(row)">删除</span>
@@ -69,7 +67,7 @@
                  :total="pagination.total"
                  :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
         <template #left>
-          <span class="mr-12px text-16px">总金额：{{ amountTotal }}元</span>
+<!--          <span class="mr-12px text-16px">总金额：{{ amountTotal }}元</span>-->
           <vxe-button @click="loadList(false)" type="text" size="mini" icon="fa fa-refresh"
                       :loading="loading"></vxe-button>
         </template>
@@ -166,6 +164,7 @@ export default {
           type,
           orderId,
           onClose: () => {
+            this.doSearch();
             layer.close(layerId);
           },
           onSuccess: () => {

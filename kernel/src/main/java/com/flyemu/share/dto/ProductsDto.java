@@ -12,6 +12,7 @@ public class ProductsDto {
     private String code;
 
     private String name;
+    private String title;
 
     private Integer categoryId;
 

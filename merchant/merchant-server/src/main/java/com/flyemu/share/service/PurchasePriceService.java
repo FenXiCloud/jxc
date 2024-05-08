@@ -53,20 +53,20 @@ public class PurchasePriceService extends AbsService {
                 if (purchasePrice.getUnitPrice() != null && CollUtil.isNotEmpty(purchasePrice.getUnitPrice())) {
                     for (UnitPrice item : purchasePrice.getUnitPrice()) {
                         if (item.getUnitId().equals(price.getInputUnitId())) {
-                            item.setPrice(price.getInputPrice().doubleValue());
+                            item.setPrice(price.getInputPrice());
                             b = false;
                             break;
                         }
                     }
                     if (b) {
-                        UnitPrice unitPrice = new UnitPrice(price.getInputUnitId(), price.getInputUnitName(), false, 1d, price.getInputPrice().doubleValue());
+                        UnitPrice unitPrice = new UnitPrice(price.getInputUnitId(), price.getInputUnitName(), false, 1d, price.getInputPrice());
                         purchasePrice.getUnitPrice().add(unitPrice);
                     }
                     jqf.update(qPurchasePrice)
                             .set(qPurchasePrice.unitPrice, purchasePrice.getUnitPrice())
                             .where(qPurchasePrice.id.eq(purchasePrice.getId())).execute();
                 } else {
-                    UnitPrice unitPrice = new UnitPrice(price.getInputUnitId(), price.getInputUnitName(), false, 1d, price.getInputPrice().doubleValue());
+                    UnitPrice unitPrice = new UnitPrice(price.getInputUnitId(), price.getInputUnitName(), false, 1d, price.getInputPrice());
                     List<UnitPrice> unitPrices = new ArrayList<>();
                     unitPrices.add(unitPrice);
                     purchasePrice.setUnitPrice(unitPrices);
@@ -84,7 +84,7 @@ public class PurchasePriceService extends AbsService {
 //                price.setPrice(price.getInputPrice());
                 if (CollUtil.isNotEmpty(products.getMultiUnit()) && products.getEnableMultiUnit()) {
                     products.getMultiUnit().stream().filter(item -> item.getUnitId().equals(price.getInputUnitId())).forEach(item -> {
-                        item.setPrice(price.getInputPrice().doubleValue());
+                        item.setPrice(price.getInputPrice());
                     });
                     price.setUnitPrice(products.getMultiUnit());
                 } else {

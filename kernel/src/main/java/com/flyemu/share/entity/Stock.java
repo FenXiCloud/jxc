@@ -27,16 +27,20 @@ public class Stock {
     private Long id;
 
     @Comment("产品ID")
-    private Integer productsId;
+    private Long productsId;
 
     @Comment("数量")
-    private BigDecimal TotalQuantity;
+    private BigDecimal totalQuantity;
 
     @Comment("平均成本")
     private BigDecimal weightedAverageCost;
 
     @Comment("小计金额")
     private BigDecimal totalAmount;
+
+    @Comment("仓库ID")
+    @Column(nullable = false)
+    private Long warehouseId;
 
     @Comment("组织ID")
     @Column(nullable = false)

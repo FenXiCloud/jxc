@@ -23,6 +23,9 @@ export default {
     select(param) {
         return Ajax.get('/purchaseOrder/select', param)
     },
+    updateState(param) {
+        return Ajax.put('/purchaseOrder', param)
+    },
     levelPrice(purchaseOrderId) {
         return Ajax.get('/purchaseOrder/level/price/' + purchaseOrderId)
     },

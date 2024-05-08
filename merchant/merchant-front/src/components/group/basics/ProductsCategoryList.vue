@@ -62,18 +62,17 @@
 
 <script>
 import {confirm, message} from "heyui.ext";
-import ProductsCategoryForm from "./ProductsCategoryForm.vue";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
 import {downloadBlob} from "download.js";
 import ProductsCategory from "@js/api/ProductsCategory";
+import ProductsCategoryForm from "@components/group/basics/ProductsCategoryForm.vue";
 
 export default {
   name: "ProductsCategory",
   props: {
     merchant: Object,
   },
-  components: {ProductsCategoryForm},
   data() {
     return {
       opened: true,

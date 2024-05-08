@@ -36,6 +36,9 @@ public class PurchasePrice {
     @Column(nullable = false)
     private Long merchantId;
 
+    @Column(nullable = false)
+    private Long organizationId;
+
     private Long productsId;
 
     @Comment("单位")

@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
+import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.Vendors;
 import com.flyemu.share.service.VendorsService;
@@ -63,5 +64,11 @@ public class VendorsController {
     @GetMapping("select")
     public JsonResult select(@SaMerchantId Long merchantId) {
         return JsonResult.successful(vendorsService.select(merchantId));
+    }
+
+
+    @GetMapping("/products/select/{vendorsId}")
+    public JsonResult select(@PathVariable Long vendorsId, @SaOrganizationId Long organizationId, @SaMerchantId Long merchantId) {
+        return JsonResult.successful(vendorsService.selectProducts(vendorsId, merchantId,organizationId));
     }
 }

@@ -2,6 +2,8 @@ package com.flyemu.share.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @功能描述: 多规格单位价格
  * @创建时间: 2024年04月28日
@@ -16,9 +18,9 @@ public class UnitPrice {
     private String unitName;
     private Boolean isDefault = false;
     private Double num = 1d; //换算值
-    private Double price = 0d;
+    private BigDecimal price = BigDecimal.ZERO;
 
-    public UnitPrice(Long unitId, String unitName, Boolean isDefault, Double num, Double price) {
+    public UnitPrice(Long unitId, String unitName, Boolean isDefault, Double num, BigDecimal price) {
         this.unitId = unitId;
         this.unitName = unitName;
         this.isDefault = isDefault;

@@ -2,11 +2,8 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Dict;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
@@ -42,7 +39,7 @@ import java.util.*;
 @Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class PurchaseOrderService extends AbsService{
+public class PurchaseOrderService extends AbsService {
     private final static QOrder qOrder = QOrder.order;
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
     private final static QVendors qVendors = QVendors.vendors;
@@ -51,6 +48,7 @@ public class PurchaseOrderService extends AbsService{
     private final OrderDetailRepository orderDetailRepository;
     private final CodeSeedService codeSeedService;
     private final PurchasePriceService purchasePriceService;
+    private final StockItemService stockItemService;
 
 
     public PageResults<PurchaserOrderDto> query(Page page, Query query) {
@@ -88,12 +86,13 @@ public class PurchaseOrderService extends AbsService{
     }
 
     @Transactional
-    public void delete(Long orderId, Long merchantId) {
-        jqf.delete(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId))).execute();
+    public void delete(Long orderId, Long merchantId, Long organizationId) {
+        jqf.delete(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).execute();
+        jqf.delete(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).execute();
     }
 
     @Transactional
-    public void save(OrderForm orderForm, Long adminId, Long merchantId,Long organizationId, String merchantCode) {
+    public void save(OrderForm orderForm, Long adminId, Long merchantId, Long organizationId, String merchantCode) {
         Order order = orderForm.getOrder();
         order.setMerchantId(merchantId);
         if (order.getId() != null) {
@@ -106,11 +105,12 @@ public class PurchaseOrderService extends AbsService{
             for (OrderDetail d : orderForm.getDetailList()) {
 //                保存更新购货商品价格
                 PurchaserPriceDto dto = new PurchaserPriceDto();
-                dto.setInputPrice(d.getPrice());
+                dto.setInputPrice(d.getOrderPrice());
                 dto.setInputUnitId(d.getUnitId());
                 dto.setInputUnitName(d.getUnitName());
                 dto.setProductsId(d.getProductsId());
                 dto.setMerchantId(merchantId);
+                dto.setOrganizationId(organizationId);
                 dto.setVendorsId(order.getVendorsId());
                 purchasePriceService.save(dto);
 
@@ -133,15 +133,16 @@ public class PurchaseOrderService extends AbsService{
             order.setOrganizationId(organizationId);
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
-//                //保存更新购货商品价格
-//                PurchaserPriceDto dto = new PurchaserPriceDto();
-//                dto.setInputPrice(d.getOrderPrice());
-//                dto.setInputUnitId(d.getOrderUnitId());
-//                dto.setInputUnitName(d.getOrderUnitName());
-//                dto.setGoodsId(d.getGoodsId());
-//                dto.setMerchantId(merchantId);
-//                dto.setPurchaserId(order.getPurchaserId());
-//                purchaserPriceService.save(dto);
+//                保存更新购货商品价格
+                PurchaserPriceDto dto = new PurchaserPriceDto();
+                dto.setInputPrice(d.getOrderPrice());
+                dto.setInputUnitId(d.getUnitId());
+                dto.setInputUnitName(d.getUnitName());
+                dto.setProductsId(d.getProductsId());
+                dto.setMerchantId(merchantId);
+                dto.setOrganizationId(organizationId);
+                dto.setVendorsId(order.getVendorsId());
+                purchasePriceService.save(dto);
 
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
@@ -167,13 +168,17 @@ public class PurchaseOrderService extends AbsService{
                     Dict dict = Dict.create()
                             .set("id", od.getId())
                             .set("productsId", od.getProductsId())
-                            .set("totalAmount", od.getTotalAmount())
-                            .set("price", od.getPrice())
-                            .set("quantity", od.getQuantity())
+                            .set("discountedAmount", od.getDiscountedAmount())
+                            .set("orderPrice", od.getOrderPrice())
+                            .set("orderQuantity", od.getOrderQuantity())
                             .set("sysQuantity", od.getSysQuantity())
-                            .set("quantity", od.getQuantity())
                             .set("unitId", od.getUnitId())
                             .set("unitName", od.getUnitName())
+                            .set("orderUnitId", od.getOrderUnitId())
+                            .set("orderUnitName", od.getOrderUnitName())
+                            .set("discount", od.getDiscount())
+                            .set("warehouseId", od.getWarehouseId())
+                            .set("remark", od.getRemark())
                             .set("discountAmount", od.getDiscountAmount())
                             .set("productsCode", tuple.get(qProducts.code))
                             .set("productsName", tuple.get(qProducts.name))
@@ -181,16 +186,16 @@ public class PurchaseOrderService extends AbsService{
                             .set("imgPath", tuple.get(qProducts.imgPath));
                     list.add(dict);
                 }, List::addAll);
-        return Dict.create().set("order", order).set("goodsData", collect);
+        return Dict.create().set("order", order).set("productsData", collect);
     }
-
 
 
     @Transactional
     public void updateState(Order order, Long merchantId, Long organizationId) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        first.setOrderStatus(order.getOrderStatus());
+        stockItemService.change(order.getId(),merchantId,organizationId,"加");
+        first.setOrderStatus(Order.OrderStatus.已审核);
         orderRepository.save(first);
     }
 
@@ -236,6 +241,7 @@ public class PurchaseOrderService extends AbsService{
             }
             return qOrder.billDate.desc();
         }
+
         public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qOrder.merchantId.eq(merchantId));
