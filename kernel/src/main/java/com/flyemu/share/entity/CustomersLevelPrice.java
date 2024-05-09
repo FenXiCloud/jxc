@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class CustomersLevelPrice implements Serializable {
     private Long unitId;
 
     @Comment("基础单位价格")
-    private Double price;
+    private BigDecimal price;
 
     @Comment("客户单位辅助价格")
     @JdbcTypeCode(SqlTypes.JSON)

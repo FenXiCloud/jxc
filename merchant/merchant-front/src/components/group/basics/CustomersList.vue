@@ -27,8 +27,9 @@
           <vxe-column title="联系人" field="linkman" width="120"/>
           <vxe-column title="电话" field="phone" width="120"/>
           <vxe-column title="分类" field="categoryName" width="120"/>
+          <vxe-column title="等级" field="levelName" width="120"/>
           <vxe-column title="备注" field="remark" min-width="120"/>
-          <vxe-column title="操作" align="center" width="200">
+          <vxe-column title="操作" align="center" width="160">
             <template #default="{row}">
                 <i class="primary-color h-icon-edit ml-10px" @click="showForm(row)"></i>
                 <i class="primary-color h-icon-trash ml-10px" @click="doRemove(row)"></i>

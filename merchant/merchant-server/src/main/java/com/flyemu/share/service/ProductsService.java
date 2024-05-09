@@ -11,6 +11,7 @@ import com.flyemu.share.common.PinYinUtil;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.ProductsDto;
+import com.flyemu.share.dto.SelectProductsDto;
 import com.flyemu.share.dto.UnitPrice;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.form.ProductsForm;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +50,7 @@ public class ProductsService extends AbsService {
     private final ProductsRepository productsRepository;
     private final CustomersLevelPriceRepository customersLevelPriceRepository;
     private final QCustomersLevelPrice qCustomersLevelPrice = QCustomersLevelPrice.customersLevelPrice;
+    private final QCustomers qCustomers = QCustomers.customers;
     private final CodeSeedService codeSeedService;
 
 
@@ -138,7 +141,7 @@ public class ProductsService extends AbsService {
                 CustomersLevelPrice levelPrice = new CustomersLevelPrice();
                 levelPrice.setProductsId(products.getId());
                 levelPrice.setUnitId(products.getUnitId());
-                levelPrice.setPrice(cp.getDouble("price"));
+                levelPrice.setPrice(cp.getBigDecimal("price"));
                 levelPrice.setMerchantId(merchantId);
                 levelPrice.setOrganizationId(organizationId);
                 levelPrice.setCustomersLevelId(cp.getLong("customLeveId"));
@@ -232,10 +235,71 @@ public class ProductsService extends AbsService {
     public Map<Long, CustomersLevelPrice> levelPrice(Long productsId, Long merchantId,Long organizationId) {
         return jqf.selectFrom(qCustomersLevelPrice).where(qCustomersLevelPrice.productsId.eq(productsId).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId))).fetch().stream().collect(Collectors.toMap(c -> c.getCustomersLevelId(), b -> b));
     }
+    
     public long findCount(Long merchantId) {
         return bqf.selectFrom(qProducts).where(qProducts.merchantId.eq(merchantId)).fetchCount();
     }
 
+    public List<SelectProductsDto> goodsPriceList(Long customersId, Long merchantId, Long organizationId, List<Long> goodsIds) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(qProducts.enabled.isTrue());
+//        if (CollUtil.isNotEmpty(goodsIds)) {
+//            builder.and(qProducts.id.in(goodsIds));
+//        }
+
+        //等级价
+        Map<Long, CustomersLevelPrice> customersLevelPriceMap = new HashMap<>();
+        jqf.selectFrom(qCustomersLevelPrice)
+                .innerJoin(qCustomers).on(qCustomers.customersLevelId.eq(qCustomersLevelPrice.customersLevelId))
+                .innerJoin(qProducts).on(qProducts.id.eq(qCustomersLevelPrice.productsId).and(qProducts.merchantId.eq(merchantId)))
+                .where(qCustomersLevelPrice.merchantId.eq(merchantId).and(qCustomersLevelPrice.organizationId.eq(organizationId)).and(qCustomers.id.eq(customersId)).and(builder)).fetch().forEach(tuple -> {
+                    customersLevelPriceMap.put(tuple.getProductsId(), tuple);
+                });
+
+        List<SelectProductsDto> goodsDtoList = new ArrayList<>();
+        jqf.selectFrom(qProducts)
+                .select(qProducts.id, qProducts.code, qProducts.name, qProducts.pinyin,  qProducts.enableMultiUnit, qProducts.imgPath, qUnits.name,
+                        qProducts.multiUnit, qProductsCategory.path, qProductsCategory.name, qProducts.unitId, qProducts.specification)
+                .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId).and(qUnits.merchantId.eq(merchantId)))
+                .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId).and(qProductsCategory.merchantId.eq(merchantId)))
+                .where(qProducts.merchantId.eq(merchantId).and(qProducts.organizationId.eq(organizationId)).and(builder)).orderBy(qProducts.sort.desc()).fetch().forEach(tuple -> {
+                    SelectProductsDto dto = new SelectProductsDto();
+                    dto.setProductsId(tuple.get(qProducts.id));
+                    dto.setImgPath(tuple.get(qProducts.imgPath));
+                    dto.setProductsCode(tuple.get(qProducts.code));
+                    dto.setProductsName(tuple.get(qProducts.name));
+                    dto.setPinyin(tuple.get(qProducts.pinyin));
+                    dto.setCategory(tuple.get(qProductsCategory.name));
+                    dto.setPath(tuple.get(qProductsCategory.path));
+                    dto.setSpecification(tuple.get(qProducts.specification));
+                    dto.setUnitName(tuple.get(qUnits.name));
+                    dto.setUnitId(tuple.get(qProducts.unitId));
+                    dto.setOrderUnitId(tuple.get(qProducts.unitId));
+                    dto.setOrderUnitName(tuple.get(qUnits.name));
+                    dto.setOrderNum(1d);
+                    dto.setEnableMultiUnit(tuple.get(qProducts.enableMultiUnit));
+                    dto.setPrice(BigDecimal.ZERO);
+                    CustomersLevelPrice lp = customersLevelPriceMap.get(dto.getProductsId());
+                    dto.setPrice(lp.getPrice());
+                    if(dto.getEnableMultiUnit()){
+                        List<UnitPrice> units = tuple.get(qProducts.multiUnit);
+                        if (CollUtil.isNotEmpty(units) && units != null&&lp != null && CollUtil.isNotEmpty(lp.getUnitPrice())) {
+                            for (UnitPrice up : units) {
+                                Optional<UnitPrice> first = lp.getUnitPrice().stream().filter(c -> c.getUnitId().equals(up.getUnitId())).findFirst();
+                                if (first.isPresent()) {
+                                    up.setPrice(Optional.ofNullable(first.get().getPrice()).orElse(BigDecimal.ZERO));
+                                }
+                            }
+                            units.add(0, new UnitPrice(dto.getUnitId(), dto.getUnitName(), true, 1d, dto.getPrice()));
+                            dto.setUnitPrice(units);
+                        }
+                    }
+
+                    goodsDtoList.add(dto);
+                });
+
+        return goodsDtoList;
+    }
 
     @Data
     public static class QuerySetup {

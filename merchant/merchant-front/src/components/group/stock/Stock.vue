@@ -14,7 +14,7 @@
                  ref="table"
                  height="auto"
                  :data="dataList"
-                 :tree-config="{transform:true, rowField: 'nm', parentField: 'pnm'}"
+                 :tree-config="{transform:true, rowField: 'treeId', parentField: 'ptreeId'}"
                  highlight-hover-row
                  show-overflow
                  show-footer
@@ -128,26 +128,6 @@ export default {
         }
       })
       return [["", "", "", "", "", ""].concat(sums)];
-    },
-    showForm(type = 'add', orderId = null) {
-      let layerId = layer.drawer({
-        title: "采购订单",
-        shadeClose: false,
-        ZIndex: 100,
-        area: ['90vw', '100vh'],
-        content: h(PurchaseOrderForm, {
-          type,
-          orderId,
-          onClose: () => {
-            this.doSearch();
-            layer.close(layerId);
-          },
-          onSuccess: () => {
-            this.doSearch();
-            layer.close(layerId);
-          }
-        })
-      });
     },
     doSearch() {
       this.pagination.page = 1;

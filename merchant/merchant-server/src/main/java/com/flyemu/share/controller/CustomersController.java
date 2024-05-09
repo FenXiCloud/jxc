@@ -6,9 +6,7 @@ import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.Customers;
-import com.flyemu.share.entity.Merchant;
 import com.flyemu.share.service.CustomersService;
-import com.flyemu.share.service.MerchantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -78,6 +76,12 @@ public class CustomersController {
     public JsonResult delete(@PathVariable Long customersId, @SaOrganizationId Long organizationId, @SaMerchantId Long merchantId) {
         customersService.delete(customersId,merchantId,organizationId);
         return JsonResult.successful();
+    }
+
+
+    @GetMapping("select")
+    public JsonResult select(@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        return JsonResult.successful(customersService.select(merchantId,organizationId));
     }
 
 }

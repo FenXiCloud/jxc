@@ -10,4 +10,5 @@ import lombok.EqualsAndHashCode;
 public class PurchaserOrderDto extends Order {
 
     private String VendorsName;
+    private String CustomersName;
 }

@@ -37,6 +37,9 @@ public class Customers {
 
     private Long customersCategoryId;
 
+    @Column(nullable = false)
+    private Long customersLevelId;
+
     @Comment("组织ID")
     @Column(nullable = false)
     private Long organizationId;

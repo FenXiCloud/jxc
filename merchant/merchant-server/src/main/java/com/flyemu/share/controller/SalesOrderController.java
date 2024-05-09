@@ -8,26 +8,26 @@ import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.Order;
 import com.flyemu.share.form.OrderForm;
-import com.flyemu.share.service.PurchaseOrderService;
+import com.flyemu.share.service.SalesOrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * @功能描述: 采购入库
+ * @功能描述: 销售出库单
  * @创建时间: 2024年05月07日
  * @公司官网: www.fenxi365.com
  * @公司信息: 纷析云（杭州）科技有限公司
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
  */
 @RestController
-@RequestMapping("/purchaseOrder")
+@RequestMapping("/salesOrder")
 @RequiredArgsConstructor
 @SaCheckLogin
-public class PurchaseOrderController {
-    private final PurchaseOrderService purchaseOrderService;
+public class SalesOrderController {
+    private final SalesOrderService salesOrderService;
 
     /**
-     * 入库单列表
+     * 出库单列表
      *
      * @param merchantId
      * @param page
@@ -35,40 +35,40 @@ public class PurchaseOrderController {
      * @return
      */
     @GetMapping
-    public JsonResult list(Page page, PurchaseOrderService.Query query, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
+    public JsonResult list( Page page, SalesOrderService.Query query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
         query.setMerchantId(merchantId);
         query.setOrganizationId(organizationId);
-        return JsonResult.successful(purchaseOrderService.query(page, query));
+        return JsonResult.successful(salesOrderService.query(page, query));
     }
 
     /**
-     * 条件内入库单总金额
+     * 条件出库单总金额
      *
      * @param merchantId
      * @param query
      * @return
      */
     @GetMapping("/total")
-    public JsonResult queryTotal(PurchaseOrderService.Query query, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
+    public JsonResult queryTotal( SalesOrderService.Query query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
         query.setMerchantId(merchantId);
         query.setOrganizationId(organizationId);
-        return JsonResult.successful(purchaseOrderService.queryTotal(query));
+        return JsonResult.successful(salesOrderService.queryTotal(query));
     }
 
     /**
-     * 供货商入库单
-     *
+     * 客户出库单
+     * @param customersId
      * @param merchantId
-     * @param vendorsId
+     * @param organizationId
      * @return
      */
-    @GetMapping("/listBy/{vendorsId}")
-    public JsonResult listBy(@PathVariable Long vendorsId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
-        return JsonResult.successful(purchaseOrderService.listBy(vendorsId, merchantId, organizationId));
+    @GetMapping("/listBy/{customersId}")
+    public JsonResult listBy( @PathVariable Long customersId,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        return JsonResult.successful(salesOrderService.listBy( customersId,merchantId,organizationId));
     }
 
     /**
-     * 保存入库单
+     * 保存出库单
      *
      * @param orderForm
      * @param accountDto
@@ -76,13 +76,13 @@ public class PurchaseOrderController {
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
-        purchaseOrderService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
+        salesOrderService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
 
 
     /**
-     * 更新入库单状态
+     * 更新出库单状态
      *
      * @param order
      * @param accountDto
@@ -90,13 +90,13 @@ public class PurchaseOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        purchaseOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
+        salesOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
         return JsonResult.successful();
     }
 
 
     /**
-     * 入库单详情
+     * 出库单详情
      *
      * @param merchantId
      * @param orderId
@@ -104,24 +104,12 @@ public class PurchaseOrderController {
      */
     @GetMapping("load/{orderId}")
     public JsonResult load(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
-        return JsonResult.successful(purchaseOrderService.load(merchantId, orderId, organizationId));
+        return JsonResult.successful(salesOrderService.load(merchantId, orderId, organizationId));
     }
 
 
     /**
-     * 返回创建退单用的list
-     *
-     * @param merchantId
-     * @param orderId
-     * @return
-     */
-    @GetMapping("loadTo/return/{orderId}")
-    public JsonResult loadToReturn(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
-        return JsonResult.successful(purchaseOrderService.loadToReturn(orderId, merchantId, organizationId));
-    }
-
-    /**
-     * 删除入库单
+     * 删除出库单
      *
      * @param orderId
      * @param merchantId
@@ -129,7 +117,7 @@ public class PurchaseOrderController {
      */
     @DeleteMapping("/{orderId}")
     public JsonResult delete(@PathVariable Long orderId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
-        purchaseOrderService.delete(orderId, merchantId, organizationId);
+        salesOrderService.delete(orderId, merchantId, organizationId);
         return JsonResult.successful();
     }
 

@@ -55,7 +55,7 @@ public class StockService extends AbsService {
         ArrayList<StockDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockDto dto = new StockDto();
             pIds.add(tuple.get(qStock.productsId));
-            dto.setNm(tuple.get(qStock.productsId).toString());
+            dto.setTreeId(tuple.get(qStock.productsId).toString());
             dto.setTotalQuantity(tuple.get(qStock.totalQuantity.sum()));
             dto.setWarehousesName("全部仓库");
             dto.setCategoryName(tuple.get(qProductsCategory.name));
@@ -77,8 +77,8 @@ public class StockService extends AbsService {
                 .where(query.builders().and(qStock.productsId.in(pIds)))
                 .orderBy(qProducts.id.desc()).fetch().forEach(tuple -> {
                     StockDto dto = BeanUtil.toBean(tuple.get(qStock), StockDto.class);
-                    dto.setNm("nm"+dto.getProductsId());
-                    dto.setPnm(dto.getProductsId().toString());
+                    dto.setTreeId("tr"+dto.getProductsId());
+                    dto.setPTreeId(dto.getProductsId().toString());
                     dto.setWarehousesName(tuple.get(qWarehouses.name));
                     dto.setCategoryName(tuple.get(qProductsCategory.name));
                     dto.setProductsCode(tuple.get(qProducts.code));

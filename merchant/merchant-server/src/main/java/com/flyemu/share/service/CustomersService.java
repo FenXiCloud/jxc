@@ -36,6 +36,7 @@ public class CustomersService extends AbsService {
 
     private static final QCustomers qCustomers = QCustomers.customers;
     private static final QCustomersCategory qCustomersCategory = QCustomersCategory.customersCategory;
+    private static final QCustomersLevel qCustomersLevel = QCustomersLevel.customersLevel;
 
     private final CustomersRepository customersRepository;
 
@@ -43,8 +44,9 @@ public class CustomersService extends AbsService {
 
     public PageResults<CustomersDto> query(Page page, Query query) {
         PagedList<Tuple> fetchPage = bqf.selectFrom(qCustomers)
-                .select(qCustomers,qCustomersCategory.name)
+                .select(qCustomers, qCustomersCategory.name, qCustomersLevel.name)
                 .leftJoin(qCustomersCategory).on(qCustomersCategory.id.eq(qCustomers.customersCategoryId))
+                .leftJoin(qCustomersLevel).on(qCustomersLevel.id.eq(qCustomers.customersLevelId))
                 .where(query.builder)
                 .orderBy(qCustomers.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
@@ -52,20 +54,21 @@ public class CustomersService extends AbsService {
         ArrayList<CustomersDto> collect = fetchPage.stream().collect(ArrayList::new, (list, tuple) -> {
             CustomersDto dto = BeanUtil.toBean(tuple.get(qCustomers), CustomersDto.class);
             dto.setCategoryName(tuple.get(qCustomersCategory.name));
+            dto.setLevelName(tuple.get(qCustomersLevel.name));
             list.add(dto);
         }, List::addAll);
-        return new PageResults<>(collect, page,fetchPage.getTotalSize());
+        return new PageResults<>(collect, page, fetchPage.getTotalSize());
     }
 
     @Transactional
-    public Customers save(Customers customers,String merchCode) {
+    public Customers save(Customers customers, String merchCode) {
         if (customers.getId() != null) {
             //更新
             Customers original = customersRepository.getById(customers.getId());
-            if(!original.getCode().equals(customers.getCode())){
-                if(StrUtil.isEmpty(customers.getCode())){
+            if (!original.getCode().equals(customers.getCode())) {
+                if (StrUtil.isEmpty(customers.getCode())) {
                     customers.setCode(original.getCode());
-                }else {
+                } else {
                     //手动设置了编码，需要检查重复
                     long count = bqf.selectFrom(qCustomers)
                             .where(qCustomers.merchantId.eq(original.getMerchantId()).and(qCustomers.code.eq(customers.getCode()))
@@ -77,10 +80,10 @@ public class CustomersService extends AbsService {
             BeanUtil.copyProperties(customers, original, CopyOptions.create().ignoreNullValue());
             return customersRepository.save(original);
         }
-        if(StrUtil.isEmpty(customers.getCode())){
+        if (StrUtil.isEmpty(customers.getCode())) {
             String code = merchCode + codeSeedService.nextNum(1l, "CustomCode" + customers.getMerchantId());
             customers.setCode(code);
-        }else {
+        } else {
             //手动设置了编码，需要检查重复
             long count = bqf.selectFrom(qCustomers)
                     .where(qCustomers.merchantId.eq(customers.getMerchantId()).and(qCustomers.organizationId.eq(customers.getOrganizationId())).and(qCustomers.code.eq(customers.getCode())))
@@ -94,9 +97,14 @@ public class CustomersService extends AbsService {
 
 
     @Transactional
-    public void delete(Long customersId,Long merchantId, Long organizationId) {
+    public void delete(Long customersId, Long merchantId, Long organizationId) {
         jqf.delete(qCustomers)
                 .where(qCustomers.id.eq(customersId).and(qCustomers.merchantId.eq(merchantId)).and(qCustomers.organizationId.eq(organizationId))).execute();
+    }
+
+
+    public List<Customers> select(Long merchantId, Long organizationId) {
+        return bqf.selectFrom(qCustomers).where(qCustomers.merchantId.eq(merchantId).and(qCustomers.organizationId.eq(organizationId))).fetch();
     }
 
     /**

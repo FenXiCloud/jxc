@@ -153,14 +153,14 @@ const groupRoutes = [
 			},
 
 			{
-				path: 'salesDeliveryForm',
-				name: 'SalesDeliveryForm',
+				path: 'salesOrderForm',
+				name: 'SalesOrderForm',
 				component: SalesOrderForm,
 				meta: {title: '销售出库单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'salesDeliveryList',
-				name: 'SalesDeliveryList',
+				path: 'salesOrderList',
+				name: 'SalesOrderList',
 				component: SalesOrderList,
 				meta: {title: '销售出库单列表', icon: 'icon-monitor'}
 			},
@@ -202,14 +202,14 @@ const groupRoutes = [
 				meta: {title: '采购汇总表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'purchaseReceiptForm',
-				name: 'PurchaseReceiptForm',
+				path: 'purchaseOrderForm',
+				name: 'PurchaseOrderForm',
 				component: PurchaseOrderForm,
 				meta: {title: '采购入库单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'purchaseReceiptList',
-				name: 'PurchaseReceiptList',
+				path: 'purchaseOrderList',
+				name: 'PurchaseOrderList',
 				component: PurchaseOrderList,
 				meta: {title: '采购入库单列表', icon: 'icon-monitor'}
 			},

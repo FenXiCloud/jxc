@@ -58,8 +58,8 @@
     </div>
     <div class="flex justify-between items-center pt-5px">
       <div>
-        <vxe-button @click="batchState">批量审核</vxe-button>
-        <vxe-button @click="batchPay">批量付款</vxe-button>
+<!--        <vxe-button @click="batchState">批量审核</vxe-button>-->
+<!--        <vxe-button @click="batchPay">批量付款</vxe-button>-->
       </div>
       <vxe-pager perfect @page-change="loadList(false)"
                  v-model:current-page="pagination.page"

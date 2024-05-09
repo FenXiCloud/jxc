@@ -5,7 +5,7 @@
         <template #buttons>
           <span class=" red-color" style="font-size: 20px!important;"> {{ order.orderStatus }}</span>
           <span class="ml-16px" style="font-size: 15px!important;">订单号: {{ order.code }}</span>
-          <span class="ml-16px" style="font-size: 15px!important;">供货商名称: {{ order.vendorsName }}</span>
+          <span class="ml-16px" style="font-size: 15px!important;">客户名称: {{ order.customersName }}</span>
         </template>
         <template #tools>
         </template>
@@ -65,10 +65,10 @@
 
 <script>
 import {confirm, loading, message} from "heyui.ext";
-import PurchaseOrder from "@js/api/PurchaseOrder";
+import SalesOrder from "@js/api/SalesOrder";
 
 export default {
-  name: "PurchaseOrderView",
+  name: "SalesOrderView",
   props: {
     orderId: Number,
   },
@@ -99,7 +99,7 @@ export default {
     },
     loadOrder() {
       loading("加载中....");
-      PurchaseOrder.load(this.orderId).then(({data: {order, productsData}}) => {
+      SalesOrder.load(this.orderId).then(({data: {order, productsData}}) => {
         this.order = order || {};
         this.productsData = productsData || [];
       }).finally(() => loading.close());

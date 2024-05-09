@@ -3,13 +3,10 @@ package com.flyemu.share.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
-import com.flyemu.share.entity.Products;
 import com.flyemu.share.form.ProductsForm;
 import com.flyemu.share.service.ProductsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-
 
 /**
  * @功能描述: 商品列表
@@ -60,6 +57,11 @@ public class ProductsController {
     @GetMapping("/level/price/{productsId}")
     public JsonResult levelPrice(@PathVariable Long productsId, @SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
         return JsonResult.successful(productsService.levelPrice(productsId, merchantId, organizationId));
+    }
+
+    @GetMapping("/goods/price/{customersId}")
+    public JsonResult goodsPrice(@PathVariable Long customersId, @SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        return JsonResult.successful(productsService.goodsPriceList(customersId, merchantId, organizationId,null));
     }
 
 }

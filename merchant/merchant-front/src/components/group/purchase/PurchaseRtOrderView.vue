@@ -34,21 +34,21 @@
               </div>
             </template>
           </vxe-column>
-          <vxe-column title="采购单位" field="orderUnitName" align="center" width="80"/>
-          <vxe-column title="采购数量" field="orderQuantity" align="center" width="80"/>
-          <vxe-column title="购货单价" field="orderPrice" width="80"/>
+          <vxe-column title="退货单位" field="orderUnitName" align="center" width="80"/>
+          <vxe-column title="退货数量" field="orderQuantity" align="center" width="80"/>
+          <vxe-column title="退货单价" field="orderPrice" width="80"/>
           <vxe-column title="基本单位" field="unitName" align="center" width="80"/>
           <vxe-column title="基本数量" field="sysQuantity" width="80"/>
           <vxe-column title="折扣率(%)" field="discount" width="90"/>
           <vxe-column title="折扣额" field="discountAmount" width="80"/>
-          <vxe-column title="购货金额" field="discountedAmount" width="80"/>
+          <vxe-column title="退货金额" field="discountedAmount" width="80"/>
           <vxe-column title="备注" field="remarks"/>
         </vxe-table>
       </div>
       <vxe-toolbar class-name="before-table">
         <template #tools>
           <div class="text-14px">
-            <span class="ml-5px">合计金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
+            <span class="ml-5px">合计退货金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
           </div>
         </template>
       </vxe-toolbar>
@@ -65,10 +65,10 @@
 
 <script>
 import {confirm, loading, message} from "heyui.ext";
-import PurchaseOrder from "@js/api/PurchaseOrder";
+import PurchaseRtOrder from "@js/api/PurchaseRtOrder";
 
 export default {
-  name: "PurchaseOrderView",
+  name: "PurchaseRtOrderView",
   props: {
     orderId: Number,
   },
@@ -99,7 +99,7 @@ export default {
     },
     loadOrder() {
       loading("加载中....");
-      PurchaseOrder.load(this.orderId).then(({data: {order, productsData}}) => {
+      PurchaseRtOrder.load(this.orderId).then(({data: {order, productsData}}) => {
         this.order = order || {};
         this.productsData = productsData || [];
       }).finally(() => loading.close());

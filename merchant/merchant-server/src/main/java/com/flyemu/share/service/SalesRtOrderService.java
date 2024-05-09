@@ -9,7 +9,6 @@ import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.PurchaserOrderDto;
-import com.flyemu.share.dto.PurchaserPriceDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
@@ -25,12 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * @功能描述: 采购入库单
- * @创建时间: 2024年05月07日
+ * @功能描述: 销售出库单
+ * @创建时间: 2024年05月09日
  * @公司官网: www.fenxi365.com
  * @公司信息: 纷析云（杭州）科技有限公司
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
@@ -39,27 +40,26 @@ import java.util.*;
 @Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class PurchaseOrderService extends AbsService {
+public class SalesRtOrderService extends AbsService {
     private final static QOrder qOrder = QOrder.order;
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
-    private final static QVendors qVendors = QVendors.vendors;
+    private final static QCustomers qCustomers = QCustomers.customers;
     private final static QProducts qProducts = QProducts.products;
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final CodeSeedService codeSeedService;
-    private final PurchasePriceService purchasePriceService;
     private final StockItemService stockItemService;
 
 
     public PageResults<PurchaserOrderDto> query(Page page, Query query) {
-        PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qVendors.name)
-                .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.采购入库单)))
+        PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qCustomers.name)
+                .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
+                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.销售退货单)))
                 .orderBy(query.sortSpecifier(), qOrder.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<PurchaserOrderDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             PurchaserOrderDto dto = BeanUtil.toBean(tuple.get(qOrder), PurchaserOrderDto.class);
-            dto.setVendorsName(tuple.get(qVendors.name));
+            dto.setCustomersName(tuple.get(qCustomers.name));
             list.add(dto);
         }, List::addAll);
         return new PageResults<>(collect, page, pagedList.getTotalSize());
@@ -68,14 +68,14 @@ public class PurchaseOrderService extends AbsService {
     public BigDecimal queryTotal(Query query) {
         return bqf.selectFrom(qOrder)
                 .select(qOrder.discountedAmount.sum())
-                .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.采购入库单))).fetchFirst();
+                .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
+                .where(query.builder).fetchFirst();
     }
 
-    public List<Dict> listBy(Long vendorsId, Long merchantId, Long organizationId) {
+    public List<Dict> listBy(Long customersId, Long merchantId, Long organizationId) {
         List<Dict> list = new ArrayList<>();
         bqf.selectFrom(qOrder).select(qOrder.code, qOrder.id)
-                .where(qOrder.merchantId.eq(merchantId).and(qOrder.vendorsId.eq(vendorsId)).and(qOrder.organizationId.eq(organizationId)))
+                .where(qOrder.merchantId.eq(merchantId).and(qOrder.customersId.eq(customersId)).and(qOrder.organizationId.eq(organizationId)))
                 .orderBy(qOrder.id.desc()).fetch().forEach(tuple -> {
                     Dict dict = new Dict()
                             .set("id", tuple.get(qOrder.id))
@@ -100,19 +100,8 @@ public class PurchaseOrderService extends AbsService {
 
             BeanUtil.copyProperties(order, original, CopyOptions.create().ignoreNullValue());
 
-
             Set<Long> ids = new HashSet<>();
             for (OrderDetail d : orderForm.getDetailList()) {
-//                保存更新购货商品价格
-                PurchaserPriceDto dto = new PurchaserPriceDto();
-                dto.setInputPrice(d.getOrderPrice());
-                dto.setInputUnitId(d.getUnitId());
-                dto.setInputUnitName(d.getUnitName());
-                dto.setProductsId(d.getProductsId());
-                dto.setMerchantId(merchantId);
-                dto.setOrganizationId(organizationId);
-                dto.setVendorsId(order.getVendorsId());
-                purchasePriceService.save(dto);
 
                 if (d.getId() != null) {
                     ids.add(d.getId());
@@ -125,8 +114,8 @@ public class PurchaseOrderService extends AbsService {
             orderRepository.save(original);
         } else {
             String code = "";
-            code = "CGRKD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "CGRKD");
-            order.setOrderType(Order.OrderType.采购入库单);
+            code = "XSTHD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "XSTHD");
+            order.setOrderType(Order.OrderType.销售退货单);
             order.setCode(code);
             order.setOrderStatus(Order.OrderStatus.已保存);
             order.setUserId(adminId);
@@ -134,17 +123,6 @@ public class PurchaseOrderService extends AbsService {
             order.setOrganizationId(organizationId);
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
-//                保存更新购货商品价格
-                PurchaserPriceDto dto = new PurchaserPriceDto();
-                dto.setInputPrice(d.getOrderPrice());
-                dto.setInputUnitId(d.getUnitId());
-                dto.setInputUnitName(d.getUnitName());
-                dto.setProductsId(d.getProductsId());
-                dto.setMerchantId(merchantId);
-                dto.setOrganizationId(organizationId);
-                dto.setVendorsId(order.getVendorsId());
-                purchasePriceService.save(dto);
-
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
@@ -154,10 +132,10 @@ public class PurchaseOrderService extends AbsService {
     }
 
     public Dict load(Long merchantId, Long orderId, Long organizationId) {
-        Tuple fetchFirst = jqf.selectFrom(qOrder).select(qOrder, qVendors.name).leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId)).where(qOrder.merchantId.eq(merchantId).and(qOrder.id.eq(orderId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
+        Tuple fetchFirst = jqf.selectFrom(qOrder).select(qOrder, qCustomers.name).leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId)).where(qOrder.merchantId.eq(merchantId).and(qOrder.id.eq(orderId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
 
         PurchaserOrderDto order = BeanUtil.toBean(fetchFirst.get(qOrder), PurchaserOrderDto.class);
-        order.setVendorsName(fetchFirst.get(qVendors.name));
+        order.setCustomersName(fetchFirst.get(qCustomers.name));
         ArrayList<Dict> collect = jqf.selectFrom(qOrderDetail)
                 .select(qOrderDetail, qProducts.code, qProducts.name,
                         qProducts.imgPath, qProducts.specification)
@@ -195,49 +173,12 @@ public class PurchaseOrderService extends AbsService {
     public void updateState(Order order, Long merchantId, Long organizationId) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        stockItemService.change(order.getId(), merchantId, organizationId, "加");
+        stockItemService.change(order.getId(),merchantId,organizationId,"加");
         first.setOrderStatus(Order.OrderStatus.已审核);
         orderRepository.save(first);
     }
 
 
-    public Dict loadToReturn(Long orderId,Long merchantId,Long organizationId) {
-        Tuple fetchFirst = jqf.selectFrom(qOrder).select(qOrder, qVendors.name).leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId)).where(qOrder.merchantId.eq(merchantId).and(qOrder.id.eq(orderId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
-
-        PurchaserOrderDto order = BeanUtil.toBean(fetchFirst.get(qOrder), PurchaserOrderDto.class);
-        order.setVendorsName(fetchFirst.get(qVendors.name));
-        ArrayList<Dict> collect = jqf.selectFrom(qOrderDetail)
-                .select(qOrderDetail, qProducts.code, qProducts.name,
-                        qProducts.imgPath, qProducts.specification)
-                .leftJoin(qProducts).on(qProducts.id.eq(qOrderDetail.productsId).and(qProducts.merchantId.eq(merchantId)))
-                .where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId)))
-                .orderBy(qOrderDetail.id.asc())
-                .fetch().stream().collect(ArrayList::new, (list, tuple) -> {
-                    OrderDetail od = tuple.get(qOrderDetail);
-                    Dict dict = Dict.create()
-                            .set("productsId", od.getProductsId())
-                            .set("discountedAmount", od.getDiscountedAmount())
-                            .set("orderPrice", od.getOrderPrice())
-                            .set("orderPrice", od.getOrderPrice())
-                            .set("orderQuantity", od.getOrderQuantity())
-                            .set("orderDetailId", od.getId())
-                            .set("orderUnitId", od.getOrderUnitId())
-                            .set("orderUnitName", od.getOrderUnitName())
-                            .set("num", od.getNum())
-                            .set("orderQuantity", od.getOrderQuantity())
-                            .set("unitId", od.getUnitId())
-                            .set("unitName", od.getUnitName())
-                            .set("discount", od.getDiscount())
-                            .set("remark", od.getRemark())
-                            .set("productsCode", tuple.get(qProducts.code))
-                            .set("productsName", tuple.get(qProducts.name))
-                            .set("spec", tuple.get(qProducts.specification))
-                            .set("imgPath", tuple.get(qProducts.imgPath));
-                    list.add(dict);
-                }, List::addAll);
-        return Dict.create().set("order", order).set("productsData", collect);
-    }
-    
     @Data
     public static class DetailQuery {
         private String goodsFilter;
@@ -294,7 +235,7 @@ public class PurchaseOrderService extends AbsService {
 
         public void setFilter(String filter) {
             if (filter != null) {
-                builder.and(qOrder.code.contains(filter).or(qVendors.name.contains(filter)));
+                builder.and(qOrder.code.contains(filter).or(qCustomers.name.contains(filter)));
             }
         }
 

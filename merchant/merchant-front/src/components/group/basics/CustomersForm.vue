@@ -8,9 +8,13 @@
         <FormItem label="客户名称" required prop="name" single>
           <Input placeholder="请输入客户名称" v-model="model.name"/>
         </FormItem>
-        <FormItem label="客户分类" required prop="customersCategoryId" single>
+        <FormItem label="客户分类" required prop="customersCategoryId" >
           <Select :datas="customCategoryList" keyName="id" titleName="name" v-model="model.customersCategoryId"
                   placeholder="请选择客户分类" :deletable="false"/>
+        </FormItem>
+        <FormItem label="客户等级" required prop="customersLevelId" >
+          <Select :datas="customersLevelList" keyName="id" titleName="name" v-model="model.customersLevelId"
+                  placeholder="请选择客户等级" :deletable="false"/>
         </FormItem>
         <FormItem label="联系人" prop="linkman" >
           <Input placeholder="联系人" v-model.trim="model.linkman"/>
@@ -46,6 +50,7 @@ import Customers from "@js/api/Customers";
 import {message} from "heyui.ext";
 import {CopyObj} from "@common/utils";
 import CustomersCategory from "@js/api/CustomersCategory";
+import CustomersLevel from "@js/api/CustomersLevel";
 
 export default {
   name: "CustomersForm",
@@ -58,6 +63,7 @@ export default {
     return {
       loading: false,
       customCategoryList: [],
+      customersLevelList: [],
       model: {
         id: null,
         code: null,
@@ -65,6 +71,7 @@ export default {
         linkman: null,
         phone: null,
         customersCategoryId: null,
+        customersLevelId: null,
         remark: null
       },
       validationRules: {
@@ -87,8 +94,10 @@ export default {
     CopyObj(this.model, this.entity);
     Promise.all([
       CustomersCategory.select(),
+        CustomersLevel.select()
     ]).then((results) => {
       this.customCategoryList = results[0].data || [];
+      this.customersLevelList = results[1].data || [];
     }).finally(() => this.loading = false);
   }
 }

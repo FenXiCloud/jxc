@@ -31,6 +31,7 @@ public class VendorsController {
     @GetMapping
     public JsonResult list(@SaAccountVal AccountDto accountDto, Page page, VendorsService.Query query) {
         query.setMerchantId(accountDto.getMerchantId());
+        query.setOrganizationId(accountDto.getOrganizationId());
         return JsonResult.successful(vendorsService.query(page, query));
     }
 
@@ -62,8 +63,8 @@ public class VendorsController {
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Long merchantId) {
-        return JsonResult.successful(vendorsService.select(merchantId));
+    public JsonResult select(@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        return JsonResult.successful(vendorsService.select(merchantId,organizationId));
     }
 
 

@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 public class StockDto extends Stock {
     private Long parentId;
-    private String nm;
-    private String pnm;
+    private String treeId;
+    private String pTreeId;
     private String warehousesName;
     private String categoryName;
     private String productsName;

@@ -17,4 +17,7 @@ export default {
 	remove(adminId) {
 		return Ajax.delete('/customers/' + adminId);
 	},
+	select(param) {
+		return Ajax.get('/customers/select', param)
+	},
 }

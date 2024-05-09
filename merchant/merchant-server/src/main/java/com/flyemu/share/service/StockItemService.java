@@ -2,10 +2,8 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.collection.CollUtil;
 import com.flyemu.share.entity.*;
-import com.flyemu.share.repository.OrderRepository;
 import com.flyemu.share.repository.StockItemRepository;
 import com.flyemu.share.repository.StockRepository;
-import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,6 +49,7 @@ public class StockItemService extends AbsService {
                 stockItem.setAvailableQuantity(od.getSysQuantity());
                 stockItem.setBillDate(order.getBillDate());
                 stockItem.setWarehouseId(od.getWarehouseId());
+                stockItem.setTotalAmount(od.getDiscountedAmount());
                 stockItems.add(stockItem);
                 Stock stock = stockMap.get(od.getProductsId() + "-" + od.getWarehouseId());
                 if (stock == null) {

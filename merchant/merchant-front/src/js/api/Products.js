@@ -26,5 +26,8 @@ export default {
 	levelPrice(productsId) {
 		return Ajax.get('/products/level/price/' + productsId)
 	},
+	goodsPrice(customersId) {
+		return Ajax.get('/products/goods/price/' + customersId)
+	},
 }
 

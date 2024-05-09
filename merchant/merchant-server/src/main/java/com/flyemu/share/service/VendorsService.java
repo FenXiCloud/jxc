@@ -86,8 +86,8 @@ public class VendorsService extends AbsService {
                 .execute();
     }
 
-    public List<Vendors> select(Long merchantId) {
-        return bqf.selectFrom(qVendors).where(qVendors.merchantId.eq(merchantId)).fetch();
+    public List<Vendors> select(Long merchantId,Long organizationId) {
+        return bqf.selectFrom(qVendors).where(qVendors.merchantId.eq(merchantId).and(qVendors.organizationId.eq(organizationId)).and(qVendors.enabled.isTrue())).fetch();
     }
 
     public List<SelectPurchaseProductsDto> selectProducts(Long vendorsId, Long merchantId, Long organizationId) {
