@@ -14,7 +14,7 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="green">添 加</Button>
+        <Button @click="showForm()" color="primary">添 加</Button>
       </template>
     </vxe-toolbar>
     <div class="flex flex-1">
@@ -73,7 +73,7 @@
           </vxe-column>
           <vxe-column title="状态" field="enabled" width="80" sortable align="center">
             <template #default="{row}">
-              <Tag color="green" v-if="row.enabled" class="cursor-pointer">正常</Tag>
+              <Tag color="primary" v-if="row.enabled" class="cursor-pointer">正常</Tag>
               <Tag color="gray" v-else class="cursor-pointer">禁用</Tag>
             </template>
           </vxe-column>

@@ -13,7 +13,8 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="green">添加</Button>
+        <Button @click="showForm()" color="primary">添加</Button>
+        <Button @click="addCategoryForm()" color="primary">新增分类</Button>
       </template>
     </vxe-toolbar>
     <div class="flex-1">
@@ -36,7 +37,7 @@
         <vxe-column title="创建时间" field="createDate" width="140"/>
         <vxe-column title="状态" field="enabled" width="60">
           <template #default="{row}">
-            <Tag color="green" v-if="row.enabled">启用</Tag>
+            <Tag color="primary" v-if="row.enabled">启用</Tag>
             <Tag color="red" v-else>禁用</Tag>
           </template>
         </vxe-column>
@@ -68,6 +69,7 @@ import VendorsForm from "./VendorsForm.vue";
 import {confirm, message} from "heyui.ext";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
+import VendorsCategoryForm from "@components/group/basics/VendorsCategoryForm.vue";
 
 export default {
   name: "VendorsList",
@@ -94,6 +96,25 @@ export default {
     }
   },
   methods: {
+    addCategoryForm(entity) {
+      let type = 0;
+      let layerId = layer.open({
+        title: "单位信息",
+        shadeClose: false,
+        closeBtn: false,
+        area: ['400px', '330px'],
+        content: h(VendorsCategoryForm, {
+          entity, type,
+          onClose: () => {
+            layer.close(layerId);
+          },
+          onSuccess: () => {
+            this.doSearch();
+            layer.close(layerId);
+          }
+        })
+      });
+    },
     showForm(entity) {
       let layerId = layer.open({
         title: "供货商信息",

@@ -15,7 +15,7 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="green">新 增</Button>
+        <Button @click="showForm()" color="primary">新 增</Button>
       </template>
     </vxe-toolbar>
     <div class="flex1">
@@ -106,7 +106,6 @@ export default {
         state: null,
         sortCol: null,
         sort: null,
-        orderType: '采购订单',
       },
       dateRange: {
         start: manba(startTime).format("YYYY-MM-dd"),

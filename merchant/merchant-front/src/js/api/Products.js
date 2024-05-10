@@ -23,6 +23,9 @@ export default {
 	select(param) {
 		return Ajax.get('/products/select', param)
 	},
+	loadToOrder(param) {
+		return Ajax.get('/products/loadTo/order', param)
+	},
 	levelPrice(productsId) {
 		return Ajax.get('/products/level/price/' + productsId)
 	},

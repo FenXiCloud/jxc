@@ -11,6 +11,7 @@
           </div>
           <div class="table-toolbar-right">
             <Button @click="showForm()" color="primary">新 增</Button>
+            <Button @click="addCategoryForm()" color="primary">新增分类</Button>
           </div>
         </div>
         <vxe-table row-id="id"
@@ -47,6 +48,7 @@ import Customers from "@js/api/Customers";
 import {confirm, message} from "heyui.ext";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
+import CustomersCategoryForm from "@components/group/basics/CustomersCategoryForm.vue";
 
 /**
  * @功能描述: 客户管理
@@ -78,6 +80,25 @@ export default {
     }
   },
   methods: {
+    addCategoryForm(entity) {
+      let type = 0;
+      let layerId = layer.open({
+        title: "客户分类",
+        shadeClose: false,
+        closeBtn: false,
+        area: ['400px', '230px'],
+        content: h(CustomersCategoryForm, {
+          entity, type,
+          onClose: () => {
+            layer.close(layerId);
+          },
+          onSuccess: () => {
+            this.doSearch();
+            layer.close(layerId);
+          }
+        })
+      });
+    },
     showForm(entity) {
       let layerId = layer.open({
         title: "客户信息",

@@ -113,7 +113,6 @@
 import {confirm, loading, message} from "heyui.ext";
 import manba from "manba";
 import {CopyObj} from "@common/utils";
-import PurchaseOrder from "@js/api/PurchaseOrder";
 import Warehouses from "@js/api/Warehouses";
 import Customers from "@js/api/Customers";
 import Products from "@js/api/Products";

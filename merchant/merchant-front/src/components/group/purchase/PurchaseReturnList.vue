@@ -15,7 +15,7 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="green">新 增</Button>
+        <Button @click="showForm()" color="primary">新 增</Button>
       </template>
     </vxe-toolbar>
     <div class="flex1">

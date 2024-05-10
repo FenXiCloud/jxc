@@ -40,6 +40,12 @@ public class WarehousesService extends AbsService {
 
     @Transactional
     public Warehouses save(Warehouses warehouses) {
+        // 如果是默认
+        if (warehouses.getIsDefault()){
+            jqf.update(qWarehouses)
+                    .set(qWarehouses.isDefault,false)
+                    .where(qWarehouses.merchantId.eq(warehouses.getMerchantId()).and(qWarehouses.organizationId.eq(warehouses.getOrganizationId()))).execute();
+        }
         if (warehouses.getId() != null) {
             //更新
             Warehouses original = warehousesRepository.getById(warehouses.getId());
@@ -57,7 +63,7 @@ public class WarehousesService extends AbsService {
     }
 
     public List<Warehouses> select(Long merchantId,Long organizationId) {
-        return bqf.selectFrom(qWarehouses).where(qWarehouses.merchantId.eq(merchantId).and(qWarehouses.organizationId.eq(organizationId))).fetch();
+        return bqf.selectFrom(qWarehouses).where(qWarehouses.merchantId.eq(merchantId).and(qWarehouses.organizationId.eq(organizationId)).and(qWarehouses.enabled.isTrue())).fetch();
     }
 
     public static class Query {

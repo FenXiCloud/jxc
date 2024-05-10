@@ -62,7 +62,7 @@
         </vxe-column>
         <vxe-column title="基本单位" field="unitName" align="center" width="80"/>
         <vxe-column title="基本数量" field="sysQuantity" width="90"/>
-        <vxe-column title="购货单价" field="orderPrice" width="100">
+        <vxe-column title="退货单价" field="orderPrice" width="100">
           <template #default="{row,rowIndex}">
             <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+4" @keyup="handleEnter($event,rowIndex,4)" @blur="updatePrice(row)" v-model.number="row.orderPrice" type="float" min="0" :controls="false"></vxe-input>
           </template>
@@ -116,7 +116,6 @@ import {CopyObj} from "@common/utils";
 import Warehouses from "@js/api/Warehouses";
 import Customers from "@js/api/Customers";
 import Products from "@js/api/Products";
-import SalesOrder from "@js/api/SalesOrder";
 import SalesReturn from "@js/api/SalesReturn";
 
 export default {
@@ -196,8 +195,7 @@ export default {
           this.$refs.ms.$el.querySelector('input').select()
         }
       }
-    }
-    ,
+    },
     footerMethod({columns, data}) {
       let sums = [];
       let sysQuantity = 0;
@@ -223,8 +221,7 @@ export default {
         }
       })
       return [["", "", "", "", "", "",  "", sysQuantity.toFixed(2), "", ""].concat(sums)];
-    }
-    ,
+    },
     //选择商品
     doChange(d, index) {
       if (d) {
@@ -245,15 +242,14 @@ export default {
         });
       }
       this.products = null;
-    }
-    ,
+    },
     //保存订单
     confirm() {
       loading("保存中....");
       if (!this.form.customersId) {
         message.error("请选择购货商~");
         loading.close()
-        return
+        return;
       }
       let productsData = this.productsData.filter(c => c.sysQuantity > 0);
       if (productsData.length <= 0) {
@@ -272,8 +268,7 @@ export default {
       }).finally(() =>
               this.clear(),
           loading.close());
-    }
-    ,
+    },
     clear() {
       this.form = {
         id: null,
@@ -284,8 +279,7 @@ export default {
       }
       this.productsData = []
       this.customersId = null
-    }
-    ,
+    },
     //+-
     dac(type, index) {
       if (type === 'plus') {
@@ -419,7 +413,7 @@ export default {
       this.warehousesList = results[1].data || [];
       //订单详情/编辑订单
       if (this.orderId) {
-        SalesOrder.load(this.orderId).then(({data: {order, productsData}}) => {
+        SalesReturn.load(this.orderId).then(({data: {order, productsData}}) => {
           if (order) {
             CopyObj(this.form, order);
             this.customersId = order.customersId

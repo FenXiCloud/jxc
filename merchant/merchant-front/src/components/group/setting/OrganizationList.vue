@@ -39,7 +39,7 @@
           <vxe-column title="创建时间" field="createDate" width="140"/>
           <vxe-column title="状态" field="enabled" width="80" align="center" >
             <template #default="{row}">
-              <Tag color="green" v-if="row.enabled" @click="trigger(row)" class="cursor-pointer">启用</Tag>
+              <Tag color="primary" v-if="row.enabled" @click="trigger(row)" class="cursor-pointer">启用</Tag>
               <Tag color="red" v-else @click="trigger(row)" class="cursor-pointer">禁用</Tag>
             </template>
           </vxe-column>

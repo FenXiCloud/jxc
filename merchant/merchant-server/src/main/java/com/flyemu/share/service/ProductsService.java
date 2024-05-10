@@ -12,6 +12,7 @@ import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.ProductsDto;
 import com.flyemu.share.dto.SelectProductsDto;
+import com.flyemu.share.dto.SelectPurchaseProductsDto;
 import com.flyemu.share.dto.UnitPrice;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.form.ProductsForm;
@@ -226,6 +227,36 @@ public class ProductsService extends AbsService {
                 .and(qProducts.enabled.isTrue())).fetch();
     }
 
+    public List<SelectPurchaseProductsDto> loadToOrder( Long merchantId, Long organizationId) {
+        List<SelectPurchaseProductsDto> dtoList = bqf.selectFrom(qProducts)
+                .select(qProducts.name, qProducts.code,  qProducts.specification, qProducts.id, qProductsCategory.path, qProducts.imgPath, qProducts.enableMultiUnit, qProducts.multiUnit, qProducts.unitId, qUnits.name)
+                .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId))
+                .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId))
+                .where(qProducts.merchantId.eq(merchantId).and(qProducts.enabled.isTrue()).and(qProducts.organizationId.eq(organizationId)))
+                .orderBy(qProducts.sort.desc(), qProducts.id.desc())
+                .fetch().stream().collect(ArrayList::new, (list, tuple) -> {
+                    SelectPurchaseProductsDto dto = new SelectPurchaseProductsDto();
+                    dto.setProductsId(tuple.get(qProducts.id));
+                    dto.setImgPath(tuple.get(qProducts.imgPath));
+                    dto.setProductsCode(tuple.get(qProducts.code));
+                    dto.setProductsName(tuple.get(qProducts.name));
+                    dto.setPath(tuple.get(qProductsCategory.path));
+                    dto.setSpec(tuple.get(qProducts.specification));
+                    dto.setUnitName(tuple.get(qUnits.name));
+                    dto.setUnitId(tuple.get(qProducts.unitId));
+                    dto.setPrice(BigDecimal.ZERO);
+                    List<UnitPrice> units = tuple.get(qProducts.multiUnit);
+
+                    if (CollUtil.isNotEmpty(units) && tuple.get(qProducts.enableMultiUnit)) {
+                        units.add(0, new UnitPrice(dto.getUnitId(), dto.getUnitName(), true, 1d, dto.getPrice()));
+                        dto.setUnitPrice(units);
+                    }
+                    dto.setTitle();
+                    list.add(dto);
+                }, List::addAll);
+
+        return dtoList;
+    }
     public Products load(Long productsId, Long merchantId) {
         return jqf.selectFrom(qProducts).where(qProducts.id.eq(productsId).and(qProducts.merchantId.eq(merchantId))).fetchFirst();
     }

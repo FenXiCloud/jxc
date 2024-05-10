@@ -5,7 +5,8 @@
         <template #buttons>
           <span class=" red-color" style="font-size: 20px!important;"> {{ order.orderStatus }}</span>
           <span class="ml-16px" style="font-size: 15px!important;">订单号: {{ order.code }}</span>
-          <span class="ml-16px" style="font-size: 15px!important;">供货商名称: {{ order.vendorsName }}</span>
+          <span class="ml-16px" style="font-size: 15px!important;" v-if="order.vendorsName">供货商名称: {{ order.vendorsName }}</span>
+          <span class="ml-16px" style="font-size: 15px!important;" v-if="order.customersName">客户名称: {{ order.customersName }}</span>
         </template>
         <template #tools>
         </template>
@@ -34,21 +35,21 @@
               </div>
             </template>
           </vxe-column>
-          <vxe-column title="退货单位" field="orderUnitName" align="center" width="80"/>
-          <vxe-column title="退货数量" field="orderQuantity" align="center" width="80"/>
-          <vxe-column title="退货单价" field="orderPrice" width="80"/>
+          <vxe-column title="出库单位" field="orderUnitName" align="center" width="80"/>
+          <vxe-column title="出库数量" field="orderQuantity" align="center" width="80"/>
+          <vxe-column title="出库单价" field="orderPrice" width="80"/>
           <vxe-column title="基本单位" field="unitName" align="center" width="80"/>
           <vxe-column title="基本数量" field="sysQuantity" width="80"/>
           <vxe-column title="折扣率(%)" field="discount" width="90"/>
           <vxe-column title="折扣额" field="discountAmount" width="80"/>
-          <vxe-column title="退货金额" field="discountedAmount" width="120"/>
+          <vxe-column title="出库金额" field="discountedAmount" width="120"/>
           <vxe-column title="备注" field="remarks"/>
         </vxe-table>
       </div>
       <vxe-toolbar class-name="before-table">
         <template #tools>
           <div class="text-14px">
-            <span class="ml-5px">合计退货金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
+            <span class="ml-5px">合计出库金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
           </div>
         </template>
       </vxe-toolbar>
@@ -65,10 +66,10 @@
 
 <script>
 import {confirm, loading, message} from "heyui.ext";
-import PurchaseReturn from "@js/api/PurchaseReturn";
+import StockOutbound from "@js/api/StockOutbound";
 
 export default {
-  name: "PurchaseReturnView",
+  name: "StockOutboundView",
   props: {
     orderId: Number,
   },
@@ -100,7 +101,7 @@ export default {
     },
     loadOrder() {
       loading("加载中....");
-      PurchaseReturn.load(this.orderId).then(({data: {order, productsData}}) => {
+      StockOutbound.load(this.orderId).then(({data: {order, productsData}}) => {
         this.order = order || {};
         this.productsData = productsData || [];
       }).finally(() => loading.close());

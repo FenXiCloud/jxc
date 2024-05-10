@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -36,6 +37,11 @@ public class Warehouses {
     private String address;
 
     private Boolean enabled;
+
+    @Comment("是否默认")
+    @Column(nullable = false)
+    @ColumnDefault("b'0'")
+    private Boolean isDefault;
 
     @Comment("创建时间")
     @CreationTimestamp

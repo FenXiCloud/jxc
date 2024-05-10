@@ -16,7 +16,7 @@
             </Search>
           </div>
           <div class="table-toolbar-right">
-            <Button @click="showForm()" color="green">新 增</Button>
+            <Button @click="showForm()" color="primary">新 增</Button>
           </div>
         </div>
       <vxe-table row-id="id"

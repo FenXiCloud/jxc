@@ -13,6 +13,9 @@
       <FormItem label="是否启用" prop="enabled" single>
         <Radio v-model="model.enabled" dict="enableRadios"/>
       </FormItem>
+      <FormItem label="是否默认" prop="isDefault" single>
+        <Radio v-model="model.isDefault" dict="defaultRadios"/>
+      </FormItem>
     </Form>
   </div>
   <div class="layui-layer-btn layui-layer-btn-r">

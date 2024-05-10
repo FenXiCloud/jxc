@@ -5,7 +5,7 @@
         <div class="table-toolbar">
           <Row :space-x="10">
             <Cell width="30" class="flex items-center">
-              <Input id="name" v-model="params.name" class="flex-1" placeholder="请输入仓库名称"/>
+              <Input id="name" v-model="params.filter" class="flex-1" placeholder="请输入仓库名称"/>
               <Button color="primary" icon="fa fa-search" :loading="loading" @click="doSearch">查询</Button>
             </Cell>
           </Row>
@@ -14,22 +14,21 @@
         <vxe-table row-id="id"
                    ref="table"
                    :data="dataList"
-                   highlight-hover-row
                    show-overflow
                    :loading="loading">
           <vxe-column type="seq" width="60" align="center"/>
           <vxe-column title="仓库编码" field="code" width="200"/>
           <vxe-column title="仓库名称" field="name"/>
           <vxe-column title="仓库地址" field="address"/>
-<!--          <vxe-column title="是否默认" field="isDefault" width="80">-->
-<!--            <template #default="{row:{setMeal}}">-->
-<!--              <Tag color="primary" v-if="setMeal">是</Tag>-->
-<!--              <Tag color="yellow" v-else>否</Tag>-->
-<!--            </template>-->
-<!--          </vxe-column>-->
+          <vxe-column title="默认" field="isDefault" width="80">
+            <template #default="{row:{isDefault}}">
+              <Tag color="primary" v-if="isDefault">是</Tag>
+              <Tag color="yellow" v-else>否</Tag>
+            </template>
+          </vxe-column>
           <vxe-column title="状态" field="enabled" width="80">
             <template #default="{row:{enabled}}">
-              <Tag color="green" v-if="enabled">启用</Tag>
+              <Tag color="primary" v-if="enabled">启用</Tag>
               <Tag color="red" v-else>禁用</Tag>
             </template>
           </vxe-column>
@@ -87,7 +86,7 @@ export default {
         title: "仓库信息",
         shadeClose: false,
         closeBtn: false,
-        area: ['500px', '400px'],
+        area: ['500px', '450px'],
         content: h(WarehousesForm, {
           warehouse,
           onClose: () => {

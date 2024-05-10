@@ -54,6 +54,11 @@ public class ProductsController {
         return JsonResult.successful(productsService.select(merchantId,organizationId));
     }
 
+    @GetMapping("loadTo/order")
+    public JsonResult loadToOrder(@SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
+        return JsonResult.successful(productsService.loadToOrder(merchantId,organizationId));
+    }
+
     @GetMapping("/level/price/{productsId}")
     public JsonResult levelPrice(@PathVariable Long productsId, @SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
         return JsonResult.successful(productsService.levelPrice(productsId, merchantId, organizationId));

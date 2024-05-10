@@ -4,7 +4,7 @@
       <Button class="ml-10px" @click="$emit('close')" :loading="loading">
         取 消
       </Button>
-      <Button class="mr-10px" color="green" @click="confirmCheck" :loading="loading">
+      <Button class="mr-10px" color="primary" @click="confirmCheck" :loading="loading">
         保 存
       </Button>
     </div>
