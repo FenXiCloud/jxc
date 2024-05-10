@@ -207,7 +207,7 @@ export default {
     },
     loadList(type = true) {
       this.loading = true;
-      this.loadTotal(type)
+      // this.loadTotal(type)
       PurchaseOrder.list(this.queryParams).then(({data: {results, total}}) => {
         this.dataList = results || [];
         this.pagination.total = total;

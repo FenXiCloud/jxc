@@ -171,7 +171,10 @@ export default {
             this.doSearch();
             layer.close(layerId);
           }
-        })
+        }),
+        onClose: () => {
+          this.doSearch();
+        }
       });
     },
     showOrderView(orderId = null, state) {

@@ -117,7 +117,7 @@ public class SalesOrderService extends AbsService {
             orderRepository.save(original);
         } else {
             String code = "";
-            code = "CGCKD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "CGCKD");
+            code = "XSCKD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "XSCKD");
             order.setOrderType(OrderType.销售出库单);
             order.setCode(code);
             order.setOrderStatus(OrderStatus.已保存);
