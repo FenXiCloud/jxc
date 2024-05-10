@@ -14,8 +14,7 @@
           :width="120"
           placement="bottom-end"
           :datas="infoMenu"
-          @clickItem="trigger"
-      >
+          @clickItem="trigger">
         <span>{{ user.admin.name }}</span>
       </DropdownMenu>
     </div>

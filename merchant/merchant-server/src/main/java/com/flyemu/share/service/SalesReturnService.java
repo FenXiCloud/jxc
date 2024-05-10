@@ -10,6 +10,8 @@ import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.entity.*;
+import com.flyemu.share.enums.OrderStatus;
+import com.flyemu.share.enums.OrderType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -40,7 +42,7 @@ import java.util.Set;
 @Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class SalesRtOrderService extends AbsService {
+public class SalesReturnService extends AbsService {
     private final static QOrder qOrder = QOrder.order;
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
     private final static QCustomers qCustomers = QCustomers.customers;
@@ -54,7 +56,7 @@ public class SalesRtOrderService extends AbsService {
     public PageResults<PurchaserOrderDto> query(Page page, Query query) {
         PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qCustomers.name)
                 .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
-                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.销售退货单)))
+                .where(query.builder.and(qOrder.orderType.eq(OrderType.销售退货单)))
                 .orderBy(query.sortSpecifier(), qOrder.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<PurchaserOrderDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
@@ -115,9 +117,9 @@ public class SalesRtOrderService extends AbsService {
         } else {
             String code = "";
             code = "XSTHD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "XSTHD");
-            order.setOrderType(Order.OrderType.销售退货单);
+            order.setOrderType(OrderType.销售退货单);
             order.setCode(code);
-            order.setOrderStatus(Order.OrderStatus.已保存);
+            order.setOrderStatus(OrderStatus.已保存);
             order.setUserId(adminId);
             order.setMerchantId(merchantId);
             order.setOrganizationId(organizationId);
@@ -174,7 +176,7 @@ public class SalesRtOrderService extends AbsService {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
         stockItemService.change(order.getId(),merchantId,organizationId,"加");
-        first.setOrderStatus(Order.OrderStatus.已审核);
+        first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);
     }
 

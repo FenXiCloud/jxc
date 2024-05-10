@@ -1,5 +1,8 @@
 package com.flyemu.share.entity;
 
+import com.flyemu.share.enums.BusinessType;
+import com.flyemu.share.enums.OrderStatus;
+import com.flyemu.share.enums.OrderType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,7 +52,7 @@ public class Order {
     private OrderType orderType;
 
     @Comment("业务类型")
-    private BusinessType  businessType;
+    private BusinessType businessType;
 
     @Comment("订单状态")
     private OrderStatus orderStatus;
@@ -93,16 +96,4 @@ public class Order {
     @Comment("商户ID")
     @Column(nullable = false)
     private Long merchantId;
-
-    public enum OrderType{
-        销售出库单,销售退货单,采购入库单,采购退货单,其他出库单,其他入库单,盘点单,调拨单
-    }
-
-    public enum BusinessType{
-        盘盈,其他入库,盘亏,其他出库
-    }
-
-    public enum OrderStatus{
-        已保存,已审核
-    }
 }

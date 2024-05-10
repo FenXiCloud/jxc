@@ -38,7 +38,7 @@
         <vxe-column title="供货商名称" field="vendorsName" min-width="120"/>
         <vxe-column title="退货时间" field="createDate" align="center" width="200" sortable/>
         <vxe-column title="单据日期" field="billDate" align="center" width="130" sortable/>
-        <vxe-column title="退货金额" field="discountedAmount" width="80"/>
+        <vxe-column title="退货金额" field="discountedAmount" width="120"/>
         <vxe-column title="状态" field="orderStatus" width="80"/>
         <vxe-column title="操作" align="center" width="200">
           <template #default="{row}">
@@ -80,9 +80,9 @@ import {confirm, message} from "heyui.ext";
 import manba from "manba";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
-import PurchaseRtOrder from "@js/api/PurchaseRtOrder";
+import PurchaseRtOrder from "@js/api/PurchaseReturn";
 import PurchaseReturnForm from "@components/group/purchase/PurchaseReturnForm.vue";
-import PurchaseRtOrderView from "@components/group/purchase/PurchaseRtOrderView.vue";
+import PurchaseRtOrderView from "@components/group/purchase/PurchaseReturnView.vue";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
 const endTime = manba().endOf(manba.DAY).format("YYYY-MM-dd");
@@ -140,7 +140,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['amount', 'returnAmount'].includes(column.property)) {
+        if (column.property && ['discountedAmount'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -170,7 +170,10 @@ export default {
             this.doSearch();
             layer.close(layerId);
           }
-        })
+        }),
+        onClose: () => {
+          this.doSearch();
+        }
       });
     },
     showOrderView(orderId = null, state) {
@@ -285,7 +288,7 @@ export default {
     doRemove(row) {
       confirm({
         title: "系统提示",
-        content: `确认删除：${row.purchaserName}-单号：${row.code}?`,
+        content: `确认删除：${row.vendorsName}-单号：${row.code}?`,
         onConfirm: () => {
           PurchaseRtOrder.remove(row.id).then(() => {
             message("删除成功~");

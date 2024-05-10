@@ -11,6 +11,8 @@ import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.dto.PurchaserPriceDto;
 import com.flyemu.share.entity.*;
+import com.flyemu.share.enums.OrderStatus;
+import com.flyemu.share.enums.OrderType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -55,7 +57,7 @@ public class SalesOrderService extends AbsService {
     public PageResults<PurchaserOrderDto> query(Page page, Query query) {
         PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qCustomers.name)
                 .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
-                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.销售出库单)))
+                .where(query.builder.and(qOrder.orderType.eq(OrderType.销售出库单)))
                 .orderBy(query.sortSpecifier(), qOrder.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<PurchaserOrderDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
@@ -116,9 +118,9 @@ public class SalesOrderService extends AbsService {
         } else {
             String code = "";
             code = "CGCKD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "CGCKD");
-            order.setOrderType(Order.OrderType.销售出库单);
+            order.setOrderType(OrderType.销售出库单);
             order.setCode(code);
-            order.setOrderStatus(Order.OrderStatus.已保存);
+            order.setOrderStatus(OrderStatus.已保存);
             order.setUserId(adminId);
             order.setMerchantId(merchantId);
             order.setOrganizationId(organizationId);
@@ -175,7 +177,7 @@ public class SalesOrderService extends AbsService {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
         stockItemService.change(order.getId(),merchantId,organizationId,"减");
-        first.setOrderStatus(Order.OrderStatus.已审核);
+        first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);
     }
 

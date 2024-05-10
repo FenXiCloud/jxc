@@ -38,7 +38,7 @@
         <vxe-column title="供货商名称" field="vendorsName" min-width="120"/>
         <vxe-column title="创建时间" field="createDate" align="center" width="200" sortable/>
         <vxe-column title="单据日期" field="billDate" align="center" width="130" sortable/>
-        <vxe-column title="金额" field="discountedAmount" width="80"/>
+        <vxe-column title="采购金额" field="discountedAmount" width="120"/>
         <vxe-column title="状态" field="orderStatus" width="80"/>
         <vxe-column title="操作" align="center" width="200">
           <template #default="{row}">
@@ -83,6 +83,7 @@ import {h} from "vue";
 import PurchaseOrderForm from "@components/group/purchase/PurchaseOrderForm.vue";
 import PurchaseOrderView from "@components/group/purchase/PurchaseOrderView.vue";
 import PurchaseOrder from "@js/api/PurchaseOrder";
+import {mapMutations} from "vuex";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
 const endTime = manba().endOf(manba.DAY).format("YYYY-MM-dd");
@@ -141,7 +142,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['amount', 'returnAmount'].includes(column.property)) {
+        if (column.property && ['discountedAmount'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -171,7 +172,10 @@ export default {
             this.doSearch();
             layer.close(layerId);
           }
-        })
+        }),
+        onClose: () => {
+          this.doSearch();
+        }
       });
     },
     showOrderView(orderId = null, state) {
@@ -286,7 +290,7 @@ export default {
     doRemove(row) {
       confirm({
         title: "系统提示",
-        content: `确认删除：${row.purchaserName}-单号：${row.code}?`,
+        content: `确认删除：${row.vendorsName}-单号：${row.code}?`,
         onConfirm: () => {
           PurchaseOrder.remove(row.id).then(() => {
             message("删除成功~");

@@ -8,7 +8,7 @@ import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.Order;
 import com.flyemu.share.form.OrderForm;
-import com.flyemu.share.service.SalesRtOrderService;
+import com.flyemu.share.service.SalesReturnService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.*;
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
  */
 @RestController
-@RequestMapping("/salesRtOrder")
+@RequestMapping("/salesReturn")
 @RequiredArgsConstructor
 @SaCheckLogin
-public class SalesRtOrderController {
-    private final SalesRtOrderService rtOrderService;
+public class SalesReturnController {
+    private final SalesReturnService returnService;
 
     /**
      * 退货单列表
@@ -35,10 +35,10 @@ public class SalesRtOrderController {
      * @return
      */
     @GetMapping
-    public JsonResult list( Page page, SalesRtOrderService.Query query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+    public JsonResult list(Page page, SalesReturnService.Query query, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         query.setMerchantId(merchantId);
         query.setOrganizationId(organizationId);
-        return JsonResult.successful(rtOrderService.query(page, query));
+        return JsonResult.successful(returnService.query(page, query));
     }
 
     /**
@@ -49,10 +49,10 @@ public class SalesRtOrderController {
      * @return
      */
     @GetMapping("/total")
-    public JsonResult queryTotal( SalesRtOrderService.Query query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+    public JsonResult queryTotal(SalesReturnService.Query query, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
         query.setMerchantId(merchantId);
         query.setOrganizationId(organizationId);
-        return JsonResult.successful(rtOrderService.queryTotal(query));
+        return JsonResult.successful(returnService.queryTotal(query));
     }
 
     /**
@@ -64,7 +64,7 @@ public class SalesRtOrderController {
      */
     @GetMapping("/listBy/{customersId}")
     public JsonResult listBy( @PathVariable Long customersId,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
-        return JsonResult.successful(rtOrderService.listBy( customersId,merchantId,organizationId));
+        return JsonResult.successful(returnService.listBy( customersId,merchantId,organizationId));
     }
 
     /**
@@ -76,7 +76,7 @@ public class SalesRtOrderController {
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
-        rtOrderService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
+        returnService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
 
@@ -90,7 +90,7 @@ public class SalesRtOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        rtOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
+        returnService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
         return JsonResult.successful();
     }
 
@@ -104,7 +104,7 @@ public class SalesRtOrderController {
      */
     @GetMapping("load/{orderId}")
     public JsonResult load(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
-        return JsonResult.successful(rtOrderService.load(merchantId, orderId, organizationId));
+        return JsonResult.successful(returnService.load(merchantId, orderId, organizationId));
     }
 
 
@@ -117,7 +117,7 @@ public class SalesRtOrderController {
      */
     @DeleteMapping("/{orderId}")
     public JsonResult delete(@PathVariable Long orderId, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
-        rtOrderService.delete(orderId, merchantId, organizationId);
+        returnService.delete(orderId, merchantId, organizationId);
         return JsonResult.successful();
     }
 

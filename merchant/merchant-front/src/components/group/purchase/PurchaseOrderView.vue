@@ -41,7 +41,7 @@
           <vxe-column title="基本数量" field="sysQuantity" width="80"/>
           <vxe-column title="折扣率(%)" field="discount" width="90"/>
           <vxe-column title="折扣额" field="discountAmount" width="80"/>
-          <vxe-column title="购货金额" field="discountedAmount" width="80"/>
+          <vxe-column title="购货金额" field="discountedAmount" width="120"/>
           <vxe-column title="备注" field="remarks"/>
         </vxe-table>
       </div>
@@ -83,7 +83,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['discountPrice', 'amount','returnQuantity','returnAmount'].includes(column.property)) {
+        if (column.property && ['orderQuantity', 'sysQuantity','discountAmount','discountedAmount'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -91,11 +91,12 @@ export default {
               total += Number(rd || 0);
             }
           });
-
           sums.push(total.toFixed(2));
+        }else{
+          sums.push("");
         }
       })
-      return [["", "", "", "", "", "", "", ""].concat(sums)];
+      return [sums];
     },
     loadOrder() {
       loading("加载中....");

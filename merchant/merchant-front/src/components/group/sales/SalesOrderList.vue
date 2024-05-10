@@ -141,7 +141,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['amount', 'returnAmount'].includes(column.property)) {
+        if (column.property && ['discountedAmount'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -156,7 +156,7 @@ export default {
     },
     showForm(type = 'add', orderId = null) {
       let layerId = layer.drawer({
-        title: "采购订单",
+        title: "销售出库单",
         shadeClose: false,
         ZIndex: 100,
         area: ['90vw', '100vh'],
@@ -176,7 +176,7 @@ export default {
     },
     showOrderView(orderId = null, state) {
       let layerId = layer.drawer({
-        title: "采购单信息",
+        title: "销售出库单信息",
         shadeClose: false,
         closeBtn: 1,
         ZIndex: 100,
@@ -286,7 +286,7 @@ export default {
     doRemove(row) {
       confirm({
         title: "系统提示",
-        content: `确认删除：${row.purchaserName}-单号：${row.code}?`,
+        content: `确认删除：${row.customersName}-单号：${row.code}?`,
         onConfirm: () => {
           SalesOrder.remove(row.id).then(() => {
             message("删除成功~");

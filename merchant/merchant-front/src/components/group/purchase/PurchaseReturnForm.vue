@@ -135,7 +135,7 @@ import manba from "manba";
 import {CopyObj} from "@common/utils";
 import Vendors from "@js/api/Vendors";
 import Warehouses from "@js/api/Warehouses";
-import PurchaseRtOrder from "@js/api/PurchaseRtOrder";
+import PurchaseRtOrder from "@js/api/PurchaseReturn";
 import PurchaseOrder from "@js/api/PurchaseOrder";
 
 export default {

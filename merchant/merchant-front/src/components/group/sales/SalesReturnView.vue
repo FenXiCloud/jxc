@@ -5,7 +5,7 @@
         <template #buttons>
           <span class=" red-color" style="font-size: 20px!important;"> {{ order.orderStatus }}</span>
           <span class="ml-16px" style="font-size: 15px!important;">订单号: {{ order.code }}</span>
-          <span class="ml-16px" style="font-size: 15px!important;">供货商名称: {{ order.vendorsName }}</span>
+          <span class="ml-16px" style="font-size: 15px!important;">客户名称: {{ order.customersName }}</span>
         </template>
         <template #tools>
         </template>
@@ -48,7 +48,7 @@
       <vxe-toolbar class-name="before-table">
         <template #tools>
           <div class="text-14px">
-            <span class="ml-5px">合计退货金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
+            <span class="ml-5px">合计金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
           </div>
         </template>
       </vxe-toolbar>
@@ -65,10 +65,10 @@
 
 <script>
 import {confirm, loading, message} from "heyui.ext";
-import PurchaseRtOrder from "@js/api/PurchaseRtOrder";
+import SalesReturn from "@js/api/SalesReturn";
 
 export default {
-  name: "PurchaseRtOrderView",
+  name: "SalesReturnOrderView",
   props: {
     orderId: Number,
   },
@@ -83,7 +83,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['discountPrice', 'amount','returnQuantity','returnAmount'].includes(column.property)) {
+        if (column.property && [ 'orderQuantity','sysQuantity','discountedAmount'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -91,15 +91,16 @@ export default {
               total += Number(rd || 0);
             }
           });
-
           sums.push(total.toFixed(2));
+        }else {
+          sums.push("");
         }
       })
-      return [["", "", "", "", "", "", "", ""].concat(sums)];
+      return [sums];
     },
     loadOrder() {
       loading("加载中....");
-      PurchaseRtOrder.load(this.orderId).then(({data: {order, productsData}}) => {
+      SalesReturn.load(this.orderId).then(({data: {order, productsData}}) => {
         this.order = order || {};
         this.productsData = productsData || [];
       }).finally(() => loading.close());

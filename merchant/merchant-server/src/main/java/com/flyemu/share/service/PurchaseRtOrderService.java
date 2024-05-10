@@ -11,6 +11,8 @@ import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.dto.PurchaserPriceDto;
 import com.flyemu.share.entity.*;
+import com.flyemu.share.enums.OrderStatus;
+import com.flyemu.share.enums.OrderType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -56,7 +58,7 @@ public class PurchaseRtOrderService extends AbsService {
     public PageResults<PurchaserOrderDto> query(Page page, Query query) {
         PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qVendors.name)
                 .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.采购退货单)))
+                .where(query.builder.and(qOrder.orderType.eq(OrderType.采购退货单)))
                 .orderBy(query.sortSpecifier(), qOrder.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<PurchaserOrderDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
@@ -71,7 +73,7 @@ public class PurchaseRtOrderService extends AbsService {
         return bqf.selectFrom(qOrder)
                 .select(qOrder.discountedAmount.sum())
                 .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .where(query.builder.and(qOrder.orderType.eq(Order.OrderType.采购退货单))).fetchFirst();
+                .where(query.builder.and(qOrder.orderType.eq(OrderType.采购退货单))).fetchFirst();
     }
 
     public List<Dict> listBy(Long vendorsId, Long merchantId, Long organizationId) {
@@ -117,9 +119,9 @@ public class PurchaseRtOrderService extends AbsService {
         } else {
             String code = "";
             code = "CGTHD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "CGTHD");
-            order.setOrderType(Order.OrderType.采购退货单);
+            order.setOrderType(OrderType.采购退货单);
             order.setCode(code);
-            order.setOrderStatus(Order.OrderStatus.已保存);
+            order.setOrderStatus(OrderStatus.已保存);
             order.setUserId(adminId);
             order.setMerchantId(merchantId);
             order.setOrganizationId(organizationId);
@@ -177,7 +179,7 @@ public class PurchaseRtOrderService extends AbsService {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
         stockItemService.change(order.getId(), merchantId, organizationId, "减");
-        first.setOrderStatus(Order.OrderStatus.已审核);
+        first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);
     }
 
