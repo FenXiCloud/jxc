@@ -11,4 +11,6 @@ public class PurchaserOrderDto extends Order {
 
     private String VendorsName;
     private String CustomersName;
+    private String inWarehouseName;
+    private String outWarehouseName;
 }

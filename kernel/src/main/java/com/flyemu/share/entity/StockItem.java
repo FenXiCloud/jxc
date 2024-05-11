@@ -52,6 +52,12 @@ public class StockItem {
     @Comment("可出库数量")
     private BigDecimal  availableQuantity;
 
+    @Comment("变动前数量")
+    private BigDecimal  beforeQuantity;
+
+    @Comment("变动后数量")
+    private BigDecimal  afterQuantity;
+
     @Comment("单位成本")
     private BigDecimal unitCost;
 

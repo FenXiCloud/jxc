@@ -38,14 +38,14 @@ import StockDetail from '@components/group/stock/StockDetail';
 import StockSummary from '@components/group/stock/StockSummary';
 import StockCostAdjustmentForm from '@components/group/stock/StockCostAdjustmentForm';
 import StockCostAdjustmentList from '@components/group/stock/StockCostAdjustmentList';
-import StockCountForm from '@components/group/stock/StockCountForm';
-import StockCountList from '@components/group/stock/StockCountList';
 import StockInboundForm from '@components/group/stock/StockInboundForm';
 import StockInboundList from '@components/group/stock/StockInboundList';
 import StockOutboundForm from '@components/group/stock/StockOutboundForm';
 import StockOutboundList from '@components/group/stock/StockOutboundList';
 import StockTransferForm from '@components/group/stock/StockTransferForm';
 import StockTransferList from '@components/group/stock/StockTransferList';
+import StockInventoryForm from "@components/group/stock/StockInventoryForm.vue";
+import StockInventoryList from "@components/group/stock/StockInventoryList.vue";
 
 
 const groupRoutes = [
@@ -257,15 +257,15 @@ const groupRoutes = [
 				meta: {title: '成本调整单列表', icon: 'icon-monitor'}
 			},
 			{
-				path: 'StockCountForm',
-				name: 'StockCountForm',
-				component: StockCountForm,
+				path: 'StockInventoryForm',
+				name: 'StockInventoryForm',
+				component: StockInventoryForm,
 				meta: {title: '库存盘点单', icon: 'icon-monitor'}
 			},
 			{
-				path: 'StockCountList',
-				name: 'StockCountList',
-				component: StockCountList,
+				path: 'StockInventoryList',
+				name: 'StockInventoryList',
+				component: StockInventoryList,
 				meta: {title: '库存盘点单列表', icon: 'icon-monitor'}
 			},
 			{

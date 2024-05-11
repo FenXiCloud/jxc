@@ -2,13 +2,13 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import com.flyemu.share.dto.PurchaserPriceDto;
+import com.flyemu.share.dto.PurchasePriceRecordsDto;
 import com.flyemu.share.dto.UnitPrice;
 import com.flyemu.share.entity.Products;
-import com.flyemu.share.entity.PurchasePrice;
+import com.flyemu.share.entity.PurchasePriceRecords;
 import com.flyemu.share.entity.QProducts;
-import com.flyemu.share.entity.QPurchasePrice;
-import com.flyemu.share.repository.PurchasePriceRepository;
+import com.flyemu.share.entity.QPurchasePriceRecords;
+import com.flyemu.share.repository.PurchasePriceRecordsRepository;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,27 +31,26 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PurchasePriceService extends AbsService {
 
-    private final QPurchasePrice qPurchasePrice = QPurchasePrice.purchasePrice;
+    private final QPurchasePriceRecords purchasePriceRecords = QPurchasePriceRecords.purchasePriceRecords;
     private final QProducts qProducts = QProducts.products;
-
-    private final PurchasePriceRepository ppr;
+    private final PurchasePriceRecordsRepository ppr;
 
     @Transactional
-    public void save(PurchaserPriceDto price) {
+    public void save(PurchasePriceRecordsDto price) {
         Tuple tuple = bqf.selectFrom(qProducts)
-                .select(qPurchasePrice, qProducts)
-                .leftJoin(qPurchasePrice).on(qPurchasePrice.vendorsId.eq(price.getVendorsId()).and(qPurchasePrice.productsId.eq(qProducts.id)).and(qPurchasePrice.merchantId.eq(price.getMerchantId())))
+                .select(purchasePriceRecords, qProducts)
+                .leftJoin(purchasePriceRecords).on(purchasePriceRecords.vendorsId.eq(price.getVendorsId()).and(purchasePriceRecords.productsId.eq(qProducts.id)).and(purchasePriceRecords.merchantId.eq(price.getMerchantId())))
                 .where(qProducts.id.eq(price.getProductsId()).and(qProducts.merchantId.eq(price.getMerchantId()))).fetchFirst();
-        if (tuple.get(qPurchasePrice) != null) {
-            PurchasePrice purchasePrice = tuple.get(qPurchasePrice);
-            if (purchasePrice.getUnitId().equals(price.getInputUnitId())) {
-                jqf.update(qPurchasePrice)
-                        .set(qPurchasePrice.price, price.getInputPrice())
-                        .where(qPurchasePrice.id.eq(purchasePrice.getId())).execute();
+        if (tuple.get(purchasePriceRecords) != null) {
+            PurchasePriceRecords purchasePriceRecords = tuple.get(this.purchasePriceRecords);
+            if (purchasePriceRecords.getUnitId().equals(price.getInputUnitId())) {
+                jqf.update(this.purchasePriceRecords)
+                        .set(this.purchasePriceRecords.price, price.getInputPrice())
+                        .where(this.purchasePriceRecords.id.eq(purchasePriceRecords.getId())).execute();
             } else {
                 Boolean b = true;
-                if (purchasePrice.getUnitPrice() != null && CollUtil.isNotEmpty(purchasePrice.getUnitPrice())) {
-                    for (UnitPrice item : purchasePrice.getUnitPrice()) {
+                if (purchasePriceRecords.getUnitPrice() != null && CollUtil.isNotEmpty(purchasePriceRecords.getUnitPrice())) {
+                    for (UnitPrice item : purchasePriceRecords.getUnitPrice()) {
                         if (item.getUnitId().equals(price.getInputUnitId())) {
                             item.setPrice(price.getInputPrice());
                             b = false;
@@ -60,17 +59,17 @@ public class PurchasePriceService extends AbsService {
                     }
                     if (b) {
                         UnitPrice unitPrice = new UnitPrice(price.getInputUnitId(), price.getInputUnitName(), false, 1d, price.getInputPrice());
-                        purchasePrice.getUnitPrice().add(unitPrice);
+                        purchasePriceRecords.getUnitPrice().add(unitPrice);
                     }
-                    jqf.update(qPurchasePrice)
-                            .set(qPurchasePrice.unitPrice, purchasePrice.getUnitPrice())
-                            .where(qPurchasePrice.id.eq(purchasePrice.getId())).execute();
+                    jqf.update(this.purchasePriceRecords)
+                            .set(this.purchasePriceRecords.unitPrice, purchasePriceRecords.getUnitPrice())
+                            .where(this.purchasePriceRecords.id.eq(purchasePriceRecords.getId())).execute();
                 } else {
                     UnitPrice unitPrice = new UnitPrice(price.getInputUnitId(), price.getInputUnitName(), false, 1d, price.getInputPrice());
                     List<UnitPrice> unitPrices = new ArrayList<>();
                     unitPrices.add(unitPrice);
-                    purchasePrice.setUnitPrice(unitPrices);
-                    ppr.save(purchasePrice);
+                    purchasePriceRecords.setUnitPrice(unitPrices);
+                    ppr.save(purchasePriceRecords);
                 }
             }
         } else {
@@ -91,8 +90,8 @@ public class PurchasePriceService extends AbsService {
 
                 }
             }
-            PurchasePrice purchasePrice = BeanUtil.toBean(price, PurchasePrice.class);
-            ppr.save(purchasePrice);
+            PurchasePriceRecords purchasePriceRecords = BeanUtil.toBean(price, PurchasePriceRecords.class);
+            ppr.save(purchasePriceRecords);
         }
     }
 

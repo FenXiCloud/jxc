@@ -26,7 +26,7 @@ import java.util.List;
 @Table(uniqueConstraints = {
         @UniqueConstraint(name = "uc_vendorsId_productsId", columnNames = {"vendorsId", "productsId"})
 })
-public class PurchasePrice {
+public class PurchasePriceRecords {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

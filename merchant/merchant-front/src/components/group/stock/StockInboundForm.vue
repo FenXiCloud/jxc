@@ -305,7 +305,7 @@ export default {
       if(this.form.customersId !== null){
         confirm({
           title: "系统提示",
-          content: `修改客户，所选客户将被清空，确定修改？`,
+          content: `修改供货商，所选客户将被清空，确定修改？`,
           onConfirm: () => {
             this.form.vendorsId = e.id;
             this.form.customersId = null;

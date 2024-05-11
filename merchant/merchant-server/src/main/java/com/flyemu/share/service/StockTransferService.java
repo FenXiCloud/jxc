@@ -46,9 +46,9 @@ import java.util.Set;
 public class StockTransferService extends AbsService {
     private final static QOrder qOrder = QOrder.order;
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
-    private final static QVendors qVendors = QVendors.vendors;
     private final static QProducts qProducts = QProducts.products;
-    private final static QCustomers qCustomers = QCustomers.customers;
+    private final static QWarehouses qWarehouses = QWarehouses.warehouses;
+    private final static QWarehouses qOutWarehouses = new QWarehouses("id");
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final CodeSeedService codeSeedService;
@@ -56,16 +56,16 @@ public class StockTransferService extends AbsService {
 
 
     public PageResults<PurchaserOrderDto> query(Page page, Query query) {
-        PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qVendors.name, qCustomers.name)
-                .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
+        PagedList<Tuple> pagedList = bqf.selectFrom(qOrder).select(qOrder, qWarehouses.name, qOutWarehouses.name)
+                .leftJoin(qWarehouses).on(qWarehouses.id.eq(qOrder.inWarehouseId))
+                .leftJoin(qOutWarehouses).on(qOutWarehouses.id.eq(qOrder.outWarehouseId))
                 .where(query.builder.and(qOrder.orderType.eq(OrderType.调拨单)))
                 .orderBy(query.sortSpecifier(), qOrder.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<PurchaserOrderDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             PurchaserOrderDto dto = BeanUtil.toBean(tuple.get(qOrder), PurchaserOrderDto.class);
-            dto.setVendorsName(tuple.get(qVendors.name));
-            dto.setCustomersName(tuple.get(qCustomers.name));
+            dto.setInWarehouseName(tuple.get(qWarehouses.name));
+            dto.setOutWarehouseName(tuple.get(qOutWarehouses.name));
             list.add(dto);
         }, List::addAll);
         return new PageResults<>(collect, page, pagedList.getTotalSize());
@@ -74,8 +74,8 @@ public class StockTransferService extends AbsService {
     public BigDecimal queryTotal(Query query) {
         return bqf.selectFrom(qOrder)
                 .select(qOrder.discountedAmount.sum())
-                .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
+                .leftJoin(qWarehouses).on(qWarehouses.id.eq(qOrder.inWarehouseId))
+                .leftJoin(qOutWarehouses).on(qOutWarehouses.id.eq(qOrder.outWarehouseId))
                 .where(query.builder.and(qOrder.orderType.eq(OrderType.调拨单))).fetchFirst();
     }
 
@@ -141,15 +141,15 @@ public class StockTransferService extends AbsService {
     }
 
     public Dict load(Long merchantId, Long orderId, Long organizationId) {
-        Tuple fetchFirst = jqf.selectFrom(qOrder).select(qOrder, qVendors.name, qCustomers.name)
-                .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
-                .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
+        Tuple fetchFirst = jqf.selectFrom(qOrder).select(qOrder, qWarehouses.name, qOutWarehouses.name)
+                .leftJoin(qWarehouses).on(qWarehouses.id.eq(qOrder.inWarehouseId))
+                .leftJoin(qOutWarehouses).on(qOutWarehouses.id.eq(qOrder.outWarehouseId))
                 .where(qOrder.merchantId.eq(merchantId).and(qOrder.id.eq(orderId))
                         .and(qOrder.organizationId.eq(organizationId))).fetchFirst();
 
         PurchaserOrderDto order = BeanUtil.toBean(fetchFirst.get(qOrder), PurchaserOrderDto.class);
-        order.setVendorsName(fetchFirst.get(qVendors.name));
-        order.setCustomersName(fetchFirst.get(qCustomers.name));
+        order.setInWarehouseName(fetchFirst.get(qWarehouses.name));
+        order.setOutWarehouseName(fetchFirst.get(qOutWarehouses.name));
         ArrayList<Dict> collect = jqf.selectFrom(qOrderDetail)
                 .select(qOrderDetail, qProducts.code, qProducts.name,
                         qProducts.imgPath, qProducts.specification)
@@ -250,7 +250,7 @@ public class StockTransferService extends AbsService {
 
         public void setFilter(String filter) {
             if (filter != null) {
-                builder.and(qOrder.code.contains(filter).or(qVendors.name.contains(filter)).or(qCustomers.name.contains(filter)));
+                builder.and(qOrder.code.contains(filter).or(qWarehouses.name.contains(filter)).or(qOutWarehouses.name.contains(filter)));
             }
         }
 

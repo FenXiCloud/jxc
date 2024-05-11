@@ -9,7 +9,7 @@ import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.PurchaserOrderDto;
-import com.flyemu.share.dto.PurchaserPriceDto;
+import com.flyemu.share.dto.PurchasePriceRecordsDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.OrderType;
@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -106,7 +105,7 @@ public class PurchaseOrderService extends AbsService {
             Set<Long> ids = new HashSet<>();
             for (OrderDetail d : orderForm.getDetailList()) {
 //                保存更新购货商品价格
-                PurchaserPriceDto dto = new PurchaserPriceDto();
+                PurchasePriceRecordsDto dto = new PurchasePriceRecordsDto();
                 dto.setInputPrice(d.getOrderPrice());
                 dto.setInputUnitId(d.getUnitId());
                 dto.setInputUnitName(d.getUnitName());
@@ -137,7 +136,7 @@ public class PurchaseOrderService extends AbsService {
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
 //                保存更新购货商品价格
-                PurchaserPriceDto dto = new PurchaserPriceDto();
+                PurchasePriceRecordsDto dto = new PurchasePriceRecordsDto();
                 dto.setInputPrice(d.getOrderPrice());
                 dto.setInputUnitId(d.getUnitId());
                 dto.setInputUnitName(d.getUnitName());

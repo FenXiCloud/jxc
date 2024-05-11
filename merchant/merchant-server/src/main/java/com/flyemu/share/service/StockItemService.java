@@ -1,5 +1,6 @@
 package com.flyemu.share.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.repository.StockItemRepository;
@@ -95,53 +96,54 @@ public class StockItemService extends AbsService {
         List<StockItem> stockItems = new ArrayList<>();
         Map<String, Stock> stockMap = new HashMap<>();
         Set<Long> pIds = new HashSet<>();
-        Set<Long> wIds = new HashSet<>();
+        Set<Long> wIds = new HashSet<>(Arrays.asList(order.getOutWarehouseId(),order.getInWarehouseId()));
         if (CollUtil.isNotEmpty(orderDetails)) {
             orderDetails.forEach(od -> {
-                StockItem stockItem = new StockItem();
-                stockItem.setOrderId(orderId);
-                stockItem.setMerchantId(merchantId);
-                stockItem.setOrganizationId(organizationId);
-                stockItem.setProductsId(od.getProductsId());
-                stockItem.setQuantity(od.getOrderQuantity());
-                stockItem.setAvailableQuantity(od.getSysQuantity());
-                stockItem.setBillDate(order.getBillDate());
-                stockItem.setWarehouseId(order.getInWarehouseId());
-                stockItem.setTotalAmount(od.getDiscountedAmount());
-                stockItem.setInventoryType(StockItem.InventoryType.调拨);
-                stockItems.add(stockItem);
-                stockItem.setWarehouseId(order.getOutWarehouseId());
-                stockItems.add(stockItem);
+                StockItem inStockItem = new StockItem();
+                inStockItem.setOrderId(orderId);
+                inStockItem.setMerchantId(merchantId);
+                inStockItem.setOrganizationId(organizationId);
+                inStockItem.setProductsId(od.getProductsId());
+                inStockItem.setQuantity(od.getOrderQuantity());
+                inStockItem.setAvailableQuantity(od.getSysQuantity());
+                inStockItem.setBillDate(order.getBillDate());
+                inStockItem.setWarehouseId(order.getInWarehouseId());
+                inStockItem.setTotalAmount(od.getDiscountedAmount());
+                inStockItem.setInventoryType(StockItem.InventoryType.调拨);
+                stockItems.add(inStockItem);
+                StockItem outStockItem = new StockItem();
+                BeanUtil.copyProperties(inStockItem, outStockItem);
+                outStockItem.setWarehouseId(order.getOutWarehouseId());
+                stockItems.add(outStockItem);
+
                 Stock inStock = stockMap.get(od.getProductsId() + "-" + order.getInWarehouseId());
                 if (inStock == null) {
                     pIds.add(od.getProductsId());
-                    wIds.add(od.getWarehouseId());
                     inStock = new Stock();
                     inStock.setOrganizationId(organizationId);
                     inStock.setMerchantId(merchantId);
-                    inStock.setWarehouseId(od.getWarehouseId());
+                    inStock.setWarehouseId(order.getInWarehouseId());
                     inStock.setProductsId(od.getProductsId());
                     inStock.setTotalQuantity(od.getSysQuantity());
                 } else {
                     inStock.setTotalQuantity(inStock.getTotalQuantity().add(od.getSysQuantity()));
                 }
-                stockMap.put(od.getProductsId() + "-" + od.getWarehouseId(), inStock);
+                stockMap.put(od.getProductsId() + "-" + order.getInWarehouseId(), inStock);
 
 
                 Stock outStock = stockMap.get(od.getProductsId() + "-" + order.getOutWarehouseId());
                 if (outStock == null) {
                     pIds.add(od.getProductsId());
-                    wIds.add(od.getWarehouseId());
                     outStock = new Stock();
                     outStock.setOrganizationId(organizationId);
                     outStock.setMerchantId(merchantId);
-                    outStock.setWarehouseId(od.getWarehouseId());
+                    outStock.setWarehouseId(order.getOutWarehouseId());
                     outStock.setProductsId(od.getProductsId());
                     outStock.setTotalQuantity(od.getOrderQuantity().negate());
                 } else {
                     outStock.setTotalQuantity(inStock.getTotalQuantity().add(od.getOrderQuantity().negate()));
                 }
-                stockMap.put(od.getProductsId() + "-" + od.getWarehouseId(), outStock);
+                stockMap.put(od.getProductsId() + "-" + order.getOutWarehouseId(), outStock);
             });
 
             List<Stock> stocks = bqf.selectFrom(qStock).where(qStock.productsId.in(pIds).and(qStock.warehouseId.in(wIds)).and(qStock.merchantId.eq(merchantId)).and(qStock.organizationId.eq(organizationId))).fetch();

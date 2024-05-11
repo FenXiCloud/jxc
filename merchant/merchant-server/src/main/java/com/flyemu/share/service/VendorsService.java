@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @功能描述: 供货商管理
@@ -39,7 +38,7 @@ public class VendorsService extends AbsService {
 
     private final static QVendors qVendors = QVendors.vendors;
     private final static QProducts qProducts = QProducts.products;
-    private final static QPurchasePrice qPurchasePrice = QPurchasePrice.purchasePrice;
+    private final static QPurchasePriceRecords qPurchasePriceRecords = QPurchasePriceRecords.purchasePriceRecords;
     private final static QUnits qUnits = QUnits.units;
     private final static QProductsCategory qProductsCategory = QProductsCategory.productsCategory;
 
@@ -92,10 +91,10 @@ public class VendorsService extends AbsService {
 
     public List<SelectPurchaseProductsDto> selectProducts(Long vendorsId, Long merchantId, Long organizationId) {
         List<SelectPurchaseProductsDto> dtoList = bqf.selectFrom(qProducts)
-                .select(qProducts.name, qProducts.code, qPurchasePrice.price, qPurchasePrice.unitPrice, qProducts.specification, qProducts.id, qProductsCategory.path, qProducts.imgPath, qProducts.enableMultiUnit, qProducts.multiUnit, qProducts.unitId, qUnits.name)
+                .select(qProducts.name, qProducts.code, qPurchasePriceRecords.price, qPurchasePriceRecords.unitPrice, qProducts.specification, qProducts.id, qProductsCategory.path, qProducts.imgPath, qProducts.enableMultiUnit, qProducts.multiUnit, qProducts.unitId, qUnits.name)
                 .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId))
                 .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId))
-                .leftJoin(qPurchasePrice).on(qPurchasePrice.productsId.eq(qProducts.id).and(qPurchasePrice.vendorsId.eq(vendorsId)).and(qPurchasePrice.merchantId.eq(merchantId)).and(qPurchasePrice.organizationId.eq(organizationId)))
+                .leftJoin(qPurchasePriceRecords).on(qPurchasePriceRecords.productsId.eq(qProducts.id).and(qPurchasePriceRecords.vendorsId.eq(vendorsId)).and(qPurchasePriceRecords.merchantId.eq(merchantId)).and(qPurchasePriceRecords.organizationId.eq(organizationId)))
                 .where(qProducts.merchantId.eq(merchantId).and(qProducts.enabled.isTrue()).and(qProducts.organizationId.eq(organizationId)))
                 .orderBy(qProducts.sort.desc(), qProducts.id.desc())
                 .fetch().stream().collect(ArrayList::new, (list, tuple) -> {
@@ -108,15 +107,15 @@ public class VendorsService extends AbsService {
                     dto.setSpec(tuple.get(qProducts.specification));
                     dto.setUnitName(tuple.get(qUnits.name));
                     dto.setUnitId(tuple.get(qProducts.unitId));
-                    dto.setPrice(tuple.get(qPurchasePrice.price));
+                    dto.setPrice(tuple.get(qPurchasePriceRecords.price));
                     List<UnitPrice> units = tuple.get(qProducts.multiUnit);
 
 
                     if (CollUtil.isNotEmpty(units) && tuple.get(qProducts.enableMultiUnit)) {
                         units.add(0, new UnitPrice(dto.getUnitId(), dto.getUnitName(), true, 1d, dto.getPrice()));
                         List<UnitPrice> finalUnits = units;
-                        if (tuple.get(qPurchasePrice.unitPrice) != null && CollUtil.isNotEmpty(tuple.get(qPurchasePrice.unitPrice))) {
-                            tuple.get(qPurchasePrice.unitPrice).forEach(item -> {
+                        if (tuple.get(qPurchasePriceRecords.unitPrice) != null && CollUtil.isNotEmpty(tuple.get(qPurchasePriceRecords.unitPrice))) {
+                            tuple.get(qPurchasePriceRecords.unitPrice).forEach(item -> {
                                 finalUnits.forEach(unitPrice -> {
                                     if (item.getUnitId().equals(unitPrice.getUnitId())) {
                                         unitPrice.setPrice(item.getPrice());
