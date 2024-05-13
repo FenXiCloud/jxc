@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 public class OrderForm {
     private Order order;
+    private Long inventoryId;
     private List<OrderDetail> detailList;
 
 }

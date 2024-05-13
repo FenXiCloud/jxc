@@ -32,6 +32,13 @@ public class StockItemService extends AbsService {
     private final StockItemRepository stockItemRepository;
 
 
+    /**
+     *
+     * @param orderId
+     * @param merchantId
+     * @param organizationId
+     * @param type
+     */
     public void change(Long orderId, Long merchantId, Long organizationId, String type) {
         Order order = bqf.selectFrom(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchOne();
         List<OrderDetail> orderDetails = bqf.selectFrom(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.organizationId.eq(organizationId)).and(qOrderDetail.merchantId.eq(merchantId))).fetch();

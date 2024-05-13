@@ -48,14 +48,14 @@
             </template>
           </template>
         </vxe-column>
-        <vxe-column title="仓库" field="warehouses" align="center" width="120">
+        <vxe-column title="出库仓库" field="warehouses" align="center" width="120">
           <template #default="{row,rowIndex}">
             <template v-if="!row.isNew">
               <Select  :deletable="false" v-model="row.warehouseId" :datas="warehousesList" filterable keyName="id" titleName="name"/>
             </template>
           </template>
         </vxe-column>
-        <vxe-column title="数量" field="orderQuantity" width="90">
+        <vxe-column title="出库数量" field="orderQuantity" width="90">
           <template #default="{row,rowIndex,columnIndex}">
             <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+3" @keyup="handleEnter($event,rowIndex,3)" @blur="updateQuantity(row)" ref="inputQuantity" v-model.number="row.orderQuantity" type="float" min="0" :controls="false"></vxe-input>
           </template>

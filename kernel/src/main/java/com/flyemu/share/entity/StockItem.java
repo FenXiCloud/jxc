@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @功能描述: 库存明细表
@@ -74,6 +76,11 @@ public class StockItem {
     @Comment("商户ID")
     @Column(nullable = false)
     private Long merchantId;
+
+    @Comment("创建时间")
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createDate;
 
     public enum InventoryType {
         采购入库,采购退货,销售出库,销售退货,盘盈,盘亏,其他出库,其他入库,调拨

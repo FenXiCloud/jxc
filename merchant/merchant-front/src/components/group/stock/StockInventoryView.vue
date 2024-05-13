@@ -3,12 +3,12 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!p-0px">
         <template #buttons>
-          <span class=" red-color" style="font-size: 20px!important;"> {{ order.orderStatus }}</span>
-          <span class="ml-16px" style="font-size: 15px!important;">订单号: {{ order.code }}</span>
-          <span class="ml-16px" style="font-size: 15px!important;" v-if="order.vendorsName">供货商名称: {{ order.vendorsName }}</span>
-          <span class="ml-16px" style="font-size: 15px!important;" v-if="order.customersName">客户名称: {{ order.customersName }}</span>
+          <span style="font-size: 15px!important;">订单号: {{ order.code }}</span>
+          <span class="ml-16px" style="font-size: 15px!important;" v-if="order.inOrderCode">盘盈单: {{ order.inOrderCode }}</span>
+          <span class="ml-16px" style="font-size: 15px!important;" v-if="order.outOrderCode">盘亏单: {{ order.outOrderCode }}</span>
         </template>
         <template #tools>
+          <Button @click="toOrder" color="primary">生成盘点单据</Button>
         </template>
       </vxe-toolbar>
       <div class="pt-13px">
@@ -17,59 +17,66 @@
             ref="xTable"
             :row-config="{height: 48}"
             border highlight-hover-row show-overflow
-            show-footer
-            :footer-method="footerMethod"
             :data="productsData">
-          <vxe-column title="序号" type="seq" width="60" align="center" fixed="left" footer-align="right"/>
-          <vxe-column title="商品信息" min-width="350">
+          <vxe-column title="序号" type="seq" width="60" align="center" fixed="left"/>
+          <vxe-column title="仓库" field="warehousesName" align="center" width="200"/>
+          <vxe-column title="商品信息" min-width="300">
             <template #default="{row,rowIndex}">
               <div class="flex">
-                <div class="flex">
-                  <img v-if="row.imgPath" :src="row.imgPath" style="width: 40px;height: 40px;">
-                  <img v-else src="../../../assets/good-img-bg.png" style="height: 40px;width: 40px"/>
-                </div>
                 <div class="flex1 ml-8px">
-                  <div>{{ row.productsName }}</div>
-                  <div>编码 {{ row.productsCode }}</div>
+                  <div>{{ row.productsCode }}--{{ row.productsName }}</div>
                 </div>
               </div>
             </template>
           </vxe-column>
-          <vxe-column title="出库单位" field="orderUnitName" align="center" width="80"/>
-          <vxe-column title="出库数量" field="orderQuantity" align="center" width="80"/>
-          <vxe-column title="出库单价" field="orderPrice" width="80"/>
-          <vxe-column title="基本单位" field="unitName" align="center" width="80"/>
-          <vxe-column title="基本数量" field="sysQuantity" width="80"/>
-          <vxe-column title="折扣率(%)" field="discount" width="90"/>
-          <vxe-column title="折扣额" field="discountAmount" width="80"/>
-          <vxe-column title="出库金额" field="discountedAmount" width="120"/>
-          <vxe-column title="备注" field="remarks"/>
+          <vxe-column title="规格" field="specification" align="center" width="120"/>
+          <vxe-column title="商品类别" field="categoryName" align="center" width="120"/>
+          <vxe-column title="基本单位" field="unitName" align="center" width="120"/>
+          <vxe-column title="系统库存" field="sysQuantity" align="center" width="120"/>
+          <vxe-column title="盘点库存" field="inventoryQuantity" align="center" width="160" :edit-render="{}"/>
+          <vxe-column title="盘盈盘亏" width="90">
+            <template #default="{row}">
+              {{ row.inventoryQuantity ? row.inventoryQuantity - row.sysQuantity : 0 }}
+            </template>
+          </vxe-column>
         </vxe-table>
       </div>
       <vxe-toolbar class-name="before-table">
         <template #tools>
-          <div class="text-14px">
-            <span class="ml-5px">合计出库金额： ¥<span class="red-color">{{ order.discountedAmount || 0 }}</span></span>
-          </div>
         </template>
       </vxe-toolbar>
       <div class="mt-10px"></div>
       <div class="filler-panel">
-        <div class="filler-item" style="flex: 1;margin: 5px 0px!important;">
-          <label class="mr-16px  w-80px">备注说明：</label>
-          {{ order.remarks || '无' }}
-        </div>
       </div>
     </div>
+
+    <Modal v-model="opened">
+      <template #header>
+        生成盘点单据
+      </template>
+      <div  style="text-align: center">
+        <Button class="w-160px" @click="toInOrder('盘盈',inList)" color="primary" v-if="isIn">生成盘盈单</Button>
+      </div>
+      <div class="mt-8px"  style="text-align: center">
+        <Button class="w-160px" @click="toOutOrder('盘亏',outList)" color="primary" v-if="isOut">生成盘亏单</Button>
+      </div>
+      <template #footer>
+        <Button @click="opened =false">关闭</Button>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script>
 import {confirm, loading, message} from "heyui.ext";
-import StockOutbound from "@js/api/StockOutbound";
+import StockInventory from "@js/api/StockInventory";
+import {layer} from "@layui/layer-vue";
+import {h} from "vue";
+import StockInboundForm from "@components/group/stock/StockInboundForm.vue";
+import StockOutboundForm from "@components/group/stock/StockOutboundForm.vue";
 
 export default {
-  name: "StockOutboundView",
+  name: "StockInventoryView",
   props: {
     orderId: Number,
   },
@@ -78,34 +85,88 @@ export default {
       order: {},
       productsData: [],
       showTimeLines: false,
+      opened: false,
+      isIn: false,
+      isOut: false,
+      inList: [],
+      outList: [],
     }
   },
   methods: {
-    footerMethod({columns, data}) {
-      let sums = [];
-      columns.forEach((column) => {
-        if (column.property && ['orderQuantity', 'sysQuantity','discountAmount','discountedAmount'].includes(column.property)) {
-          let total = 0;
-          data.forEach((row) => {
-            let rd = row[column.property];
-            if (rd) {
-              total += Number(rd || 0);
-            }
-          });
-          sums.push(total.toFixed(2));
-        }else {
-          sums.push("");
-        }
-      })
-      return [sums];
-    },
     loadOrder() {
       loading("加载中....");
-      StockOutbound.load(this.orderId).then(({data: {order, productsData}}) => {
-        this.order = order || {};
-        this.productsData = productsData || [];
+      StockInventory.load(this.orderId).then(({data: {inventory, itemList}}) => {
+        this.order = inventory || {};
+        this.productsData = itemList || [];
       }).finally(() => loading.close());
-    }
+    },
+    toOrder() {
+      this.inList = this.productsData.filter(c => c.sysQuantity < c.inventoryQuantity);
+      this.outList = this.productsData.filter(c => c.sysQuantity > c.inventoryQuantity);
+      if (this.inList && this.inList.length > 0 &&!this.order.inOrderId) {
+        this.isIn = true
+        this.opened = true
+      }
+      if (this.outList && this.outList.length > 0 && !this.order.outOrderId) {
+        this.isOut = true
+        this.opened = true
+      }
+      if(!this.opened){
+        message('无可生成数据');
+      }
+    },
+    toInOrder(bType,pList) {
+      this.opened = false
+      let inventoryId = this.orderId
+        let layerId = layer.drawer({
+          title: "其他入库单",
+          shadeClose: false,
+          ZIndex: 100,
+          area: ['90vw', '100vh'],
+          content: h(StockInboundForm, {
+            bType,
+            pList,
+            inventoryId,
+            onClose: () => {
+              this.loadOrder();
+              layer.close(layerId);
+            },
+            onSuccess: () => {
+              this.loadOrder();
+              layer.close(layerId);
+            }
+          }),
+          onClose: () => {
+            this.loadOrder();
+          }
+        });
+    },
+    toOutOrder(bType,pList) {
+      this.opened = false
+      let inventoryId = this.orderId
+        let layerId = layer.drawer({
+          title: "其他出库单",
+          shadeClose: false,
+          ZIndex: 100,
+          area: ['90vw', '100vh'],
+          content: h(StockOutboundForm, {
+            bType,
+            pList,
+            inventoryId,
+            onClose: () => {
+              this.loadOrder();
+              layer.close(layerId);
+            },
+            onSuccess: () => {
+              this.loadOrder();
+              layer.close(layerId);
+            }
+          }),
+          onClose: () => {
+            this.loadOrder();
+          }
+        });
+    },
   },
   created() {
     this.loadOrder();

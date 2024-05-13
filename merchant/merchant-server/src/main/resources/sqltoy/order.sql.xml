@@ -2,32 +2,15 @@
 <sqltoy xmlns="http://www.sagframe.com/schema/sqltoy"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy http://www.sagframe.com/schema/sqltoy/sqltoy.xsd">
-    <sql id="supplierOrderSummary">
+    <sql id="unitUp">
         <value>
             <![CDATA[
-            select ssod.goods_id,
-                   ss.name              as supplierName,
-                   sum(ssod.quantity)   as quantity,
-                   sum(ssod.amount)     as amount,
-                   avg(ssod.price)      as price,
-                   sg.code              as goodsCode,
-                   sg.name              as goodsName,
-                   sg.img_path          as imgPath,
-                   sg.spec              as spec,
-                   ssod.order_unit_id   as orderUnitId,
-                   ssod.order_unit_name as orderUnitName
-            from s_supplier_order_detail ssod
-                     left join s_goods sg on (sg.id = ssod.goods_id and sg.merchant_id =ssod.merchant_id)
-                     left join s_supplier_order sso on (sso.id = ssod.supplier_order_id and sso.merchant_id =ssod.merchant_id)
-                     left join s_supplier ss on (ss.id = sso.supplier_id and ss.merchant_id =ssod.merchant_id)
-            where ssod.merchant_id = :merchantId
-                  #[AND sso.ship_date BETWEEN :start AND :end]
-            group by sso.supplier_id, ssod.goods_id, ssod.order_unit_id
-            order by sum(ssod.quantity) desc,
-                     sso.supplier_id desc,
-                     sso.id
-            ]]>
-	    </value>
+            SELECT count(*) as num
+            FROM s_products
+            WHERE (JSON_CONTAINS(multi_unit, :unitStr)
+                OR unit_id = :unitId)
+              and merchant_id = :merchantId
+              and organization_id = :organizationId
+            ]]></value>
     </sql>
-
 </sqltoy>

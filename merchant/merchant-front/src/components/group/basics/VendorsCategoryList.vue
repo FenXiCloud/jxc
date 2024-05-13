@@ -64,7 +64,7 @@ export default {
     showForm(entity) {
       let type = 0;
       let layerId = layer.open({
-        title: "单位信息",
+        title: "货商分类信息",
         shadeClose: false,
         closeBtn: false,
         area: ['400px', '330px'],

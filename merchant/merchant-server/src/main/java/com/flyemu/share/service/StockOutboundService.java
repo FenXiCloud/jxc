@@ -48,6 +48,7 @@ public class StockOutboundService extends AbsService {
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
     private final static QVendors qVendors = QVendors.vendors;
     private final static QProducts qProducts = QProducts.products;
+    private final static QStockInventory qStockInventory = QStockInventory.stockInventory;
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final CodeSeedService codeSeedService;
@@ -136,6 +137,12 @@ public class StockOutboundService extends AbsService {
                 d.setOrganizationId(organizationId);
             }
             orderDetailRepository.saveAll(orderForm.getDetailList());
+        }
+        if(orderForm.getInventoryId() != null){
+            jqf.update(qStockInventory).set(qStockInventory.outOrderId,order.getId())
+                    .where(qStockInventory.id.eq(orderForm.getInventoryId())
+                            .and(qStockInventory.organizationId.eq(organizationId))
+                            .and(qStockInventory.merchantId.eq(merchantId))).execute();
         }
     }
 

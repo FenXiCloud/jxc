@@ -34,6 +34,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomersService extends AbsService {
 
+    private static final QOrder qorder = QOrder.order;
     private static final QCustomers qCustomers = QCustomers.customers;
     private static final QCustomersCategory qCustomersCategory = QCustomersCategory.customersCategory;
     private static final QCustomersLevel qCustomersLevel = QCustomersLevel.customersLevel;
@@ -98,6 +99,7 @@ public class CustomersService extends AbsService {
 
     @Transactional
     public void delete(Long customersId, Long merchantId, Long organizationId) {
+        Assert.isFalse(bqf.selectFrom(qorder).where(qorder.customersId.eq(customersId).and(qorder.merchantId.eq(merchantId)).and(qorder.organizationId.eq(organizationId))).fetchCount()>0,"客户已使用，不能删除");
         jqf.delete(qCustomers)
                 .where(qCustomers.id.eq(customersId).and(qCustomers.merchantId.eq(merchantId)).and(qCustomers.organizationId.eq(organizationId))).execute();
     }

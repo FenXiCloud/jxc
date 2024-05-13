@@ -2,8 +2,10 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.entity.CustomersLevel;
 import com.flyemu.share.entity.QCustomersLevel;
+import com.flyemu.share.entity.QCustomersLevelPrice;
 import com.flyemu.share.entity.QOrganization;
 import com.flyemu.share.repository.CustomersLevelRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -28,6 +30,7 @@ import java.util.List;
 public class CustomersLevelService extends AbsService {
 
     private final static QCustomersLevel qCustomersLevel = QCustomersLevel.customersLevel;
+    private final static QCustomersLevelPrice qCustomersLevelPrice = QCustomersLevelPrice.customersLevelPrice;
 
     private final CustomersLevelRepository customersLevelRepository;
     private final  QOrganization qOrganization = QOrganization.organization;
@@ -61,6 +64,7 @@ public class CustomersLevelService extends AbsService {
      */
     @Transactional
     public void delete(Long customersLevelId, Long merchantId,Long organizationId) {
+        Assert.isFalse(bqf.selectFrom(qCustomersLevelPrice).where(qCustomersLevelPrice.customersLevelId.eq(customersLevelId).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId))).fetchCount()>0,"等级已使用，不能删除");
         jqf.delete(qCustomersLevel).where(qCustomersLevel.id.eq(customersLevelId).and(qCustomersLevel.merchantId.eq(merchantId)).and(qCustomersLevel.organizationId.eq(organizationId))).execute();
     }
 
@@ -80,6 +84,11 @@ public class CustomersLevelService extends AbsService {
         public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qCustomersLevel.organizationId.eq(organizationId));
+            }
+        }
+        public void setFilter(String filter) {
+            if (filter != null) {
+                builder.and(qCustomersLevel.name.contains(filter));
             }
         }
     }

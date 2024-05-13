@@ -127,6 +127,9 @@ export default {
   props: {
     orderId: [String, Number],
     type: String,
+    inventoryId: [String, Number],
+    bType: String,
+    pList: [Array, Object],
   },
   computed: {
     discountedAmount() {
@@ -273,11 +276,11 @@ export default {
         loading.close()
         return
       }
-      StockOutbound.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
+      StockOutbound.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, inventoryId: this.inventoryId, detailList: productsData}).then(() => {
         message("保存成功~");
       }).finally(() =>
-              this.clear(),
-          loading.close());
+          this.$emit('success'),
+      loading.close());
     },
     clear() {
       this.form = {
@@ -335,7 +338,7 @@ export default {
     loadProducts() {
       Products.loadToOrder().then(({data}) => {
         this.productsList = data || [];
-        if (!this.form.id) {
+        if (!this.form.id &&  this.bType === null) {
           this.productsData = [{isNew: true}];
         }
       }).finally(() =>
@@ -444,6 +447,32 @@ export default {
           this.productsData = productsData || [];
           this.productsData.push({isNew: true});
         })
+      }else if (this.bType === '盘亏') {
+        this.form.businessType = this.bType
+        this.pList.forEach(item => {
+          let g = {
+            productsCode:item.productsCode,
+            productsName:item.productsName,
+            productsId:item.productsId,
+            sysQuantity: -item.differ,
+            orderQuantity: -item.differ,
+            orderPrice: 0,
+            warehouseId: item.warehouseId,
+            price: 0,
+            discountAmount: 0.00,
+            discount: 0.00,
+            discountedAmount: 0,
+            num: 1,
+            unitId: item.unitId,
+            unitName: item.unitName,
+            orderUnitId: item.unitId,
+            orderUnitName: item.unitName,
+            remark: ""
+          };
+          this.productsData.push(Object.assign(g))
+        })
+        this.productsData.push({isNew: true});
+        console.log(this.productsData)
       }
     }).finally(() => loading.close());
     this.loadProducts()

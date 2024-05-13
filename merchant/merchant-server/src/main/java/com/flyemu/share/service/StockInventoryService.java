@@ -173,9 +173,10 @@ public class StockInventoryService extends AbsService {
         dto.setInOrderCode(fetchFirst.get(qInOrder.code));
         ArrayList<Dict> collect = jqf.selectFrom(qStockInventoryItem)
                 .select(qStockInventoryItem, qWarehouses.name, qProducts.code, qProducts.name,
-                        qProducts.imgPath, qProducts.specification)
+                        qProducts.imgPath, qProducts.specification, qProductsCategory.name)
                 .leftJoin(qProducts).on(qProducts.id.eq(qStockInventoryItem.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
                 .leftJoin(qWarehouses).on(qWarehouses.id.eq(qStockInventoryItem.warehouseId).and(qWarehouses.merchantId.eq(merchantId)).and(qWarehouses.organizationId.eq(organizationId)))
+                .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId).and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId)))
                 .where(qStockInventoryItem.stockInventoryId.eq(inventoryId).and(qStockInventoryItem.merchantId.eq(merchantId)).and(qStockInventoryItem.organizationId.eq(organizationId)))
                 .orderBy(qStockInventoryItem.id.asc())
                 .fetch().stream().collect(ArrayList::new, (list, tuple) -> {
@@ -189,11 +190,16 @@ public class StockInventoryService extends AbsService {
                             .set("unitName", od.getUnitName())
                             .set("differ", NumberUtil.sub(od.getInventoryQuantity(), od.getSysQuantity()))
                             .set("warehouseId", od.getWarehouseId())
-                            .set("warehouse", tuple.get(qWarehouses.name))
+                            .set("warehousesName", tuple.get(qWarehouses.name))
                             .set("remark", od.getRemark())
                             .set("productsCode", tuple.get(qProducts.code))
                             .set("productsName", tuple.get(qProducts.name))
-                            .set("spec", tuple.get(qProducts.specification))
+                            .set("unitId", od.getUnitId())
+                            .set("unitName", od.getUnitName())
+                            .set("orderUnitId", od.getUnitId())
+                            .set("orderUnitName", od.getUnitName())
+                            .set("specification", tuple.get(qProducts.specification))
+                            .set("categoryName", tuple.get(qProductsCategory.name))
                             .set("imgPath", tuple.get(qProducts.imgPath));
                     list.add(dict);
                 }, List::addAll);

@@ -3,6 +3,7 @@ package com.flyemu.share.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
+import com.flyemu.share.entity.QProducts;
 import com.flyemu.share.entity.QUnits;
 import com.flyemu.share.entity.Units;
 import com.flyemu.share.exception.ServiceException;
@@ -68,6 +69,13 @@ public class UnitsService extends AbsService {
 
     @Transactional
     public void delete(Long unitsId, Long merchantId, Long organizationId) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("merchantId", merchantId);
+        params.put("organizationId", organizationId);
+        params.put("unitId", unitsId);
+        params.put("unitStr", "{\"unitId\": " + unitsId + "}");
+        Assert.isFalse(lazyDao.getCount("unitUp", params) > 0, "单位已使用,不能删除~");
+
         jqf.delete(qUnits)
                 .where(qUnits.id.eq(unitsId).and(qUnits.merchantId.eq(merchantId)).and(qUnits.organizationId.eq(organizationId)))
                 .execute();
@@ -81,6 +89,11 @@ public class UnitsService extends AbsService {
     public static class Query {
         public final BooleanBuilder builder = new BooleanBuilder();
 
+        public void setFilter(String filter) {
+            if (filter != null) {
+                builder.and(qUnits.name.contains(filter));
+            }
+        }
         public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qUnits.merchantId.eq(merchantId));

@@ -67,6 +67,7 @@ public class SalesOrderService extends AbsService {
         return new PageResults<>(collect, page, pagedList.getTotalSize());
     }
 
+
     public BigDecimal queryTotal(Query query) {
         return bqf.selectFrom(qOrder)
                 .select(qOrder.discountedAmount.sum())

@@ -73,7 +73,7 @@
           </div>
           <div style="height:calc(100vh - 665px); overflow-y:auto;">
             <vxe-table height="auto" row-id="customLeveId" ref="tableCustomLevelPrice" :data="customLevelPriceList"
-                       highlight-hover-row show-overflow border :row-config="{height: 48}" :loading="loading">
+                       highlight-hover-row show-overflow border :row-config="{height: 48}" >
               <vxe-column title="客户级别" field="customLeveName" width="130"/>
               <vxe-column :title="`订货价${unitName?'('+unitName+')':''}`" field="name" align="right">
                 <template #default="{ row }">
@@ -94,6 +94,7 @@
         </div>
       </div>
     </div>
+    <Loading text="运行中" :loading="loading"></Loading>
   </div>
 </template>
 
@@ -157,13 +158,13 @@ export default {
             if (this.model.multiUnit[i]) {
               multiUnit.push(this.model.multiUnit[i]);
             } else {
-              multiUnit.push({unitId: null, unitName: null, price: 0, isDefault: false, num: null});
+              multiUnit.push({unitId: null, unitName: null, price: 0.0, isDefault: false, num: null});
             }
           }
           this.model.multiUnit = multiUnit;
         } else if (!this.model.multiUnit || this.model.multiUnit.length === 0) {
-          multiUnit.push({unitId: null, unitName: null, price: 0, isDefault: false, num: null});
-          multiUnit.push({unitId: null, unitName: null, price: 0, isDefault: false, num: null});
+          multiUnit.push({unitId: null, unitName: null, price: 0.0, isDefault: false, num: null});
+          multiUnit.push({unitId: null, unitName: null, price: 0.0, isDefault: false, num: null});
           this.model.multiUnit = multiUnit;
         }
       }
@@ -345,13 +346,13 @@ export default {
             if (this.model.multiUnit[i]) {
               multiUnit.push(this.model.multiUnit[i])
             } else {
-              multiUnit.push({unitId: null, unitName: null, price: 0, isDefault: false, num: null});
+              multiUnit.push({unitId: null, unitName: null, price: 0.0, isDefault: false, num: null});
             }
           }
           if (unitPrice) {
             multiUnit.push(unitPrice);
           } else {
-            multiUnit.push({unitId: null, unitName: null, price: 0, isDefault: false, num: null});
+            multiUnit.push({unitId: null, unitName: null, price: 0.0, isDefault: false, num: null});
           }
           this.model.multiUnit = multiUnit;
         }
