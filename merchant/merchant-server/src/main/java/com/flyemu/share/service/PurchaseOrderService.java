@@ -13,6 +13,7 @@ import com.flyemu.share.dto.PurchasePriceRecordsDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.OrderType;
+import com.flyemu.share.enums.StockType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -118,6 +119,7 @@ public class PurchaseOrderService extends AbsService {
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
+                d.setStockType(StockType.加);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
@@ -146,6 +148,7 @@ public class PurchaseOrderService extends AbsService {
                 dto.setVendorsId(order.getVendorsId());
                 purchasePriceService.save(dto);
 
+                d.setStockType(StockType.加);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);

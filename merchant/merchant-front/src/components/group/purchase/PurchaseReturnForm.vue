@@ -167,6 +167,7 @@ export default {
       warehousesList: [],
       vendorsList: [],
       vendorsId: null,
+      warehousesId: null,
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
@@ -252,7 +253,7 @@ export default {
           sysQuantity: 1,
           orderQuantity: 1,
           orderPrice: d.price || 0,
-          warehouseId: null,
+          warehouseId: this.warehousesId,
           price: d.price || 0,
           discountAmount: 0.00,
           discount: 0.00,
@@ -495,6 +496,9 @@ export default {
     ]).then((results) => {
       this.vendorsList = results[0].data || [];
       this.warehousesList = results[1].data || [];
+      if (this.warehousesList != null) {
+        this.warehousesId = this.warehousesList.find(val => val.isDefault).id
+      }
       //订单详情/编辑订单
       if (this.orderId) {
         PurchaseRtOrder.load(this.orderId).then(({data: {order, productsData}}) => {

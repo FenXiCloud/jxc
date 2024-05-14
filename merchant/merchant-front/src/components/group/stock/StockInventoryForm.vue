@@ -42,7 +42,7 @@
         <vxe-column title="盘点库存" field="inventoryQuantity" align="center" width="160" :edit-render="{}">
           <template #edit="{row,rowIndex}">
             <vxe-input :id="'r'+rowIndex+''+3" ref="inventoryQuantity" v-model.number="row.inventoryQuantity"
-                       type="float" min="0" :controls="false"></vxe-input>
+                       type="float" :controls="false"></vxe-input>
           </template>
         </vxe-column>
         <vxe-column title="盘盈盘亏" width="90">

@@ -1,5 +1,6 @@
 package com.flyemu.share.entity;
 
+import com.flyemu.share.enums.StockType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,7 @@ public class StockItem {
     private LocalDate billDate;
 
     @Comment("库存业务类型")
+    @Enumerated(EnumType.STRING)
     private InventoryType inventoryType;
 
     @Comment("数量")
@@ -81,6 +83,11 @@ public class StockItem {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createDate;
+
+    @Comment("仓库类型")
+    @Column(nullable = false,length = 32)
+    @Enumerated(EnumType.STRING)
+    private StockType stockType;
 
     public enum InventoryType {
         采购入库,采购退货,销售出库,销售退货,盘盈,盘亏,其他出库,其他入库,调拨

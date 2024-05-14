@@ -13,4 +13,51 @@
               and organization_id = :organizationId
             ]]></value>
     </sql>
+    <sql id="summaryByProducts">
+        <value>
+            <![CDATA[
+            select p.name productsName,p.code productsCode,u.name unitName,pc.name categoryName,w.name warehouseName,
+                SUM(case WHEN o.order_type = '销售退货单' or o.order_type = '采购退货单' then -od.discounted_amount else  0 end) as returnAmount,
+                SUM(case WHEN o.order_type = '销售退货单' or o.order_type = '采购退货单' then -od.sys_quantity else  0 end) as returnSysQuantity,
+                SUM(case WHEN o.order_type = '销售出库单' or o.order_type = '采购入库单' then od.discounted_amount else  0 end) as discountedAmount,
+                SUM(case WHEN o.order_type = '销售出库单' or o.order_type = '采购入库单' then od.sys_quantity else  0 end) as sysQuantity
+                from s_order_detail od
+                left join s_order o on o.id = od.order_id
+                left join s_products p on od.products_id = p.id
+                left join s_units u on u.id = p.unit_id
+                left join s_products_category pc on pc.id = p.category_id
+                left join s_warehouses w on w.id = od.warehouse_id
+                where (o.order_type = :orderType or o.order_type = :orderType1)
+                and o.order_status = :orderStatus
+                and o.merchant_id = :merchantId
+                and o.organization_id = :organizationId
+                and o.bill_date between :start and :end
+                #[AND (p.code like :filter or p.name like :filter or p.pinyin like :filter)]
+                #[AND od.warehouse_id in (:warehousesIds)]
+                group by od.products_id,od.warehouse_id
+            ]]></value>
+    </sql>
+
+    <sql id="stockByProducts">
+        <value>
+            <![CDATA[
+            select p.name productsName,p.code productsCode,u.name unitName,pc.name categoryName,w.name warehouseName,
+                SUM(case WHEN st.stock_type = '加'  then st.total_amount else  0 end) as inTotalAmount,
+                SUM(case WHEN st.stock_type = '加'  then st.quantity else  0 end) as inQuantity,
+                SUM(case WHEN st.stock_type = '减'  then st.total_amount else  0 end) as outTotalAmount,
+                SUM(case WHEN st.stock_type = '减'  then st.quantity else  0 end) as outQuantity
+                from s_stock_item st
+                left join s_order o on o.id = st.order_id
+                left join s_products p on st.products_id = p.id
+                left join s_units u on u.id = p.unit_id
+                left join s_products_category pc on pc.id = p.category_id
+                left join s_warehouses w on w.id = st.warehouse_id
+                where st.merchant_id = 1
+                and st.organization_id = 4
+                and o.bill_date between :start and :end
+                #[AND (p.code like :filter or p.name like :filter or p.pinyin like :filter)]
+                #[AND st.warehouse_id in (:warehousesIds)]
+                group by st.products_id,st.warehouse_id
+            ]]></value>
+    </sql>
 </sqltoy>

@@ -12,6 +12,7 @@ import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.OrderType;
+import com.flyemu.share.enums.StockType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -107,13 +108,13 @@ public class StockTransferService extends AbsService {
 
             BeanUtil.copyProperties(order, original, CopyOptions.create().ignoreNullValue());
 
-
             Set<Long> ids = new HashSet<>();
             for (OrderDetail d : orderForm.getDetailList()) {
                 d.setWarehouseId(order.getInWarehouseId());
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
+                d.setStockType(StockType.平);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
@@ -131,6 +132,7 @@ public class StockTransferService extends AbsService {
             order.setOrganizationId(organizationId);
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
+                d.setStockType(StockType.平);
                 d.setWarehouseId(order.getInWarehouseId());
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);

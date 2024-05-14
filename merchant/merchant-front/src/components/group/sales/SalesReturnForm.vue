@@ -146,6 +146,7 @@ export default {
       warehousesList: [],
       customersList: [],
       customersId: null,
+      warehousesId: null,
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
@@ -225,7 +226,7 @@ export default {
     //选择商品
     doChange(d, index) {
       if (d) {
-        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:null, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
+        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:this.warehousesId, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
         this.productsData[index] = Object.assign(Object.assign(g, d), d);
         if (!this.productsData[index + 1]) {
           this.productsData.push({isNew: true});
@@ -411,6 +412,9 @@ export default {
     ]).then((results) => {
       this.customersList = results[0].data || [];
       this.warehousesList = results[1].data || [];
+      if (this.warehousesList != null) {
+        this.warehousesId = this.warehousesList.find(val => val.isDefault).id
+      }
       //订单详情/编辑订单
       if (this.orderId) {
         SalesReturn.load(this.orderId).then(({data: {order, productsData}}) => {

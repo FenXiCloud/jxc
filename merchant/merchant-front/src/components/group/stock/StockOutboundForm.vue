@@ -338,7 +338,7 @@ export default {
     loadProducts() {
       Products.loadToOrder().then(({data}) => {
         this.productsList = data || [];
-        if (!this.form.id &&  this.bType === null) {
+        if (!this.form.id &&  !this.bType) {
           this.productsData = [{isNew: true}];
         }
       }).finally(() =>
@@ -472,10 +472,9 @@ export default {
           this.productsData.push(Object.assign(g))
         })
         this.productsData.push({isNew: true});
-        console.log(this.productsData)
       }
-    }).finally(() => loading.close());
-    this.loadProducts()
+    }).finally(() =>  this.loadProducts(),loading.close());
+
   },
 }
 </script>

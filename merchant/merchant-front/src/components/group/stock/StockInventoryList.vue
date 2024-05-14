@@ -156,9 +156,7 @@ export default {
           },
         }),
         onClose: () => {
-          if (state === '待审核') {
-            this.loadList();
-          }
+          this.doSearch();
         }
       });
     },
@@ -179,9 +177,7 @@ export default {
           },
         }),
         onClose: () => {
-          if (state === '待审核') {
-            this.loadList();
-          }
+          this.loadList();
         }
       });
     },
@@ -202,9 +198,7 @@ export default {
           },
         }),
         onClose: () => {
-          if (state === '待审核') {
-            this.loadList();
-          }
+          this.loadList();
         }
       });
     },

@@ -49,12 +49,16 @@ public class Order {
     private BigDecimal discountedAmount ;
 
     @Comment("订单类型")
+    @Enumerated(EnumType.STRING)
     private OrderType orderType;
 
     @Comment("业务类型")
+    @Enumerated(EnumType.STRING)
     private BusinessType businessType;
 
     @Comment("订单状态")
+    @Column(nullable = false,length = 32, columnDefinition = "varchar(20) default '已保存'")
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
     @Comment("创建时间")

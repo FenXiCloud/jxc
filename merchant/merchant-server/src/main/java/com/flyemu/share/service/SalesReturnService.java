@@ -12,6 +12,7 @@ import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.OrderType;
+import com.flyemu.share.enums.StockType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -105,6 +106,7 @@ public class SalesReturnService extends AbsService {
             Set<Long> ids = new HashSet<>();
             for (OrderDetail d : orderForm.getDetailList()) {
 
+                d.setStockType(StockType.加);
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
@@ -125,6 +127,7 @@ public class SalesReturnService extends AbsService {
             order.setOrganizationId(organizationId);
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
+                d.setStockType(StockType.加);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);

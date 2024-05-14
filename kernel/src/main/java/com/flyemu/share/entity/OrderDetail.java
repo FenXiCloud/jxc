@@ -1,5 +1,7 @@
 package com.flyemu.share.entity;
 
+import com.flyemu.share.enums.OrderStatus;
+import com.flyemu.share.enums.StockType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -79,6 +81,11 @@ public class OrderDetail {
     @Comment("仓库ID")
     @Column(nullable = false)
     private Long warehouseId;
+
+    @Comment("仓库类型")
+    @Column(nullable = false,length = 32)
+    @Enumerated(EnumType.STRING)
+    private StockType stockType;
 
     @Comment("组织ID")
     @Column(nullable = false)

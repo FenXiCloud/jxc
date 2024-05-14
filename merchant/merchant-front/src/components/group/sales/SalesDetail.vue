@@ -29,6 +29,7 @@
         <vxe-column title="单据日期" field="billDate" width="100"/>
         <vxe-column title="单号" field="orderCode" width="220"/>
         <vxe-column title="客户名称" field="customersName" min-width="180"/>
+        <vxe-column title="仓库" field="warehouseName" width="100"/>
         <vxe-column title="商品分类" field="categoryName" width="100"/>
         <vxe-column title="商品编码" width="120" field="productsCode"/>
         <vxe-column title="商品名称" min-width="160" field="productsName"/>
@@ -68,9 +69,9 @@
 <script>
 import manba from "manba";
 import {message} from "heyui.ext";
-import SalesOrderReport from "@js/api/SalesOrderReport";
 import Customers from "@js/api/Customers";
 import Products from "@js/api/Products";
+import OrderReport from "@js/api/OrderReport";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
 const endTime = manba().format("YYYY-MM-dd");
@@ -126,11 +127,6 @@ export default {
       })
     },
   },
-  watch: {
-    'params.orgCusId'() {
-      this.loadCustom();
-    },
-  },
   methods: {
     footerMethod({columns, data}) {
       let sums = [];
@@ -151,7 +147,7 @@ export default {
     loadList(type = true) {
       if (this.dateRange.start && this.dateRange.end) {
         this.loading = true;
-        SalesOrderReport.list(this.queryParams).then(({data: {results, total}}) => {
+        OrderReport.salesDetail(this.queryParams).then(({data: {results, total}}) => {
           this.dataList = results;
           this.pagination.total = total;
         }).finally(() => this.loading = false);

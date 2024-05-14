@@ -277,7 +277,7 @@ export default {
     updateState(row, stateName, state) {
       confirm({
         title: "系统提示",
-        content: `${stateName}：${row.purchaserName}-单号：${row.code}?`,
+        content: `${stateName}：单号：${row.code}?`,
         onConfirm: () => {
           StockOutbound.updateState({id: row.id, purchaserOrderState: state}).then(() => {
             message("操作成功~");

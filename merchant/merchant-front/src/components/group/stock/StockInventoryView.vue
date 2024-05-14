@@ -103,7 +103,7 @@ export default {
     toOrder() {
       this.inList = this.productsData.filter(c => c.sysQuantity < c.inventoryQuantity);
       this.outList = this.productsData.filter(c => c.sysQuantity > c.inventoryQuantity);
-      if (this.inList && this.inList.length > 0 &&!this.order.inOrderId) {
+      if (this.inList && this.inList.length > 0 && !this.order.inOrderId) {
         this.isIn = true
         this.opened = true
       }
@@ -143,6 +143,8 @@ export default {
     },
     toOutOrder(bType,pList) {
       this.opened = false
+      this.isOut = false
+      this.isIn = false
       let inventoryId = this.orderId
         let layerId = layer.drawer({
           title: "其他出库单",

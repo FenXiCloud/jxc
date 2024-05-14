@@ -378,7 +378,7 @@ export default {
     loadProducts() {
       Products.loadToOrder().then(({data}) => {
         this.productsList = data || [];
-        if (!this.form.id && this.bType === null) {
+        if (!this.form.id && !this.bType) {
           this.productsData = [{isNew: true}];
         }
       }).finally(() =>

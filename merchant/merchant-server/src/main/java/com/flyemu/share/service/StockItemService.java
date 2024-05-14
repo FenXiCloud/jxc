@@ -2,15 +2,29 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.StrUtil;
+import com.blazebit.persistence.PagedList;
+import com.flyemu.share.controller.Page;
+import com.flyemu.share.controller.PageResults;
+import com.flyemu.share.dto.StockItemDto;
 import com.flyemu.share.entity.*;
+import com.flyemu.share.enums.StockType;
 import com.flyemu.share.repository.StockItemRepository;
 import com.flyemu.share.repository.StockRepository;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @功能描述: 库存明细表
@@ -24,16 +38,84 @@ import java.util.*;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class StockItemService extends AbsService {
-
     private final static QStock qStock = QStock.stock;
+    private final static QStockItem qStockItem = QStockItem.stockItem;
     private final static QOrder qOrder = QOrder.order;
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
     private final StockRepository stockRepository;
     private final StockItemRepository stockItemRepository;
+    private final static QCustomers qCustomers = QCustomers.customers;
+    private final static QUnits qUnits = QUnits.units;
+    private final static QVendors qVendors = QVendors.vendors;
+    private final static QProducts qProducts = QProducts.products;
+    private final static QWarehouses qWarehouses = QWarehouses.warehouses;
+    private final static QProductsCategory qProductsCategory = QProductsCategory.productsCategory;
 
+    public PageResults<StockItemDto> query(Page page, Query query) {
+        PagedList<Tuple> pagedList = bqf.selectFrom(qStockItem).select(qStockItem,qUnits.name,qOrder.orderType, qCustomers.name,qVendors.name,qProducts.code,qProducts.name,qWarehouses.name,qProductsCategory.name,qOrder.billDate,qOrder.code)
+                .leftJoin(qOrder).on(qOrder.id.eq(qStockItem.orderId))
+                .leftJoin(qProducts).on(qProducts.id.eq(qStockItem.productsId))
+                .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
+                .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId))
+                .leftJoin(qVendors).on(qVendors.id.eq(qOrder.vendorsId))
+                .leftJoin(qWarehouses).on(qWarehouses.id.eq(qStockItem.warehouseId))
+                .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId))
+                .where(query.builder)
+                .orderBy(qStockItem.id.desc())
+                .fetchPage(page.getOffset(), page.getOffsetEnd());
+        ArrayList<StockItemDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
+            StockItemDto dto = BeanUtil.toBean(tuple.get(qStockItem), StockItemDto.class);
+            if(dto.getStockType().equals(StockType.减)){
+                dto.setOutQuantity(dto.getQuantity());
+                dto.setOutTotalAmount(dto.getTotalAmount());
+            }
+            if(dto.getStockType().equals(StockType.加)){
+                dto.setInQuantity(dto.getQuantity());
+                dto.setInTotalAmount(dto.getTotalAmount());
+            }
+            dto.setCustomersName(tuple.get(qCustomers.name));
+            dto.setUnitName(tuple.get(qUnits.name));
+            dto.setVendorsName(tuple.get(qVendors.name));
+            dto.setProductsName(tuple.get(qProducts.name));
+            dto.setProductsCode(tuple.get(qProducts.code));
+            dto.setWarehouseName(tuple.get(qWarehouses.name));
+            dto.setCategoryName(tuple.get(qProductsCategory.name));
+            dto.setOrderCode(tuple.get(qOrder.code));
+            dto.setBillDate(tuple.get(qOrder.billDate));
+            list.add(dto);
+        }, List::addAll);
+        return new PageResults<>(collect, page, pagedList.getTotalSize());
+    }
+
+
+
+    //订单汇总-按客户
+    public PageResults stockByProducts(StockQuery query, Page page) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("merchantId", query.getMerchantId());
+        params.put("organizationId", query.getOrganizationId());
+        if (null != query.start && null != query.end) {
+            params.put("start", query.getStart());
+            params.put("end", query.getEnd());
+        }
+        if(StrUtil.isNotEmpty(query.filter)){
+            params.put("filter", query.filter);
+        }
+        if (null != query.warehousesIds && !query.warehousesIds.isEmpty()) {
+            Set<Long> wIds = Stream.of(query.warehousesIds.split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toSet());
+            if (wIds.size() > 0) {
+                params.put("warehousesIds", wIds);
+            }
+        }
+        org.sagacity.sqltoy.model.Page sqlPage = new org.sagacity.sqltoy.model.Page(page.getSize(), page.getPage());
+        org.sagacity.sqltoy.model.Page<Dict> summaryPage = lazyDao.findPageBySql(sqlPage, "stockByProducts", params, Dict.class);
+        return new PageResults<>(summaryPage.getRows(), page, summaryPage.getRecordCount());
+    }
 
     /**
-     *
+     * 入库出库单更新库存信息
      * @param orderId
      * @param merchantId
      * @param organizationId
@@ -58,6 +140,7 @@ public class StockItemService extends AbsService {
                 stockItem.setBillDate(order.getBillDate());
                 stockItem.setWarehouseId(od.getWarehouseId());
                 stockItem.setTotalAmount(od.getDiscountedAmount());
+                stockItem.setStockType(od.getStockType());
                 stockItems.add(stockItem);
                 Stock stock = stockMap.get(od.getProductsId() + "-" + od.getWarehouseId());
                 if (stock == null) {
@@ -116,10 +199,12 @@ public class StockItemService extends AbsService {
                 inStockItem.setBillDate(order.getBillDate());
                 inStockItem.setWarehouseId(order.getInWarehouseId());
                 inStockItem.setTotalAmount(od.getDiscountedAmount());
+                inStockItem.setStockType(StockType.加);
                 inStockItem.setInventoryType(StockItem.InventoryType.调拨);
                 stockItems.add(inStockItem);
                 StockItem outStockItem = new StockItem();
                 BeanUtil.copyProperties(inStockItem, outStockItem);
+                outStockItem.setStockType(StockType.减);
                 outStockItem.setWarehouseId(order.getOutWarehouseId());
                 stockItems.add(outStockItem);
 
@@ -169,4 +254,61 @@ public class StockItemService extends AbsService {
         }
     }
 
+    @Data
+    public static class StockQuery {
+        private Long merchantId;
+        private Long organizationId;
+        private LocalDate start;
+        private LocalDate end;
+        private String filter;
+        private String warehousesIds;
+    }
+
+    @Data
+    public static class Query {
+        public final BooleanBuilder builder = new BooleanBuilder();
+
+        public void setMerchantId(Long merchantId) {
+            if (merchantId != null) {
+                builder.and(qStockItem.merchantId.eq(merchantId));
+            }
+        }
+
+        public void setOrganizationId(Long organizationId) {
+            if (organizationId != null) {
+                builder.and(qStockItem.organizationId.eq(organizationId));
+            }
+        }
+
+        public void setFilter(String filter) {
+            if (filter != null) {
+                builder.and(qProducts.name.contains(filter).or(qProducts.code.contains(filter)).or(qProducts.pinyin.contains(filter)));
+            }
+        }
+
+        public void setWarehousesIds(String warehousesIds) {
+            if (StrUtil.isNotEmpty(warehousesIds)){
+                Set<Long> wIds = Stream.of(warehousesIds.split(","))
+                        .map(Long::parseLong)
+                        .collect(Collectors.toSet());
+                if (wIds.size() > 0) {
+                    builder.and(qStockItem.warehouseId.in(wIds));
+                }
+            }
+        }
+
+        public void setStart(String start) {
+            if (StrUtil.isNotBlank(start)) {
+                LocalDate parse = LocalDate.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                builder.and(qOrder.billDate.goe(parse));
+            }
+        }
+
+        public void setEnd(String end) {
+            if (StrUtil.isNotBlank(end)) {
+                LocalDate parse = LocalDate.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                builder.and(qOrder.billDate.loe(parse));
+            }
+        }
+    }
 }
