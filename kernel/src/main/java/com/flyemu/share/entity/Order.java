@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"code", "merchantId"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"code", "merchantId", "organizationId"})})
 public class Order {
 
     @Id
@@ -44,6 +44,9 @@ public class Order {
 
     @Comment("优惠金额")
     private BigDecimal discountAmount ;
+
+    @Comment("销售成本")
+    private BigDecimal cost ;
 
     @Comment("折后金额")
     private BigDecimal discountedAmount ;

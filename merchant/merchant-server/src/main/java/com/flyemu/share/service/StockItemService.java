@@ -3,6 +3,7 @@ package com.flyemu.share.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.controller.Page;
@@ -20,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -52,7 +55,7 @@ public class StockItemService extends AbsService {
     private final static QProductsCategory qProductsCategory = QProductsCategory.productsCategory;
 
     public PageResults<StockItemDto> query(Page page, Query query) {
-        PagedList<Tuple> pagedList = bqf.selectFrom(qStockItem).select(qStockItem,qUnits.name,qOrder.orderType, qCustomers.name,qVendors.name,qProducts.code,qProducts.name,qWarehouses.name,qProductsCategory.name,qOrder.billDate,qOrder.code)
+        PagedList<Tuple> pagedList = bqf.selectFrom(qStockItem).select(qStockItem, qUnits.name, qOrder.orderType, qCustomers.name, qVendors.name, qProducts.code, qProducts.name, qWarehouses.name, qProductsCategory.name, qOrder.billDate, qOrder.code)
                 .leftJoin(qOrder).on(qOrder.id.eq(qStockItem.orderId))
                 .leftJoin(qProducts).on(qProducts.id.eq(qStockItem.productsId))
                 .leftJoin(qCustomers).on(qCustomers.id.eq(qOrder.customersId))
@@ -65,11 +68,11 @@ public class StockItemService extends AbsService {
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<StockItemDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockItemDto dto = BeanUtil.toBean(tuple.get(qStockItem), StockItemDto.class);
-            if(dto.getStockType().equals(StockType.减)){
+            if (dto.getStockType().equals(StockType.减)) {
                 dto.setOutQuantity(dto.getQuantity());
                 dto.setOutTotalAmount(dto.getTotalAmount());
             }
-            if(dto.getStockType().equals(StockType.加)){
+            if (dto.getStockType().equals(StockType.加)) {
                 dto.setInQuantity(dto.getQuantity());
                 dto.setInTotalAmount(dto.getTotalAmount());
             }
@@ -88,7 +91,6 @@ public class StockItemService extends AbsService {
     }
 
 
-
     //订单汇总-按客户
     public PageResults stockByProducts(StockQuery query, Page page) {
         Map<String, Object> params = new LinkedHashMap<>();
@@ -98,7 +100,7 @@ public class StockItemService extends AbsService {
             params.put("start", query.getStart());
             params.put("end", query.getEnd());
         }
-        if(StrUtil.isNotEmpty(query.filter)){
+        if (StrUtil.isNotEmpty(query.filter)) {
             params.put("filter", query.filter);
         }
         if (null != query.warehousesIds && !query.warehousesIds.isEmpty()) {
@@ -116,6 +118,7 @@ public class StockItemService extends AbsService {
 
     /**
      * 入库出库单更新库存信息
+     *
      * @param orderId
      * @param merchantId
      * @param organizationId
@@ -135,7 +138,7 @@ public class StockItemService extends AbsService {
                 stockItem.setMerchantId(merchantId);
                 stockItem.setOrganizationId(organizationId);
                 stockItem.setProductsId(od.getProductsId());
-                stockItem.setQuantity(od.getOrderQuantity());
+                stockItem.setQuantity(od.getSysQuantity());
                 stockItem.setAvailableQuantity(od.getSysQuantity());
                 stockItem.setBillDate(order.getBillDate());
                 stockItem.setWarehouseId(od.getWarehouseId());
@@ -151,9 +154,9 @@ public class StockItemService extends AbsService {
                     stock.setMerchantId(merchantId);
                     stock.setWarehouseId(od.getWarehouseId());
                     stock.setProductsId(od.getProductsId());
-                    stock.setTotalQuantity(type.equals("加") ? od.getSysQuantity() : od.getOrderQuantity().negate());
+                    stock.setTotalQuantity(type.equals("加") ? od.getSysQuantity() : od.getSysQuantity().negate());
                 } else {
-                    stock.setTotalQuantity(stock.getTotalQuantity().add(type.equals("加") ? od.getSysQuantity() : od.getOrderQuantity().negate()));
+                    stock.setTotalQuantity(stock.getTotalQuantity().add(type.equals("加") ? od.getSysQuantity() : od.getSysQuantity().negate()));
                 }
                 stockMap.put(od.getProductsId() + "-" + od.getWarehouseId(), stock);
             });
@@ -174,8 +177,180 @@ public class StockItemService extends AbsService {
         }
     }
 
+
+    /**
+     * 入库单更新库存信息
+     *
+     * @param orderId
+     * @param merchantId
+     * @param organizationId
+     */
+    public void inChange(Long orderId, Long merchantId, Long organizationId) {
+        Order order = bqf.selectFrom(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchOne();
+        List<OrderDetail> orderDetails = bqf.selectFrom(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.organizationId.eq(organizationId)).and(qOrderDetail.merchantId.eq(merchantId))).fetch();
+        List<StockItem> stockItems = new ArrayList<>();
+        Map<String, Stock> stockMap = new HashMap<>();
+        Set<Long> pIds = orderDetails.stream().map(OrderDetail::getProductsId).collect(Collectors.toSet());
+        Set<Long> wIds = orderDetails.stream().map(OrderDetail::getWarehouseId).collect(Collectors.toSet());
+
+        bqf.selectFrom(qStock).where(qStock.productsId.in(pIds).and(qStock.warehouseId.in(wIds)).and(qStock.merchantId.eq(merchantId)).and(qStock.organizationId.eq(organizationId))).fetch().forEach(
+                tuple -> {
+                    stockMap.put(tuple.getProductsId() + "-" + tuple.getWarehouseId(), tuple);
+                }
+        );
+
+        if (CollUtil.isNotEmpty(orderDetails)) {
+            orderDetails.forEach(od -> {
+                StockItem stockItem = new StockItem();
+                stockItem.setOrderId(orderId);
+                stockItem.setMerchantId(merchantId);
+                stockItem.setOrganizationId(organizationId);
+                stockItem.setProductsId(od.getProductsId());
+                stockItem.setQuantity(od.getSysQuantity());
+                stockItem.setAvailableQuantity(od.getSysQuantity());
+                stockItem.setBillDate(order.getBillDate());
+                stockItem.setWarehouseId(od.getWarehouseId());
+                stockItem.setTotalAmount(od.getDiscountedAmount());
+                stockItem.setStockType(od.getStockType());
+                stockItem.setAvailableQuantity(od.getSysQuantity());
+                stockItem.setUnitCost(NumberUtil.div(od.getDiscountedAmount(), od.getSysQuantity(), 2, RoundingMode.HALF_UP));
+                Stock stock = stockMap.get(od.getProductsId() + "-" + od.getWarehouseId());
+                if (stock == null) {
+                    stock = new Stock();
+                    stock.setOrganizationId(organizationId);
+                    stock.setMerchantId(merchantId);
+                    stock.setWarehouseId(od.getWarehouseId());
+                    stock.setProductsId(od.getProductsId());
+                    stock.setTotalQuantity(od.getSysQuantity());
+                } else {
+                    if(stock.getTotalQuantity().compareTo(BigDecimal.ZERO) < 0) {
+                        //如果库存为负数，则比较入库数量和库存的大小，库存大则可出库数量对于两者之和，否则为零
+                        if (stock.getTotalQuantity().negate().compareTo(stockItem.getQuantity()) < 0) {
+                            stockItem.setAvailableQuantity(stock.getTotalQuantity().add(od.getSysQuantity()));
+                        }else {
+                            stockItem.setAvailableQuantity(BigDecimal.ZERO);
+                        }
+                    }
+                    stock.setTotalQuantity(stock.getTotalQuantity().add(od.getSysQuantity()));
+                }
+                stock.setInUnitCost(stockItem.getUnitCost());//更新最近入库单位成本
+                stockItems.add(stockItem);
+                stockMap.put(od.getProductsId() + "-" + od.getWarehouseId(), stock);
+            });
+
+            stockRepository.saveAll(stockMap.values());
+            stockItemRepository.saveAll(stockItems);
+
+        }
+    }
+
+
+    /**
+     * 出库单更新库存信息
+     *
+     * @param orderId
+     * @param merchantId
+     * @param organizationId
+     */
+    public BigDecimal outChange(Long orderId, Long merchantId, Long organizationId) {
+        Order order = bqf.selectFrom(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchOne();
+        List<OrderDetail> orderDetails = bqf.selectFrom(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.organizationId.eq(organizationId)).and(qOrderDetail.merchantId.eq(merchantId))).fetch();
+        List<StockItem> stockItems = new ArrayList<>();
+        Map<String, Stock> stockMap = new HashMap<>();
+        final BigDecimal[] orderCost = {BigDecimal.ZERO};
+        Set<Long> pIds = orderDetails.stream().map(OrderDetail::getProductsId).collect(Collectors.toSet());
+        Set<Long> wIds = orderDetails.stream().map(OrderDetail::getWarehouseId).collect(Collectors.toSet());
+
+        List<StockItem> stockItemList = bqf.selectFrom(qStockItem).where(qStockItem.availableQuantity.gt(0).and(qStockItem.productsId.in(pIds).and(qStockItem.warehouseId.in(wIds)))
+                .and(qStockItem.stockType.eq(StockType.加)).and(qStockItem.merchantId.eq(merchantId)).and(qStockItem.organizationId.eq(organizationId))).fetch();
+
+        List<StockItem> upStockItemList = new ArrayList<>();
+        bqf.selectFrom(qStock).where(qStock.productsId.in(pIds).and(qStock.warehouseId.in(wIds)).and(qStock.merchantId.eq(merchantId)).and(qStock.organizationId.eq(organizationId))).fetch().forEach(
+                tuple -> {
+                    stockMap.put(tuple.getProductsId() + "-" + tuple.getWarehouseId(), tuple);
+                }
+        );
+        if (CollUtil.isNotEmpty(orderDetails)) {
+            orderDetails.forEach(od -> {
+                StockItem stockItem = new StockItem();
+                Stock stock = stockMap.get(od.getProductsId() + "-" + od.getWarehouseId());
+                if(stock == null){
+                    stock = new Stock();
+                    stock.setOrganizationId(organizationId);
+                    stock.setMerchantId(merchantId);
+                    stock.setWarehouseId(od.getWarehouseId());
+                    stock.setProductsId(od.getProductsId());
+                    stock.setTotalQuantity(od.getSysQuantity().negate());
+
+                    stockItem.setUnitCost(BigDecimal.ZERO);
+                    stockItem.setCost(BigDecimal.ZERO);
+                }else {
+
+                    if (stock.getTotalQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                        stockItem.setUnitCost(stock.getInUnitCost());
+                        stockItem.setCost(stock.getInUnitCost().multiply(od.getSysQuantity()));
+                    }else {
+                        List<StockItem> itemList = stockItemList.stream().filter(val->val.getProductsId().equals(od.getProductsId())&&val.getWarehouseId().equals(od.getWarehouseId())).collect(Collectors.toList());
+                        if(CollUtil.isNotEmpty(itemList)) {
+                            BigDecimal totalQuantity = od.getSysQuantity();
+                            BigDecimal itemCost = BigDecimal.ZERO;
+                            for (int i = 0; i < itemList.size(); i++) {
+                                StockItem val = itemList.get(i);
+                                if(val.getAvailableQuantity().compareTo(totalQuantity) >= 0) {
+                                    itemCost = itemCost.add(NumberUtil.mul(totalQuantity, val.getUnitCost()));
+                                    stockItem.setUnitCost(itemCost.divide(od.getSysQuantity(), 2, RoundingMode.HALF_UP));
+                                    stockItem.setCost(itemCost);
+                                    val.setAvailableQuantity(val.getAvailableQuantity().subtract(totalQuantity));
+                                    upStockItemList.add(val);
+                                    break;
+                                }else {
+                                    totalQuantity = totalQuantity.subtract(val.getAvailableQuantity());
+                                    upStockItemList.add(val);
+                                    if(i == itemList.size() - 1) {
+                                        //最后一个 总成本除了加上最后一个入库记录的成本 还需要加上入库单位成本乘未出库的数量
+                                        itemCost = itemCost.add(NumberUtil.mul(val.getAvailableQuantity(), val.getUnitCost())).add(NumberUtil.mul(totalQuantity, stock.getInUnitCost()));
+                                        stockItem.setUnitCost(itemCost.divide(od.getSysQuantity(), 2, RoundingMode.HALF_UP));
+                                        stockItem.setCost(itemCost);
+                                    }else {
+                                        itemCost = itemCost.add(NumberUtil.mul(val.getAvailableQuantity(), val.getUnitCost()));
+                                    }
+                                    val.setAvailableQuantity(BigDecimal.ZERO);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stock.setTotalQuantity(stock.getTotalQuantity().subtract(od.getSysQuantity()));
+
+                stockMap.put(od.getProductsId() + "-" + od.getWarehouseId(), stock);
+
+                stockItem.setOrderId(orderId);
+                stockItem.setOrderDetailId(od.getId());
+                stockItem.setMerchantId(merchantId);
+                stockItem.setOrganizationId(organizationId);
+                stockItem.setProductsId(od.getProductsId());
+                stockItem.setQuantity(od.getSysQuantity());
+                stockItem.setAvailableQuantity(BigDecimal.ZERO);
+                stockItem.setBillDate(order.getBillDate());
+                stockItem.setWarehouseId(od.getWarehouseId());
+                stockItem.setTotalAmount(od.getDiscountedAmount());
+                stockItem.setStockType(od.getStockType());
+                orderCost[0] = orderCost[0].add(stockItem.getCost());
+                stockItems.add(stockItem);
+            });
+            if(CollUtil.isNotEmpty(upStockItemList)){
+                stockItemRepository.saveAll(upStockItemList);
+            }
+            stockRepository.saveAll(stockMap.values());
+            stockItemRepository.saveAll(stockItems);
+        }
+        return orderCost[0];
+    }
+
     /**
      * 调拨单更新库存信息
+     *
      * @param orderId
      * @param merchantId
      * @param organizationId
@@ -186,7 +361,7 @@ public class StockItemService extends AbsService {
         List<StockItem> stockItems = new ArrayList<>();
         Map<String, Stock> stockMap = new HashMap<>();
         Set<Long> pIds = new HashSet<>();
-        Set<Long> wIds = new HashSet<>(Arrays.asList(order.getOutWarehouseId(),order.getInWarehouseId()));
+        Set<Long> wIds = new HashSet<>(Arrays.asList(order.getOutWarehouseId(), order.getInWarehouseId()));
         if (CollUtil.isNotEmpty(orderDetails)) {
             orderDetails.forEach(od -> {
                 StockItem inStockItem = new StockItem();
@@ -287,7 +462,7 @@ public class StockItemService extends AbsService {
         }
 
         public void setWarehousesIds(String warehousesIds) {
-            if (StrUtil.isNotEmpty(warehousesIds)){
+            if (StrUtil.isNotEmpty(warehousesIds)) {
                 Set<Long> wIds = Stream.of(warehousesIds.split(","))
                         .map(Long::parseLong)
                         .collect(Collectors.toSet());

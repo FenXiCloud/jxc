@@ -2,6 +2,7 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.entity.QVendorsCategory;
 import com.flyemu.share.entity.VendorsCategory;
 import com.flyemu.share.repository.VendorsCategoryRepository;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
 
 /**
  * @功能描述: 货商分类管理
@@ -46,10 +46,24 @@ public class VendorsCategoryService extends AbsService {
         if (vendorsCategory.getId() != null) {
             //更新
             VendorsCategory original = vendorsCategoryRepository.getById(vendorsCategory.getId());
+
+            //检查重复
+            long count = bqf.selectFrom(qVendorsCategory)
+                    .where(qVendorsCategory.merchantId.eq(original.getMerchantId()).and(qVendorsCategory.code.eq(vendorsCategory.getCode()))
+                            .and(qVendorsCategory.id.ne(vendorsCategory.getId())).and(qVendorsCategory.organizationId.eq(original.getOrganizationId())))
+                    .fetchCount();
+            Assert.isTrue(count == 0, vendorsCategory.getCode() + "编码已存在~");
             BeanUtil.copyProperties(vendorsCategory, original, CopyOptions.create().ignoreNullValue());
             return vendorsCategoryRepository.save(original);
         }
 
+
+        //检查重复
+        long count = bqf.selectFrom(qVendorsCategory)
+                .where(qVendorsCategory.merchantId.eq(vendorsCategory.getMerchantId()).and(qVendorsCategory.code.eq(vendorsCategory.getCode()))
+                        .and(qVendorsCategory.organizationId.eq(vendorsCategory.getOrganizationId())))
+                .fetchCount();
+        Assert.isTrue(count == 0, vendorsCategory.getCode() + "编码已存在~");
         return vendorsCategoryRepository.save(vendorsCategory);
     }
 
@@ -61,8 +75,8 @@ public class VendorsCategoryService extends AbsService {
                 .execute();
     }
 
-    public List<VendorsCategory> select(Long merchantId) {
-        return bqf.selectFrom(qVendorsCategory).where(qVendorsCategory.merchantId.eq(merchantId)).fetch();
+    public List<VendorsCategory> select(Long merchantId, Long organizationId) {
+        return bqf.selectFrom(qVendorsCategory).where(qVendorsCategory.merchantId.eq(merchantId).and(qVendorsCategory.organizationId.eq(organizationId))).fetch();
     }
 
 

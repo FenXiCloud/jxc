@@ -44,6 +44,7 @@ import java.util.*;
 public class PurchaseOrderService extends AbsService {
     private final static QOrder qOrder = QOrder.order;
     private final static QOrderDetail qOrderDetail = QOrderDetail.orderDetail;
+    private final static QWarehouses qWarehouses = QWarehouses.warehouses;
     private final static QVendors qVendors = QVendors.vendors;
     private final static QProducts qProducts = QProducts.products;
     private final OrderRepository orderRepository;
@@ -163,9 +164,10 @@ public class PurchaseOrderService extends AbsService {
         PurchaserOrderDto order = BeanUtil.toBean(fetchFirst.get(qOrder), PurchaserOrderDto.class);
         order.setVendorsName(fetchFirst.get(qVendors.name));
         ArrayList<Dict> collect = jqf.selectFrom(qOrderDetail)
-                .select(qOrderDetail, qProducts.code, qProducts.name,
+                .select(qOrderDetail, qProducts.code, qProducts.name,qWarehouses.name,
                         qProducts.imgPath, qProducts.specification)
                 .leftJoin(qProducts).on(qProducts.id.eq(qOrderDetail.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
+                .leftJoin(qWarehouses).on(qWarehouses.id.eq(qOrderDetail.warehouseId).and(qWarehouses.merchantId.eq(merchantId)).and(qWarehouses.organizationId.eq(organizationId)))
                 .where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId)))
                 .orderBy(qOrderDetail.id.asc())
                 .fetch().stream().collect(ArrayList::new, (list, tuple) -> {
@@ -183,6 +185,7 @@ public class PurchaseOrderService extends AbsService {
                             .set("orderUnitName", od.getOrderUnitName())
                             .set("discount", od.getDiscount())
                             .set("warehouseId", od.getWarehouseId())
+                            .set("warehouseName", tuple.get(qWarehouses.name))
                             .set("remark", od.getRemark())
                             .set("discountAmount", od.getDiscountAmount())
                             .set("productsCode", tuple.get(qProducts.code))
@@ -199,7 +202,7 @@ public class PurchaseOrderService extends AbsService {
     public void updateState(Order order, Long merchantId, Long organizationId) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        stockItemService.change(order.getId(), merchantId, organizationId, "加");
+        stockItemService.inChange(order.getId(), merchantId, organizationId);
         first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);
     }

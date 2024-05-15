@@ -25,13 +25,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Table
 public class StockItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Comment("订单Id")
     private Long orderId;
+
+    @Comment("订单Id")
+    private Long orderDetailId;
 
     @Comment("单号")
     private String code;
@@ -56,14 +58,11 @@ public class StockItem {
     @Comment("可出库数量")
     private BigDecimal  availableQuantity;
 
-    @Comment("变动前数量")
-    private BigDecimal  beforeQuantity;
-
-    @Comment("变动后数量")
-    private BigDecimal  afterQuantity;
-
     @Comment("单位成本")
     private BigDecimal unitCost;
+
+    @Comment("成本金额")
+    private BigDecimal cost;
 
     @Comment("小计金额")
     private BigDecimal totalAmount;

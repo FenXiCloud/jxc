@@ -14,11 +14,17 @@ export default {
     list(param) {
         return Ajax.get('/salesOrder', param)
     },
+    profit(param) {
+        return Ajax.get('/salesOrder/profit', param)
+    },
     remove(id) {
         return Ajax.delete('/salesOrder/' + id);
     },
     load(id) {
         return Ajax.get('/salesOrder/load/' + id);
+    },
+    loadProfit(id) {
+        return Ajax.get('/salesOrder/loadProfit/' + id);
     },
     select(param) {
         return Ajax.get('/salesOrder/select', param)

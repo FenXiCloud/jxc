@@ -43,6 +43,8 @@
           <vxe-column title="折扣率(%)" field="discount" width="90"/>
           <vxe-column title="折扣额" field="discountAmount" width="80"/>
           <vxe-column title="出库金额" field="discountedAmount" width="120"/>
+          <vxe-column title="单位成本" field="unitCost" width="120"/>
+          <vxe-column title="销售成本" field="cost" width="120"/>
           <vxe-column title="备注" field="remarks"/>
         </vxe-table>
       </div>
@@ -69,7 +71,7 @@ import {confirm, loading, message} from "heyui.ext";
 import SalesOrder from "@js/api/SalesOrder";
 
 export default {
-  name: "SalesOrderView",
+  name: "SalesProfitView",
   props: {
     orderId: Number,
   },
@@ -84,7 +86,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['orderQuantity', 'discountAmount','sysQuantity','discountedAmount'].includes(column.property)) {
+        if (column.property && ['orderQuantity', 'discountAmount','sysQuantity','discountedAmount','unitCost','cost'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -101,7 +103,7 @@ export default {
     },
     loadOrder() {
       loading("加载中....");
-      SalesOrder.load(this.orderId).then(({data: {order, productsData}}) => {
+      SalesOrder.loadProfit(this.orderId).then(({data: {order, productsData}}) => {
         this.order = order || {};
         this.productsData = productsData || [];
       }).finally(() => loading.close());

@@ -19,9 +19,10 @@ import java.math.BigDecimal;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uc_warehouseId_productsId", columnNames = {"merchantId","organizationId","warehouseId", "productsId"})
+})
 public class Stock {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,6 +38,9 @@ public class Stock {
 
     @Comment("小计金额")
     private BigDecimal totalAmount;
+
+    @Comment("最近入库成本")
+    private BigDecimal inUnitCost;
 
     @Comment("仓库ID")
     @Column(nullable = false)

@@ -17,7 +17,9 @@ import org.hibernate.annotations.Comment;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uc_customers_level_name", columnNames = {"merchantId", "organizationId", "name"}),
+})
 public class CustomersLevel {
 
     @Id

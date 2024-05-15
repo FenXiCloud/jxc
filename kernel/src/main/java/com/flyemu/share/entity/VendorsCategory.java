@@ -17,9 +17,10 @@ import org.hibernate.annotations.Comment;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uc_vendorsCategory_code", columnNames = {"merchantId","organizationId","code"})
+})
 public class VendorsCategory {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

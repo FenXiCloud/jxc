@@ -51,6 +51,7 @@ public class UnitsService extends AbsService {
             if (units.getId() != null) {
                 Map<String, Object> params = new LinkedHashMap<>();
                 params.put("merchantId", units.getMerchantId());
+                params.put("organizationId", units.getOrganizationId());
                 params.put("unitsId", units.getId());
                 params.put("unitStr", "{\"unitId\": " + units.getId() + "}");
                 Assert.isFalse(lazyDao.getCount("unitUp", params) > 0, "单位已使用,不能更新~");

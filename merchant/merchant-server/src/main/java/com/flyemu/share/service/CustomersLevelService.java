@@ -33,7 +33,6 @@ public class CustomersLevelService extends AbsService {
     private final static QCustomersLevelPrice qCustomersLevelPrice = QCustomersLevelPrice.customersLevelPrice;
 
     private final CustomersLevelRepository customersLevelRepository;
-    private final  QOrganization qOrganization = QOrganization.organization;
 
 
     public List<CustomersLevel> query(Query query) {
@@ -50,10 +49,24 @@ public class CustomersLevelService extends AbsService {
         if (customersLevel.getId() != null) {
             //更新
             CustomersLevel original = customersLevelRepository.getById(customersLevel.getId());
+
+            //检查重复
+            long count = bqf.selectFrom(qCustomersLevel)
+                    .where(qCustomersLevel.merchantId.eq(original.getMerchantId()).and(qCustomersLevel.name.eq(customersLevel.getName()))
+                            .and(qCustomersLevel.id.ne(customersLevel.getId())).and(qCustomersLevel.organizationId.eq(original.getOrganizationId())))
+                    .fetchCount();
+            Assert.isTrue(count == 0, customersLevel.getName() + "名称已存在~");
             BeanUtil.copyProperties(customersLevel, original, CopyOptions.create().ignoreNullValue());
             return customersLevelRepository.save(original);
         }
 
+
+        //检查重复
+        long count = bqf.selectFrom(qCustomersLevel)
+                .where(qCustomersLevel.merchantId.eq(customersLevel.getMerchantId()).and(qCustomersLevel.name.eq(customersLevel.getName()))
+                        .and(qCustomersLevel.organizationId.eq(customersLevel.getOrganizationId())))
+                .fetchCount();
+        Assert.isTrue(count == 0, customersLevel.getName() + "名称已存在~");
         return customersLevelRepository.save(customersLevel);
     }
 

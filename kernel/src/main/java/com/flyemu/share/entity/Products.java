@@ -23,8 +23,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table
 @DynamicUpdate
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uc_products_code", columnNames = {"merchantId", "organizationId", "code"}),
+})
 public class Products {
 
     @Id

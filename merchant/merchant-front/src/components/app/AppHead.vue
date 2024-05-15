@@ -2,7 +2,7 @@
   <div class="app-header">
     <div class="flex">
       <div class="account">
-        <Select v-model="selectOrgId" :datas="orgs"  @change="changeCurrent"></Select>
+        <Select v-model="selectOrgId" :datas="orgs"  @change="changeCurrent" :deletable="false"></Select>
       </div>
     </div>
     <div class="flex app-header-info flex items-center" v-if="user.admin">

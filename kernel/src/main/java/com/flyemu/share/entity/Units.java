@@ -20,7 +20,7 @@ import java.io.Serializable;
 @Entity
 @NoArgsConstructor
 @Table(uniqueConstraints = {
-        @UniqueConstraint(name = "uc_unit_name", columnNames = {"merchantId","organizationId", "name"})
+        @UniqueConstraint(name = "uc_units_name", columnNames = {"merchantId", "organizationId", "name"})
 })
 @DynamicUpdate
 public class Units implements Serializable {

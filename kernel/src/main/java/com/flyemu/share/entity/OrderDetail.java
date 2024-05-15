@@ -82,6 +82,15 @@ public class OrderDetail {
     @Column(nullable = false)
     private Long warehouseId;
 
+    @Comment("出库数量")
+    private BigDecimal  outQuantity;
+
+    @Comment("单位成本")
+    private BigDecimal unitCost;
+
+    @Comment("成本")
+    private BigDecimal cost;
+
     @Comment("仓库类型")
     @Column(nullable = false,length = 32)
     @Enumerated(EnumType.STRING)

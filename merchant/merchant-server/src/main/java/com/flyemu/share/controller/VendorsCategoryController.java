@@ -62,7 +62,7 @@ public class VendorsCategoryController {
     }
 
     @GetMapping("select")
-    public JsonResult select(@SaMerchantId Long merchantId) {
-        return JsonResult.successful(vendorsCategoryService.select(merchantId));
+    public JsonResult select(@SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
+        return JsonResult.successful(vendorsCategoryService.select(merchantId,organizationId));
     }
 }

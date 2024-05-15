@@ -19,8 +19,10 @@ import org.hibernate.annotations.DynamicUpdate;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table
 @DynamicUpdate
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uc_products_category_code", columnNames = {"merchantId", "organizationId", "code"}),
+})
 public class ProductsCategory {
 
     @Id

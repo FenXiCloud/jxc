@@ -20,9 +20,10 @@ import java.util.Date;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uc_vendors_code", columnNames = {"merchantId","organizationId","code"})
+})
 public class Vendors {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

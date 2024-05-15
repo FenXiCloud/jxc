@@ -42,6 +42,21 @@ public class SalesOrderController {
     }
 
     /**
+     * 出库单利润列表
+     *
+     * @param merchantId
+     * @param page
+     * @param query
+     * @return
+     */
+    @GetMapping("/profit")
+    public JsonResult profit( Page page, SalesOrderService.Query query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
+        return JsonResult.successful(salesOrderService.profitList(page, query));
+    }
+
+    /**
      * 条件出库单总金额
      *
      * @param merchantId
@@ -90,7 +105,7 @@ public class SalesOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        salesOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
+        salesOrderService.updateState(order,accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId());
         return JsonResult.successful();
     }
 
@@ -105,6 +120,18 @@ public class SalesOrderController {
     @GetMapping("load/{orderId}")
     public JsonResult load(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
         return JsonResult.successful(salesOrderService.load(merchantId, orderId, organizationId));
+    }
+
+    /**
+     * 出库单利润详情
+     *
+     * @param merchantId
+     * @param orderId
+     * @return
+     */
+    @GetMapping("loadProfit/{orderId}")
+    public JsonResult loadProfit(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
+        return JsonResult.successful(salesOrderService.loadProfit(merchantId, orderId, organizationId));
     }
 
 
