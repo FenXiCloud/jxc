@@ -57,6 +57,21 @@ public class SalesOrderController {
     }
 
     /**
+     * 出库单利润列表
+     *
+     * @param merchantId
+     * @param page
+     * @param query
+     * @return
+     */
+    @GetMapping("/rankProducts")
+    public JsonResult rankProducts( Page page, SalesOrderService.RankQuery query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
+        return JsonResult.successful(salesOrderService.rankProducts(page, query));
+    }
+
+    /**
      * 条件出库单总金额
      *
      * @param merchantId

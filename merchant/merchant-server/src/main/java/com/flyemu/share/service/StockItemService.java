@@ -11,6 +11,7 @@ import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.StockItemDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.StockType;
+import com.flyemu.share.exception.ServiceException;
 import com.flyemu.share.repository.StockItemRepository;
 import com.flyemu.share.repository.StockRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -222,16 +223,29 @@ public class StockItemService extends AbsService {
                     stock.setWarehouseId(od.getWarehouseId());
                     stock.setProductsId(od.getProductsId());
                     stock.setTotalQuantity(od.getSysQuantity());
+                    stock.setWeightedCost(stockItem.getTotalAmount());
+                    stock.setWeightedAverageCost(stockItem.getUnitCost());
                 } else {
+                    BigDecimal q = stock.getTotalQuantity().add(od.getSysQuantity());
                     if(stock.getTotalQuantity().compareTo(BigDecimal.ZERO) < 0) {
                         //如果库存为负数，则比较入库数量和库存的大小，库存大则可出库数量对于两者之和，否则为零
                         if (stock.getTotalQuantity().negate().compareTo(stockItem.getQuantity()) < 0) {
-                            stockItem.setAvailableQuantity(stock.getTotalQuantity().add(od.getSysQuantity()));
+                            stock.setWeightedAverageCost(od.getUnitCost());
+
+                            stock.setWeightedCost(NumberUtil.mul(od.getUnitCost(),q,2));
+                            stockItem.setAvailableQuantity(q);
                         }else {
+                            stock.setWeightedAverageCost(BigDecimal.ZERO);
+                            stock.setWeightedCost(BigDecimal.ZERO);
                             stockItem.setAvailableQuantity(BigDecimal.ZERO);
                         }
+                    }else {
+                        BigDecimal cost = stock.getWeightedCost().add(stockItem.getTotalAmount());
+
+                        stock.setWeightedAverageCost(cost.divide(q,2,RoundingMode.HALF_UP));
+                        stock.setWeightedCost(cost);
                     }
-                    stock.setTotalQuantity(stock.getTotalQuantity().add(od.getSysQuantity()));
+                    stock.setTotalQuantity(q);
                 }
                 stock.setInUnitCost(stockItem.getUnitCost());//更新最近入库单位成本
                 stockItems.add(stockItem);
@@ -252,7 +266,7 @@ public class StockItemService extends AbsService {
      * @param merchantId
      * @param organizationId
      */
-    public BigDecimal outChange(Long orderId, Long merchantId, Long organizationId) {
+    public BigDecimal outChange(Long orderId, Long merchantId, Long organizationId,String costType) {
         Order order = bqf.selectFrom(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchOne();
         List<OrderDetail> orderDetails = bqf.selectFrom(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.organizationId.eq(organizationId)).and(qOrderDetail.merchantId.eq(merchantId))).fetch();
         List<StockItem> stockItems = new ArrayList<>();
@@ -285,38 +299,65 @@ public class StockItemService extends AbsService {
                     stockItem.setUnitCost(BigDecimal.ZERO);
                     stockItem.setCost(BigDecimal.ZERO);
                 }else {
-
-                    if (stock.getTotalQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                    BigDecimal totalQuantity = od.getSysQuantity();//待出库数量
+                    BigDecimal weightedCost= totalQuantity.multiply(stock.getWeightedAverageCost());//加权平均的成本
+                     if (stock.getTotalQuantity().compareTo(BigDecimal.ZERO) <= 0) {
                         stockItem.setUnitCost(stock.getInUnitCost());
                         stockItem.setCost(stock.getInUnitCost().multiply(od.getSysQuantity()));
-                    }else {
+                         stock.setWeightedCost(BigDecimal.ZERO);
+                     }else {
                         List<StockItem> itemList = stockItemList.stream().filter(val->val.getProductsId().equals(od.getProductsId())&&val.getWarehouseId().equals(od.getWarehouseId())).collect(Collectors.toList());
+
+                        if (stock.getTotalQuantity().compareTo(totalQuantity) <= 0){
+                            stock.setWeightedCost(BigDecimal.ZERO);
+                        }else {
+                            stock.setWeightedCost(weightedCost);
+                        }
                         if(CollUtil.isNotEmpty(itemList)) {
-                            BigDecimal totalQuantity = od.getSysQuantity();
-                            BigDecimal itemCost = BigDecimal.ZERO;
-                            for (int i = 0; i < itemList.size(); i++) {
-                                StockItem val = itemList.get(i);
-                                if(val.getAvailableQuantity().compareTo(totalQuantity) >= 0) {
-                                    itemCost = itemCost.add(NumberUtil.mul(totalQuantity, val.getUnitCost()));
-                                    stockItem.setUnitCost(itemCost.divide(od.getSysQuantity(), 2, RoundingMode.HALF_UP));
-                                    stockItem.setCost(itemCost);
-                                    val.setAvailableQuantity(val.getAvailableQuantity().subtract(totalQuantity));
-                                    upStockItemList.add(val);
-                                    break;
-                                }else {
-                                    totalQuantity = totalQuantity.subtract(val.getAvailableQuantity());
-                                    upStockItemList.add(val);
-                                    if(i == itemList.size() - 1) {
-                                        //最后一个 总成本除了加上最后一个入库记录的成本 还需要加上入库单位成本乘未出库的数量
-                                        itemCost = itemCost.add(NumberUtil.mul(val.getAvailableQuantity(), val.getUnitCost())).add(NumberUtil.mul(totalQuantity, stock.getInUnitCost()));
+                            if (costType.equals("先")){//先进先出，通过读取库存记录，计算得出成本
+                                BigDecimal itemCost = BigDecimal.ZERO;//成本
+                                for (int i = 0; i < itemList.size(); i++) {
+                                    StockItem val = itemList.get(i);
+                                    if(val.getAvailableQuantity().compareTo(totalQuantity) >= 0) {
+                                        itemCost = itemCost.add(NumberUtil.mul(totalQuantity, val.getUnitCost()));
                                         stockItem.setUnitCost(itemCost.divide(od.getSysQuantity(), 2, RoundingMode.HALF_UP));
                                         stockItem.setCost(itemCost);
+                                        val.setAvailableQuantity(val.getAvailableQuantity().subtract(totalQuantity));
+                                        upStockItemList.add(val);
+                                        break;
                                     }else {
-                                        itemCost = itemCost.add(NumberUtil.mul(val.getAvailableQuantity(), val.getUnitCost()));
+                                        totalQuantity = totalQuantity.subtract(val.getAvailableQuantity());
+                                        if(i == itemList.size() - 1) {
+                                            //最后一个 总成本除了加上最后一个入库记录的成本 还需要加上入库单位成本乘未出库的数量
+                                            itemCost = itemCost.add(NumberUtil.mul(val.getAvailableQuantity(), val.getUnitCost())).add(NumberUtil.mul(totalQuantity, stock.getInUnitCost()));
+                                            stockItem.setUnitCost(itemCost.divide(od.getSysQuantity(), 2, RoundingMode.HALF_UP));
+                                            stockItem.setCost(itemCost);
+                                        }else {
+                                            itemCost = itemCost.add(NumberUtil.mul(val.getAvailableQuantity(), val.getUnitCost()));
+                                        }
+                                        val.setAvailableQuantity(BigDecimal.ZERO);
+                                        upStockItemList.add(val);
                                     }
-                                    val.setAvailableQuantity(BigDecimal.ZERO);
+                                }
+                            }else {//加权平均，出库单位成本直接取仓库记录的加权平均价，只需要修改对应记录的可出库数量
+                                stockItem.setUnitCost(stock.getWeightedAverageCost());
+                                stockItem.setCost(weightedCost);
+                                for (int i = 0; i < itemList.size(); i++) {
+                                    StockItem val = itemList.get(i);
+                                    //如果可出库数量大于等于待出库数量，即修改对应的可出库数量，反之则修改对应的可出库数量位零
+                                    if(val.getAvailableQuantity().compareTo(totalQuantity) >= 0) {;
+                                        val.setAvailableQuantity(val.getAvailableQuantity().subtract(totalQuantity));
+                                        upStockItemList.add(val);
+                                        break;
+                                    }else {
+                                        totalQuantity = totalQuantity.subtract(val.getAvailableQuantity());
+                                        val.setAvailableQuantity(BigDecimal.ZERO);
+                                        upStockItemList.add(val);
+                                    }
                                 }
                             }
+                        }else {
+                            throw new ServiceException("库存异常！");
                         }
                     }
                 }

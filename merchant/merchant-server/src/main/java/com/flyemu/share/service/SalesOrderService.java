@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
@@ -28,10 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @功能描述: 销售出库单
@@ -86,6 +87,30 @@ public class SalesOrderService extends AbsService {
         return new PageResults<>(collect, page, pagedList.getTotalSize());
     }
 
+    //销售排行表-- 按商品
+    public PageResults rankProducts(Page page, RankQuery query) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("merchantId", query.getMerchantId());
+        params.put("organizationId", query.getOrganizationId());
+        params.put("orderType", OrderType.销售出库单.name());
+        params.put("orderStatus", OrderStatus.已审核.name());
+        if (null != query.start && null != query.end) {
+            params.put("start", query.getStart());
+            params.put("end", query.getEnd());
+        }
+        if (StrUtil.isNotEmpty(query.filter)) {
+            params.put("filter", query.filter);
+        }
+        org.sagacity.sqltoy.model.Page sqlPage = new org.sagacity.sqltoy.model.Page(page.getSize(), page.getPage());
+        org.sagacity.sqltoy.model.Page<Dict> summaryPage = lazyDao.findPageBySql(sqlPage, "salesRankProducts", params, Dict.class);
+        summaryPage.getRows().forEach(item -> {
+            item.set("unitCost", item.getBigDecimal("cost").divide(item.getBigDecimal("sysQuantity"), 2, BigDecimal.ROUND_HALF_UP));
+            item.set("profit", item.getBigDecimal("totalAmount").subtract(item.getBigDecimal("cost")));
+            BigDecimal b = item.getBigDecimal("profit").divide(item.getBigDecimal("discountedAmount"), 4, BigDecimal.ROUND_HALF_UP);
+            item.set("profitRatio", NumberUtil.mul(b, 100).doubleValue() + "%");
+        });
+        return new PageResults<>(summaryPage.getRows(), page, summaryPage.getRecordCount());
+    }
 
     public BigDecimal queryTotal(Query query) {
         return bqf.selectFrom(qOrder)
@@ -134,8 +159,7 @@ public class SalesOrderService extends AbsService {
             orderDetailRepository.saveAll(orderForm.getDetailList());
             orderRepository.save(original);
         } else {
-            String code = "";
-            code = "XSCKD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "XSCKD");
+            String code = "XSCKD" + merchantCode + codeSeedService.dayIncrease(order.getMerchantId(), "XSCKD");
             order.setOrderType(OrderType.销售出库单);
             order.setCode(code);
             order.setOrderStatus(OrderStatus.已保存);
@@ -159,7 +183,7 @@ public class SalesOrderService extends AbsService {
         PurchaserOrderDto order = BeanUtil.toBean(fetchFirst.get(qOrder), PurchaserOrderDto.class);
         order.setCustomersName(fetchFirst.get(qCustomers.name));
         ArrayList<Dict> collect = jqf.selectFrom(qOrderDetail)
-                .select(qOrderDetail, qProducts.code, qProducts.name,qWarehouses.name,
+                .select(qOrderDetail, qProducts.code, qProducts.name, qWarehouses.name,
                         qProducts.imgPath, qProducts.specification)
                 .leftJoin(qProducts).on(qProducts.id.eq(qOrderDetail.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
                 .leftJoin(qWarehouses).on(qWarehouses.id.eq(qOrderDetail.warehouseId).and(qWarehouses.merchantId.eq(merchantId)).and(qWarehouses.organizationId.eq(organizationId)))
@@ -198,7 +222,7 @@ public class SalesOrderService extends AbsService {
         PurchaserOrderDto order = BeanUtil.toBean(fetchFirst.get(qOrder), PurchaserOrderDto.class);
         order.setCustomersName(fetchFirst.get(qCustomers.name));
         ArrayList<Dict> collect = jqf.selectFrom(qOrderDetail)
-                .select(qOrderDetail, qProducts.code, qProducts.name,qWarehouses.name,qStockItem.cost,qStockItem.unitCost,
+                .select(qOrderDetail, qProducts.code, qProducts.name, qWarehouses.name, qStockItem.cost, qStockItem.unitCost,
                         qProducts.imgPath, qProducts.specification)
                 .leftJoin(qProducts).on(qProducts.id.eq(qOrderDetail.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
                 .leftJoin(qWarehouses).on(qWarehouses.id.eq(qOrderDetail.warehouseId).and(qWarehouses.merchantId.eq(merchantId)).and(qWarehouses.organizationId.eq(organizationId)))
@@ -236,10 +260,10 @@ public class SalesOrderService extends AbsService {
 
 
     @Transactional
-    public void updateState(Order order, Long adminId,Long merchantId, Long organizationId) {
+    public void updateState(Order order, Long adminId, Long merchantId, Long organizationId) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        BigDecimal cost = stockItemService.outChange(order.getId(),merchantId,organizationId);
+        BigDecimal cost = stockItemService.outChange(order.getId(), merchantId, organizationId, "平");
         first.setCost(cost);
         first.setOrderStatus(OrderStatus.已审核);
         first.setCheckId(adminId);
@@ -249,14 +273,12 @@ public class SalesOrderService extends AbsService {
 
 
     @Data
-    public static class DetailQuery {
-        private String goodsFilter;
-
-        private String filter;
-
+    public static class RankQuery {
+        private Long merchantId;
+        private Long organizationId;
         private LocalDate start;
-
         private LocalDate end;
+        private String filter;
     }
 
     public static class Query {

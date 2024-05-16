@@ -51,7 +51,21 @@
               </template>
             </template>
           </vxe-column>
-          <vxe-column title="出库金额" field="outTotalAmount" width="120"/>
+          <vxe-column title="出库金额" field="outTotalAmount" width="120" />
+          <vxe-column title="单位成本" field="unitCost" width="120">
+            <template #default="{row}">
+              <template v-if="row.outQuantity">
+                {{row.unitCost}}
+              </template>
+            </template>
+          </vxe-column>
+          <vxe-column title="成本" field="cost" width="120">
+            <template #default="{row}">
+              <template v-if="row.outQuantity">
+                {{row.cost}}
+              </template>
+            </template>
+          </vxe-column>
         </vxe-colgroup>
       </vxe-table>
     </div>

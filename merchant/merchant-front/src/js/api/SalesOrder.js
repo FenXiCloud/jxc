@@ -26,6 +26,9 @@ export default {
     loadProfit(id) {
         return Ajax.get('/salesOrder/loadProfit/' + id);
     },
+    rankProducts(param) {
+        return Ajax.get('/salesOrder/rankProducts' , param);
+    },
     select(param) {
         return Ajax.get('/salesOrder/select', param)
     },

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 /**
  * @功能描述: AccountDto
@@ -27,7 +28,7 @@ public class AccountDto implements Serializable {
 
     private Role role;
 
-    private Checkout checkout;
+    private LocalDate checkDate;
 
     /**
      * 授权功能

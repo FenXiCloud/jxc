@@ -30,12 +30,12 @@
         <vxe-column title="商品分类" field="categoryName" width="160"/>
         <vxe-column title="商品编码" width="160" field="productsCode"/>
         <vxe-column title="商品名称" min-width="160" field="productsName"/>
-        <vxe-column title="入库总数量" field="sysQuantity" width="180">
+        <vxe-column title="出库总数量" field="sysQuantity" width="180">
           <template #default="{row}">
             {{row.sysQuantity}}{{row.unitName}}
           </template>
         </vxe-column>
-        <vxe-column title="入库总金额" field="discountedAmount" width="160"/>
+        <vxe-column title="出库总金额" field="discountedAmount" width="160"/>
         <vxe-column title="退货总数量" field="returnSysQuantity" width="180">
           <template #default="{row}">
             {{row.returnSysQuantity}}{{row.unitName}}

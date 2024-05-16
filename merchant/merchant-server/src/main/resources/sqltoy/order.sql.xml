@@ -52,12 +52,31 @@
                 left join s_units u on u.id = p.unit_id
                 left join s_products_category pc on pc.id = p.category_id
                 left join s_warehouses w on w.id = st.warehouse_id
-                where st.merchant_id = 1
-                and st.organization_id = 4
+                where st.merchant_id = :merchantId
+                and st.organization_id = :organizationId
                 and o.bill_date between :start and :end
                 #[AND (p.code like :filter or p.name like :filter or p.pinyin like :filter)]
                 #[AND st.warehouse_id in (:warehousesIds)]
                 group by st.products_id,st.warehouse_id
+            ]]></value>
+    </sql>
+
+    <sql id="salesRankProducts">
+        <value>
+            <![CDATA[select p.name productsName,p.code productsCode,p.specification,u.name unitName, pc.name categoryName,count(od.id) salesCount,  SUM(si.cost) cost,sum(si.total_amount) totalAmount, sum(od.sys_quantity) sysQuantity,sum(od.discounted_amount) discountedAmount
+                    from  s_order_detail od
+                    inner join s_stock_item si on si.order_detail_id = od.id
+                    inner join s_order o on o.id = od.order_id
+                    left join s_products p on p.id = od.products_id
+                    left join s_products_category pc on pc.id = p.category_id
+                    left join s_units u on u.id = p.unit_id
+                    where o.order_type = :orderType
+                      and o.order_status = :orderStatus
+                    and od.merchant_id = :merchantId
+                    and od.organization_id = :organizationId
+                and o.bill_date between :start and :end
+                #[AND (p.code like :filter or p.name like :filter or p.pinyin like :filter)]
+                    group by od.products_id
             ]]></value>
     </sql>
 </sqltoy>

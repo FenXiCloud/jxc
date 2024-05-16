@@ -134,6 +134,24 @@ export default {
       });
       return total.toFixed(2);
     },
+    discountAmount() {
+      let total = 0;
+      this.productsData.forEach(val => {
+        if (val.sysQuantity > 0) {
+          total += parseFloat(val.discountAmount);
+        }
+      });
+      return total.toFixed(2);
+    },
+    sysQuantity() {
+      let total = 0;
+      this.productsData.forEach(val => {
+        if (val.sysQuantity > 0) {
+          total += parseFloat(val.sysQuantity);
+        }
+      });
+      return total.toFixed(2);
+    },
     isMinus() {
       return this.productsData.length > 1;
     }
@@ -267,7 +285,7 @@ export default {
         loading.close()
         return
       }
-      SalesOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
+      SalesOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount,discountAmount: this.discountAmount,unitQuantity: this.sysQuantity}), type: this.type, detailList: productsData}).then(() => {
         message("保存成功~");
       }).finally(() =>
               this.clear(),
@@ -345,6 +363,7 @@ export default {
       row.num = item.num || 1;
       row.sysQuantity = (row.orderQuantity * row.num).toFixed(2);
       row.discountedAmount = (row.orderQuantity * row.orderPrice).toFixed(2);
+      row.discountAmount = (((row.orderQuantity * row.orderPrice) * row.discount) / 100).toFixed(2);
     },
     //计算公式
     updateQuantity(item) {

@@ -33,7 +33,10 @@ public class Stock {
     @Comment("数量")
     private BigDecimal totalQuantity;
 
-    @Comment("平均成本")
+    @Comment("总成本")
+    private BigDecimal weightedCost;
+
+    @Comment("加权平均成本")
     private BigDecimal weightedAverageCost;
 
     @Comment("小计金额")

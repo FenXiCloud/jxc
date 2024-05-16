@@ -47,6 +47,7 @@ import StockTransferList from '@components/group/stock/StockTransferList';
 import StockInventoryForm from "@components/group/stock/StockInventoryForm.vue";
 import StockInventoryList from "@components/group/stock/StockInventoryList.vue";
 import SalesProfitList from "@components/group/sales/SalesProfitList.vue";
+import SalesRankingsList from "@components/group/sales/SalesRankingsList.vue";
 
 
 const groupRoutes = [
@@ -207,6 +208,12 @@ const groupRoutes = [
 				name: 'SalesProfitList',
 				component: SalesProfitList,
 				meta: {title: '销售利润表', icon: 'icon-monitor'}
+			},
+			{
+				path: 'salesRankingsList',
+				name: 'SalesRankingsList',
+				component: SalesRankingsList,
+				meta: {title: '销售排行表', icon: 'icon-monitor'}
 			},
 			{
 				path: 'purchaseOrderForm',

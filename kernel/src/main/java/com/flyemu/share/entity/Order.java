@@ -48,6 +48,9 @@ public class Order {
     @Comment("销售成本")
     private BigDecimal cost ;
 
+    @Comment("单位总数量")
+    private BigDecimal unitQuantity;
+
     @Comment("折后金额")
     private BigDecimal discountedAmount ;
 

@@ -8,7 +8,7 @@
         </div>
         <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
                 show-search-button class="w-360px ml-8px"
-                placeholder="请输入订单号/客户名称" @search="doSearch">
+                placeholder="请输入商品信息" @search="doSearch">
           <i class="h-icon-search"/>
         </Search>
       </template>
@@ -32,22 +32,26 @@
                  :loading="loading">
         <vxe-column type="checkbox" width="40" align="center"/>
         <vxe-column type="seq" width="50" title="序号"/>
-        <vxe-column title="单号" field="code" width="200"/>
-        <vxe-column title="客户名称" field="customersName" min-width="120"/>
-        <vxe-column title="创建时间" field="createDate" align="center" width="200" />
-        <vxe-column title="单据日期" field="billDate" align="center" width="130" />
+        <vxe-column title="商品分类" field="categoryName" sortable width="150"/>
+        <vxe-column title="商品" min-width="300" field="imgPath">
+          <template #default="{row}">
+            <div class="flex1 ml-8px">
+              <div>{{ row.productsName }}</div>
+              <div>编码 {{ row.productsCode }}</div>
+            </div>
+          </template>
+        </vxe-column>
+        <vxe-column title="销售比数" field="salesCount" width="120"/>
+        <vxe-column title="销售数量" field="billDate" width="130">
+          <template #default="{row}">
+            {{row.sysQuantity}}{{row.unitName}}
+          </template>
+        </vxe-column>
         <vxe-column title="销售金额" field="discountedAmount" width="120"/>
+        <vxe-column title="单位成本" field="unitCost" width="120"/>
         <vxe-column title="销售成本" field="cost" width="120"/>
-        <vxe-column title="销售毛利" width="120">
-          <template #default="{row}">
-            {{row.discountedAmount - row.cost}}
-          </template>
-        </vxe-column>
-        <vxe-column title="操作" align="center" width="200">
-          <template #default="{row}">
-            <span class="primary-color  text-hover ml-10px" @click="showOrderView(row.id,row.purchaserOrderState)">详情</span>
-          </template>
-        </vxe-column>
+        <vxe-column title="销售毛利" field="profit" width="120"/>
+        <vxe-column title="销售毛利" field="profitRatio" width="120"/>
       </vxe-table>
     </div>
     <div class="flex justify-between items-center pt-5px">
@@ -78,7 +82,7 @@ const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
 const endTime = manba().endOf(manba.DAY).format("YYYY-MM-dd");
 
 export default {
-  name: "SalesProfitList",
+  name: "SalesRankingsList",
   data() {
     return {
       dataList: [],
@@ -131,7 +135,7 @@ export default {
     footerMethod({columns, data}) {
       let sums = [];
       columns.forEach((column) => {
-        if (column.property && ['discountedAmount','cost'].includes(column.property)) {
+        if (column.property && ['discountedAmount', 'cost','profit'].includes(column.property)) {
           let total = 0;
           data.forEach((row) => {
             let rd = row[column.property];
@@ -140,9 +144,11 @@ export default {
             }
           });
           sums.push(total.toFixed(2));
+        }else {
+          sums.push("");
         }
       })
-      return [["", "", "", "", "", ""].concat(sums)];
+      return [sums];
     },
     showOrderView(orderId = null, state) {
       let layerId = layer.drawer({
@@ -174,7 +180,7 @@ export default {
     loadList(type = true) {
       this.loading = true;
       this.loadTotal(type)
-      SalesOrder.profit(this.queryParams).then(({data: {results, total}}) => {
+      SalesOrder.rankProducts(this.queryParams).then(({data: {results, total}}) => {
         this.dataList = results || [];
         this.pagination.total = total;
       }).finally(() => this.loading = false);
