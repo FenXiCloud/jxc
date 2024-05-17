@@ -66,10 +66,12 @@ public class OrganizationService extends AbsService {
      */
     public List<Dict> loadOrg(Long merchantId) {
         List<Dict> dictList = new ArrayList<>();
-         bqf.selectFrom(qOrganization).select(qOrganization.id,qOrganization.name,qOrganization.current).where(qOrganization.merchantId.eq(merchantId))
+         bqf.selectFrom(qOrganization).select(qOrganization.id,qOrganization.name,qOrganization.current,qOrganization.startDate,qOrganization.checkoutDate).where(qOrganization.merchantId.eq(merchantId))
                 .orderBy(qOrganization.id.desc()).fetch().forEach(tuple->{
                     Dict dict = new Dict().set("key",tuple.get(qOrganization.id))
                             .set("title",tuple.get(qOrganization.name))
+                            .set("startDate",tuple.get(qOrganization.startDate))
+                            .set("checkoutDate",tuple.get(qOrganization.checkoutDate))
                             .set("current",tuple.get(qOrganization.current));
                     dictList.add(dict);
                  });

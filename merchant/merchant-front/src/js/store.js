@@ -1,6 +1,7 @@
 import {createStore} from 'vuex'
 import {toArrayTree} from 'xe-utils'
 import {Init} from "@js/api/App";
+import manba from "manba";
 
 export default createStore({
   state: {
@@ -18,7 +19,15 @@ export default createStore({
     },
     updateOrgs(state, {orgs}) {
       state.orgs = orgs;
-      state.org = orgs.find(val=>val.current===true)
+      let org = orgs.find(val=>val.current===true)
+      org.checkoutSDate = manba(org.checkoutDate).add(1,manba.DAY).format("YYYY-MM-dd")
+      state.org = org
+    },
+    updateOrg(state, checkoutDate) {
+      if(checkoutDate){
+        state.org.checkoutDate = checkoutDate
+        state.org.checkoutSDate = manba(checkoutDate).add(1,manba.DAY).format("YYYY-MM-dd")
+      }
     },
     updateAccount(state, { account}) {
       state.user = account;

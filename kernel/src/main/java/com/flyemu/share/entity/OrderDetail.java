@@ -1,6 +1,5 @@
 package com.flyemu.share.entity;
 
-import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.StockType;
 import jakarta.persistence.*;
 import lombok.Getter;

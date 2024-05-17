@@ -3,7 +3,7 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
         <template #buttons><label class="mr-20px" style="font-size: 16px !important;">盘点日期：</label>
-          <DatePicker v-model="form.stockDate" :clearable="false" disabled="false"></DatePicker>
+          <DatePicker v-model="form.stockDate" :option="{start:org.checkoutSDate}"  :clearable="false" disabled="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">仓库：</label>
           <Select class="w-260px" filterable required :datas="warehousesList" keyName="id" titleName="name"
                   :deletable="false" @change="warehousesChange($event)" v-model="params.warehousesId"
@@ -76,6 +76,7 @@ import {CopyObj} from "@common/utils";
 import Warehouses from "@js/api/Warehouses";
 import StockInbound from "@js/api/StockInbound";
 import StockInventory from "@js/api/StockInventory";
+import {mapState} from "vuex";
 
 export default {
   name: "StockInventoryForm",
@@ -84,6 +85,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     queryParams() {
       return Object.assign(this.params, {
         page: this.pagination.page,
@@ -125,10 +127,13 @@ export default {
         inventory: Object.assign(this.form),
         type: this.type,
         itemList: inventoryList
-      }).then(() => {
+      }).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.$emit('success');
+        }
+      }).finally(()=>{
         loading.close();
-        message("保存成功~");
-        this.$emit('success');
       })
     },
     //修改仓库

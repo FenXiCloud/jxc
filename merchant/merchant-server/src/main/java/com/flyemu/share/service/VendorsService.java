@@ -41,9 +41,7 @@ public class VendorsService extends AbsService {
     private final static QPurchasePriceRecords qPurchasePriceRecords = QPurchasePriceRecords.purchasePriceRecords;
     private final static QUnits qUnits = QUnits.units;
     private final static QProductsCategory qProductsCategory = QProductsCategory.productsCategory;
-
     private final static QVendorsCategory qVendorsCategory = QVendorsCategory.vendorsCategory;
-
     private final VendorsRepository vendorsRepository;
 
 

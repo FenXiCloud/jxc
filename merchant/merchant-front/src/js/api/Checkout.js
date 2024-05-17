@@ -5,10 +5,10 @@ export default {
   list(param) {
     return Ajax.get('/checkout', param)
   },
-  check(param) {
-    return Ajax.post('/checkout/check', param)
+  toCheck(param) {
+    return Ajax.post('/checkout', param)
   },
-  update(param) {
+  antiCheckout(param) {
     return Ajax.put('/checkout', param)
   },
 }

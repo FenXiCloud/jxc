@@ -3,7 +3,7 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
         <template #buttons> <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">调出仓库：</label>
           <Select class="w-260px" filterable required :datas="warehousesList" keyName="id" titleName="name" :deletable="false" v-model="form.inWarehouseId" placeholder="请选择调出仓库"/>
           <label class="ml-10px" style="font-size: 16px !important;">调入仓库：</label>
@@ -110,6 +110,7 @@ import {CopyObj} from "@common/utils";
 import Warehouses from "@js/api/Warehouses";
 import Products from "@js/api/Products";
 import StockTransfer from "@js/api/StockTransfer";
+import {mapState} from "vuex";
 
 export default {
   name: "StockTransferForm",
@@ -118,6 +119,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -245,10 +247,13 @@ export default {
         loading.close()
         return
       }
-      StockTransfer.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      StockTransfer.save({order: Object.assign(this.form,
+            {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear();
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     },
     clear() {

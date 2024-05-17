@@ -186,9 +186,10 @@ public class StockTransferService extends AbsService {
 
 
     @Transactional
-    public void updateState(Order order, Long merchantId, Long organizationId) {
+    public void updateState(Order order, Long merchantId, Long organizationId,LocalDate checkDate) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
+        Assert.isTrue(first.getBillDate().isAfter(checkDate),"小于等于结账时间:"+checkDate+"不能修改数据");
         stockItemService.changeTransfer(order.getId(), merchantId, organizationId);
         first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);

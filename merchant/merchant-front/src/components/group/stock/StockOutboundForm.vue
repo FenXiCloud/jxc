@@ -3,7 +3,7 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
         <template #buttons> <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">供货商：</label>
           <Select class="w-260px" filterable required :datas="vendorsList" keyName="id" titleName="name" :deletable="false" @change="vendorsChange($event)" v-model="form.vendorsId" placeholder="请选择供货商"/>
           <label class="ml-10px" style="font-size: 16px !important;">客户：</label>
@@ -121,6 +121,7 @@ import Warehouses from "@js/api/Warehouses";
 import Products from "@js/api/Products";
 import Customers from "@js/api/Customers";
 import StockOutbound from "@js/api/StockOutbound";
+import {mapState} from "vuex";
 
 export default {
   name: "StockInboundForm",
@@ -132,6 +133,7 @@ export default {
     pList: [Array, Object],
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -276,10 +278,13 @@ export default {
         loading.close()
         return
       }
-      StockOutbound.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, inventoryId: this.inventoryId, detailList: productsData}).then(() => {
-        message("保存成功~");
+      StockOutbound.save({order: Object.assign(this.form,
+            {discountedAmount: this.discountedAmount}), type: this.type, inventoryId: this.inventoryId, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.$emit('success');
+        }
       }).finally(() =>
-          this.$emit('success'),
       loading.close());
     },
     clear() {

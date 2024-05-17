@@ -295,6 +295,8 @@ public class StockItemService extends AbsService {
                     stock.setWarehouseId(od.getWarehouseId());
                     stock.setProductsId(od.getProductsId());
                     stock.setTotalQuantity(od.getSysQuantity().negate());
+                    stock.setWeightedCost(BigDecimal.ZERO);
+                    stock.setWeightedAverageCost(BigDecimal.ZERO);
 
                     stockItem.setUnitCost(BigDecimal.ZERO);
                     stockItem.setCost(BigDecimal.ZERO);

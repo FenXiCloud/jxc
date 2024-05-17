@@ -6,7 +6,7 @@
           <label class="mr-20px" style="font-size: 16px !important;">客户：</label>
           <Select class="w-300px" filterable required :datas="customersList" keyName="id" titleName="name" :deletable="false" @change="customersChange($event)" v-model="customersId" placeholder="请选择客户"/>
           <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -117,6 +117,7 @@ import Warehouses from "@js/api/Warehouses";
 import Customers from "@js/api/Customers";
 import Products from "@js/api/Products";
 import SalesOrder from "@js/api/SalesOrder";
+import {mapState} from "vuex";
 
 export default {
   name: "SalesOrderForm",
@@ -125,6 +126,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -165,6 +167,9 @@ export default {
       customersList: [],
       customersId: null,
       warehousesId: null,
+      dateParam:{
+        start: null,
+      },
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
@@ -285,10 +290,14 @@ export default {
         loading.close()
         return
       }
-      SalesOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount,discountAmount: this.discountAmount,unitQuantity: this.sysQuantity}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      SalesOrder.save({order: Object.assign(this.form,
+            {discountedAmount: this.discountedAmount,discountAmount: this.discountAmount,unitQuantity: this.sysQuantity}),
+        type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear()
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     }
     ,
@@ -429,6 +438,7 @@ export default {
     })
   },
   created() {
+    console.log(manba(this.org.checkoutDate).add(1,manba.DAY).format("YYYY-MM-dd"))
     loading("加载中....");
     Promise.all([
       Customers.select(),

@@ -3,7 +3,6 @@ package com.flyemu.share.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
-import com.flyemu.share.entity.QProducts;
 import com.flyemu.share.entity.QUnits;
 import com.flyemu.share.entity.Units;
 import com.flyemu.share.exception.ServiceException;

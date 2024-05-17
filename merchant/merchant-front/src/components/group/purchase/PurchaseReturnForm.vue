@@ -10,7 +10,7 @@
 <!--          <Select class="w-260px" v-model="orderId" @change="orderChange($event)" :datas="orderList" filterable-->
 <!--                  placeholder="请选择订单号" keyName="id" titleName="name"/>-->
           <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -137,6 +137,7 @@ import Vendors from "@js/api/Vendors";
 import Warehouses from "@js/api/Warehouses";
 import PurchaseRtOrder from "@js/api/PurchaseReturn";
 import PurchaseOrder from "@js/api/PurchaseOrder";
+import {mapState} from "vuex";
 
 export default {
   name: "PurchaseReturnOrderForm",
@@ -145,6 +146,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -304,10 +306,12 @@ export default {
         order: Object.assign(this.form, {discountedAmount: this.discountedAmount}),
         type: this.type,
         detailList: productsData
-      }).then(() => {
-        message("保存成功~");
+      }).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear()
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     },
     clear() {

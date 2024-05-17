@@ -3,7 +3,7 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
         <template #buttons><label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}"  :clearable="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">供货商：</label>
           <Select class="w-260px" filterable required :datas="vendorsList" keyName="id" titleName="name"
                   :deletable="false" @change="vendorsChange($event)" v-model="form.vendorsId"
@@ -142,6 +142,7 @@ import Warehouses from "@js/api/Warehouses";
 import StockInbound from "@js/api/StockInbound";
 import Products from "@js/api/Products";
 import Customers from "@js/api/Customers";
+import {mapState} from "vuex";
 
 export default {
   name: "StockInboundForm",
@@ -153,6 +154,7 @@ export default {
     pList: [Array, Object],
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -315,10 +317,12 @@ export default {
         type: this.type,
         inventoryId: this.inventoryId,
         detailList: productsData
-      }).then(() => {
-        message("保存成功~");
+      }).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.$emit('success');
+        }
       }).finally(() =>
-              this.$emit('success'),
           loading.close());
     },
     clear() {
@@ -331,8 +335,7 @@ export default {
       }
       this.productsData = []
       this.vendorsId = null
-    }
-    ,
+    },
     //+-
     dac(type, index) {
       if (type === 'plus') {

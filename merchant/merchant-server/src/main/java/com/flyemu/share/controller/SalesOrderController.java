@@ -2,6 +2,7 @@ package com.flyemu.share.controller;
 
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
@@ -106,6 +107,7 @@ public class SalesOrderController {
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
+        Assert.isTrue(orderForm.getOrder().getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
         salesOrderService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
@@ -120,7 +122,7 @@ public class SalesOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        salesOrderService.updateState(order,accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId());
+        salesOrderService.updateState(order,accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(),accountDto.getCheckDate());
         return JsonResult.successful();
     }
 

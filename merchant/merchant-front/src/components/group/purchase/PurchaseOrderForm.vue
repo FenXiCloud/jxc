@@ -6,7 +6,7 @@
           <label class="mr-20px" style="font-size: 16px !important;">供货商：</label>
           <Select class="w-300px" filterable required :datas="vendorsList" keyName="id" titleName="name" :deletable="false" @change="vendorsChange($event)" v-model="vendorsId" placeholder="请选择供货商"/>
           <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}"  :clearable="false"></DatePicker>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -116,6 +116,7 @@ import {CopyObj} from "@common/utils";
 import PurchaseOrder from "@js/api/PurchaseOrder";
 import Vendors from "@js/api/Vendors";
 import Warehouses from "@js/api/Warehouses";
+import {mapState} from "vuex";
 
 export default {
   name: "PurchaseOrderForm",
@@ -124,6 +125,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -266,10 +268,12 @@ export default {
         loading.close()
         return
       }
-      PurchaseOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      PurchaseOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear()
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     }
     ,
