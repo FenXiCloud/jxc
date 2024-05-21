@@ -264,7 +264,7 @@ public class SalesOrderService extends AbsService {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
         Assert.isTrue(first.getBillDate().isAfter(checkDate),"小于等于结账时间:"+checkDate+"不能修改数据");
-        BigDecimal cost = stockItemService.outChange(order.getId(), merchantId, organizationId, "平");
+        BigDecimal cost = stockItemService.outChange(order.getId(), merchantId, organizationId, "先");
         first.setCost(cost);
         first.setOrderStatus(OrderStatus.已审核);
         first.setCheckId(adminId);

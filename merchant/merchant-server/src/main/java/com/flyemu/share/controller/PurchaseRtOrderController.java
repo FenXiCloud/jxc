@@ -92,7 +92,7 @@ public class PurchaseRtOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        rtOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(),accountDto.getCheckDate());
+        rtOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getAdminId(), accountDto.getCheckDate());
         return JsonResult.successful();
     }
 

@@ -11,5 +11,8 @@ export default {
     list(param) {
         return Ajax.get('/stock', param)
     },
+    adjustment(param) {
+        return Ajax.get('/stock/adjustment', param)
+    },
 }
 

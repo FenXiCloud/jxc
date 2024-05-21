@@ -43,7 +43,7 @@ public class Stock {
     private BigDecimal totalAmount;
 
     @Comment("最近入库成本")
-    private BigDecimal inUnitCost;
+    private BigDecimal inUnitCost = BigDecimal.ZERO;
 
     @Comment("仓库ID")
     @Column(nullable = false)

@@ -77,7 +77,7 @@ public class StockOutboundController {
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
-        Assert.isTrue(orderForm.getOrder().getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
+        Assert.isTrue(orderForm.getOrder().getBillDate().isAfter(accountDto.getCheckDate()), "小于等于结账时间:" + accountDto.getCheckDate() + "不能修改数据");
         outboundService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
@@ -92,7 +92,7 @@ public class StockOutboundController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        outboundService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(),accountDto.getCheckDate());
+        outboundService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getAdminId(), accountDto.getCheckDate());
         return JsonResult.successful();
     }
 

@@ -93,7 +93,7 @@ public class StockTransferController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        transferService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(),accountDto.getCheckDate());
+        transferService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(),accountDto.getAdminId(),accountDto.getCheckDate());
         return JsonResult.successful();
     }
 

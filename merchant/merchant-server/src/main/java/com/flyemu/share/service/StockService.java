@@ -90,6 +90,33 @@ public class StockService extends AbsService {
         return new PageResults<>(collect, page, pagedList.getTotalSize());
     }
 
+    public PageResults<StockDto> adjustment(Page page, Query query) {
+        PagedList<Tuple> pagedList = bqf.selectFrom(qStock)
+                .select(qStock.totalQuantity,qStock.weightedCost,qStock.productsId,qStock.warehouseId, qUnits.name,qWarehouses.name, qProducts.name, qProducts.code,qProducts.imgPath, qProductsCategory.name)
+                .leftJoin(qProducts).on(qProducts.id.eq(qStock.productsId))
+                .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId))
+                .leftJoin(qWarehouses).on(qWarehouses.id.eq(qStock.warehouseId))
+                .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId))
+                .where(query.builders().and(qStock.totalQuantity.gt(0)))
+                .orderBy(qProducts.id.desc())
+                .fetchPage(page.getOffset(), page.getOffsetEnd());
+        ArrayList<StockDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
+            StockDto dto = new StockDto();
+            dto.setWarehouseId(tuple.get(qStock.warehouseId));
+            dto.setProductsId(tuple.get(qStock.productsId));
+            dto.setWeightedCost(tuple.get(qStock.weightedCost));
+            dto.setTotalQuantity(tuple.get(qStock.totalQuantity));
+            dto.setWarehousesName(tuple.get(qWarehouses.name));
+            dto.setCategoryName(tuple.get(qProductsCategory.name));
+            dto.setProductsCode(tuple.get(qProducts.code));
+            dto.setProductsName(tuple.get(qProducts.name));
+            dto.setImgPath(tuple.get(qProducts.imgPath));
+            dto.setUnitsName(tuple.get(qUnits.name));
+            list.add(dto);
+        }, List::addAll);
+        return new PageResults<>(collect, page, pagedList.getTotalSize());
+    }
+
 
     @Data
     public static class Query {

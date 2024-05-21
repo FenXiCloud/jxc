@@ -63,9 +63,6 @@
 </template>
 <script>
 import manba from "manba";
-import {layer} from "@layui/layer-vue";
-import {h} from "vue";
-import PurchaseOrderForm from "@components/group/purchase/PurchaseOrderForm.vue";
 import Stock from "@js/api/Stock";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
