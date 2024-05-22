@@ -49,6 +49,8 @@ public class AdminService extends AbsService {
 
     private final static QMerchantMenu qMerchantMenu = QMerchantMenu.merchantMenu;
 
+    private final static QArgsSetting qArgsSetting = QArgsSetting.argsSetting;
+
     private final AdminRepository adminRepository;
 
     private final CodeSeedService codeSeedService;
@@ -146,7 +148,9 @@ public class AdminService extends AbsService {
 
         Organization organization = bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(admin.getMerchantId()).and(qOrganization.current.isTrue())).fetchFirst();
 
-        return new AccountDto(admin, merchant, role,organization);
+        ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qOrganization.id.eq(organization.getId()))).fetchFirst();
+
+        return new AccountDto(admin, merchant, role,organization,argsSetting.getCostMethod());
     }
 
     @Transactional

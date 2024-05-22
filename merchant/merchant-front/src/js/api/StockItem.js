@@ -11,6 +11,9 @@ export default {
     detail(param) {
         return Ajax.get('/stockItem/detail', param)
     },
+    adjustmentDetail(param) {
+        return Ajax.get('/stockItem/adjustment/detail', param)
+    },
     byProducts(param) {
         return Ajax.get('/stockItem/byProducts', param)
     },

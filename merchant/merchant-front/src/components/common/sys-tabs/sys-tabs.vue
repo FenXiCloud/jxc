@@ -62,7 +62,7 @@ export default {
       } else {
         this.menus = {
           closeSelf: '关闭标签页',
-          closeOther: '标签页',
+          closeOther: '关闭其他标签页',
           closeAll: '关闭所有标签页'
         };
       }

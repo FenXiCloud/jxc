@@ -19,7 +19,7 @@
             border highlight-hover-row show-overflow
             :data="productsData">
           <vxe-column title="序号" type="seq" width="60" align="center" fixed="left"/>
-          <vxe-column title="仓库" field="warehousesName" align="center" width="200"/>
+          <vxe-column title="仓库" field="warehouseName" align="center" width="200"/>
           <vxe-column title="商品信息" min-width="300">
             <template #default="{row,rowIndex}">
               <div class="flex">

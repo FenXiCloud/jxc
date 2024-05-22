@@ -181,7 +181,7 @@ public class StockInventoryService extends AbsService {
                             .set("unitName", od.getUnitName())
                             .set("differ", NumberUtil.sub(od.getInventoryQuantity(), od.getSysQuantity()))
                             .set("warehouseId", od.getWarehouseId())
-                            .set("warehousesName", tuple.get(qWarehouses.name))
+                            .set("warehouseName", tuple.get(qWarehouses.name))
                             .set("remark", od.getRemark())
                             .set("productsCode", tuple.get(qProducts.code))
                             .set("productsName", tuple.get(qProducts.name))

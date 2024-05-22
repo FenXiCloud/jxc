@@ -41,7 +41,7 @@
             </div>
           </template>
         </vxe-column>
-        <vxe-column title="仓库" field="warehousesName" width="120" tree-node></vxe-column>
+        <vxe-column title="仓库" field="warehouseName" width="120" tree-node></vxe-column>
         <vxe-column title="基本数量" field="totalQuantity" align="center" width="130">
           <template #default="{row}">
             <div>{{ row.totalQuantity }}{{ row.unitsName }}</div>

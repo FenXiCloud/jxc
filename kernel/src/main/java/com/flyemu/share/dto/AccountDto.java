@@ -30,16 +30,26 @@ public class AccountDto implements Serializable {
 
     private LocalDate checkDate;
 
+    private String costMethod;
+
     /**
      * 授权功能
      */
     private List<String> granted;
 
-    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization) {
+    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization,String costMethod) {
         this.admin = admin;
         this.merchant = merchant;
         this.role = role;
         this.organization = organization;
+        this.checkDate = organization.getCheckoutDate();
+        this.costMethod = costMethod;
+    }
+
+    public AccountDto(Admin admin, Merchant merchant, Role role) {
+        this.admin = admin;
+        this.merchant = merchant;
+        this.role = role;
     }
 
     public Long getAdminId() {

@@ -10,6 +10,7 @@ import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.OrganizationDto;
 import com.flyemu.share.entity.*;
+import com.flyemu.share.repository.ArgsSettingRepository;
 import com.flyemu.share.repository.CheckoutRepository;
 import com.flyemu.share.repository.OrganizationRepository;
 import com.flyemu.share.repository.UnitsRepository;
@@ -34,6 +35,8 @@ public class OrganizationService extends AbsService {
     private static final QCheckout qCheckout = QCheckout.checkout;
 
     private final OrganizationRepository organizationRepository;
+
+    private final ArgsSettingRepository argsSettingRepository;
 
     private final CheckoutRepository checkoutRepository;
 
@@ -126,6 +129,11 @@ public class OrganizationService extends AbsService {
         }
         organizationRepository.save(organization);
 
+        ArgsSetting argsSetting = new ArgsSetting();
+        argsSetting.setMerchantId(organization.getMerchantId());
+        argsSetting.setOrganizationId(organization.getId());
+        argsSetting.setCostMethod("平");
+        argsSettingRepository.save(argsSetting);
         return organization;
     }
 

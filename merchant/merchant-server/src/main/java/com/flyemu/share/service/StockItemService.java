@@ -92,7 +92,7 @@ public class StockItemService extends AbsService {
     }
 
 
-    public List<StockItemDto> adjustment(Query query) {
+    public List<StockItemDto> adjustment(Query query,LocalDate checkDate) {
         List<StockItemDto> dtos = new ArrayList<>();
         bqf.selectFrom(qStockItem).select(qStockItem, qUnits.name, qOrder.orderType, qCustomers.name, qVendors.name, qProducts.code, qProducts.name, qWarehouses.name, qProductsCategory.name, qOrder.billDate, qOrder.code)
                 .leftJoin(qOrder).on(qOrder.id.eq(qStockItem.orderId))
@@ -105,6 +105,9 @@ public class StockItemService extends AbsService {
                 .where(query.builder.and(qStockItem.stockType.eq(StockType.加)).and(qStockItem.availableQuantity.gt(0)))
                 .orderBy(qStockItem.id.desc()).fetch().forEach(tuple->{
                     StockItemDto dto = BeanUtil.toBean(tuple.get(qStockItem), StockItemDto.class);
+                    dto.setStockItemId(dto.getId());
+                    dto.setId(null);
+                    dto.setBeforeUnitCost(dto.getUnitCost());
                     dto.setCustomersName(tuple.get(qCustomers.name));
                     dto.setUnitName(tuple.get(qUnits.name));
                     dto.setVendorsName(tuple.get(qVendors.name));

@@ -6,7 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
-import com.flyemu.share.dto.ProductsDto;
 import com.flyemu.share.dto.StockDto;
 import com.flyemu.share.entity.*;
 import com.querydsl.core.BooleanBuilder;
@@ -57,7 +56,7 @@ public class StockService extends AbsService {
             pIds.add(tuple.get(qStock.productsId));
             dto.setTreeId(tuple.get(qStock.productsId).toString());
             dto.setTotalQuantity(tuple.get(qStock.totalQuantity.sum()));
-            dto.setWarehousesName("全部仓库");
+            dto.setWarehouseName("全部仓库");
             dto.setCategoryName(tuple.get(qProductsCategory.name));
             dto.setProductsCode(tuple.get(qProducts.code));
             dto.setProductsName(tuple.get(qProducts.name));
@@ -79,7 +78,7 @@ public class StockService extends AbsService {
                     StockDto dto = BeanUtil.toBean(tuple.get(qStock), StockDto.class);
                     dto.setTreeId("tr"+dto.getProductsId());
                     dto.setPTreeId(dto.getProductsId().toString());
-                    dto.setWarehousesName(tuple.get(qWarehouses.name));
+                    dto.setWarehouseName(tuple.get(qWarehouses.name));
                     dto.setCategoryName(tuple.get(qProductsCategory.name));
                     dto.setProductsCode(tuple.get(qProducts.code));
                     dto.setProductsName(tuple.get(qProducts.name));
@@ -92,7 +91,7 @@ public class StockService extends AbsService {
 
     public PageResults<StockDto> adjustment(Page page, Query query) {
         PagedList<Tuple> pagedList = bqf.selectFrom(qStock)
-                .select(qStock.totalQuantity,qStock.weightedCost,qStock.productsId,qStock.warehouseId, qUnits.name,qWarehouses.name, qProducts.name, qProducts.code,qProducts.imgPath, qProductsCategory.name)
+                .select(qStock.id,qStock.totalQuantity,qStock.weightedCost,qStock.productsId,qStock.warehouseId, qUnits.name,qWarehouses.name, qProducts.name, qProducts.code,qProducts.imgPath, qProductsCategory.name)
                 .leftJoin(qProducts).on(qProducts.id.eq(qStock.productsId))
                 .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId))
                 .leftJoin(qWarehouses).on(qWarehouses.id.eq(qStock.warehouseId))
@@ -102,11 +101,12 @@ public class StockService extends AbsService {
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<StockDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockDto dto = new StockDto();
+            dto.setId(tuple.get(qStock.id));
             dto.setWarehouseId(tuple.get(qStock.warehouseId));
             dto.setProductsId(tuple.get(qStock.productsId));
             dto.setWeightedCost(tuple.get(qStock.weightedCost));
             dto.setTotalQuantity(tuple.get(qStock.totalQuantity));
-            dto.setWarehousesName(tuple.get(qWarehouses.name));
+            dto.setWarehouseName(tuple.get(qWarehouses.name));
             dto.setCategoryName(tuple.get(qProductsCategory.name));
             dto.setProductsCode(tuple.get(qProducts.code));
             dto.setProductsName(tuple.get(qProducts.name));

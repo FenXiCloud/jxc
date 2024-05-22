@@ -44,6 +44,20 @@ public class StockItemController {
         return JsonResult.successful(stockItemService.query(page, query));
     }
 
+    /**
+     * 仓库出入明细
+     *
+     * @param accountDto
+     * @param query
+     * @return
+     */
+    @GetMapping("adjustment/detail")
+    public JsonResult adjustment( StockItemService.Query query,@SaAccountVal AccountDto accountDto) {
+        query.setMerchantId(accountDto.getMerchantId());
+        query.setOrganizationId(accountDto.getOrganizationId());
+        return JsonResult.successful(stockItemService.adjustment( query,accountDto.getCheckDate()));
+    }
+
 
     /**
      * 仓库明细汇总

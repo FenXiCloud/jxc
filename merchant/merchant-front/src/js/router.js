@@ -18,6 +18,7 @@ import WarehousesList from '@components/group/basics/WarehousesList';
 import UnitsList from '@components/group/basics/UnitsList';
 import ProductsList from '@components/group/basics/ProductsList';
 import ProductsCategoryList from '@components/group/basics/ProductsCategoryList';
+import ArgsSetting from "@components/group/setting/ArgsSetting.vue";
 
 import SalesOrderForm from '@components/group/sales/SalesOrderForm';
 import SalesOrderList from '@components/group/sales/SalesOrderList';
@@ -48,6 +49,7 @@ import StockInventoryForm from "@components/group/stock/StockInventoryForm.vue";
 import StockInventoryList from "@components/group/stock/StockInventoryList.vue";
 import SalesProfitList from "@components/group/sales/SalesProfitList.vue";
 import SalesRankingsList from "@components/group/sales/SalesRankingsList.vue";
+import StockCostAdjustmentView from "@components/group/stock/StockCostAdjustmentView.vue";
 
 
 const groupRoutes = [
@@ -72,6 +74,12 @@ const groupRoutes = [
 				name: 'MerchantInfo',
 				component: MerchantInfo,
 				meta: {title: '商户信息', icon: 'icon-monitor'}
+			},
+			{
+				path: 'argsSetting',
+				name: 'ArgsSetting',
+				component: ArgsSetting,
+				meta: {title: '系统参数', icon: 'icon-monitor'}
 			},
 			{
 				path: 'organizationList',
@@ -263,6 +271,12 @@ const groupRoutes = [
 				name: 'StockCostAdjustmentForm',
 				component: StockCostAdjustmentForm,
 				meta: {title: '成本调整单', icon: 'icon-monitor'}
+			},
+			{
+				path: 'StockCostAdjustmentView',
+				name: 'StockCostAdjustmentView',
+				component: StockCostAdjustmentView,
+				meta: {title: '成本调整', icon: 'icon-monitor'}
 			},
 			{
 				path: 'StockCostAdjustmentList',

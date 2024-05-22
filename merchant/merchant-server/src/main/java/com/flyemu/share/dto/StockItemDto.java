@@ -19,6 +19,9 @@ public class StockItemDto extends StockItem {
     private String categoryName;
     private String unitName;
     private String orderCode;
+    private Long StockItemId;
+    private BigDecimal adjustmentAmount = BigDecimal.ZERO;
+    private BigDecimal beforeUnitCost;
     private BigDecimal inQuantity;
     private BigDecimal outQuantity;
     private BigDecimal inTotalAmount;

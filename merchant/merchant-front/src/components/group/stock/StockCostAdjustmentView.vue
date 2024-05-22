@@ -4,7 +4,7 @@
       <template #buttons>
         <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
                 show-search-button class="w-360px"
-                placeholder="请输入商品名称/单号" @search="doSearch">
+                placeholder="请输入商品名称" @search="doSearch">
           <i class="h-icon-search"/>
         </Search>
       </template>
@@ -25,8 +25,6 @@
                  :loading="loading">
         <vxe-column type="checkbox" width="40" align="center"/>
         <vxe-column type="seq" width="50" title="序号"/>
-        <vxe-column title="单号" field="code" width="220"></vxe-column>
-        <vxe-column title="调整时间" field="billDate" width="120"></vxe-column>
         <vxe-column title="分类" field="categoryName" width="120"></vxe-column>
         <vxe-column title="商品" field="productsName" min-width="120">
           <template #default="{row}">
@@ -43,11 +41,15 @@
           </template>
         </vxe-column>
         <vxe-column title="仓库" field="warehouseName" width="120"></vxe-column>
-        <vxe-column title="调整人" field="createName" width="120"></vxe-column>
-        <vxe-column title="调整金额" field="amount" width="120"></vxe-column>
+        <vxe-column title="总成本" field="weightedCost" width="120"></vxe-column>
+        <vxe-column title="可出库数量" field="totalQuantity" align="center" width="130">
+          <template #default="{row}">
+            <div>{{ row.totalQuantity }}{{ row.unitsName }}</div>
+          </template>
+        </vxe-column>
         <vxe-column title="操作" align="center" width="200">
           <template #default="{row}">
-            <span class="primary-color  text-hover ml-10px" @click="toDetail(row)">调整内容</span>
+            <span class="primary-color  text-hover ml-10px" @click="toAdjustment(row)">成本调整</span>
           </template>
         </vxe-column>
       </vxe-table>
@@ -69,15 +71,14 @@ import manba from "manba";
 import Stock from "@js/api/Stock";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
+import StockInboundForm from "@components/group/stock/StockInboundForm.vue";
 import StockCostAdjustmentForm from "@components/group/stock/StockCostAdjustmentForm.vue";
-import StockAdjustment from "@js/api/StockAdjustment";
-import StockCostAdjustmentDetail from "@components/group/stock/StockCostAdjustmentDetail.vue";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
 const endTime = manba().endOf(manba.DAY).format("YYYY-MM-dd");
 
 export default {
-  name: "StockCostAdjustmentList",
+  name: "StockCostAdjustmentView",
   data() {
     return {
       dataList: [],
@@ -112,15 +113,19 @@ export default {
     },
   },
   methods: {
-    toDetail(row){
-      let adjustmentId = row.id
+    toAdjustment(row){
+      let productsId= row.productsId
+      let warehouseId= row.warehouseId
+      let stockId= row.id
       let layerId = layer.drawer({
         title: row.productsName+"--"+row.warehouseName+"--成本调整单",
         shadeClose: false,
         ZIndex: 100,
         area: ['90vw', '100vh'],
-        content: h(StockCostAdjustmentDetail, {
-          adjustmentId,
+        content: h(StockCostAdjustmentForm, {
+          stockId,
+          productsId,
+          warehouseId,
           onClose: () => {
             this.doSearch();
             layer.close(layerId);
@@ -162,7 +167,7 @@ export default {
     },
     loadList() {
       this.loading = true;
-      StockAdjustment.list(this.queryParams).then(({data: {results, total}}) => {
+      Stock.adjustment(this.queryParams).then(({data: {results, total}}) => {
         this.dataList = results || [];
         this.pagination.total = total;
       }).finally(() => this.loading = false);
