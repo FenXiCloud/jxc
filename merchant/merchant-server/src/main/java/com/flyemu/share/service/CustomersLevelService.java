@@ -6,7 +6,6 @@ import cn.hutool.core.lang.Assert;
 import com.flyemu.share.entity.CustomersLevel;
 import com.flyemu.share.entity.QCustomersLevel;
 import com.flyemu.share.entity.QCustomersLevelPrice;
-import com.flyemu.share.entity.QOrganization;
 import com.flyemu.share.repository.CustomersLevelRepository;
 import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;

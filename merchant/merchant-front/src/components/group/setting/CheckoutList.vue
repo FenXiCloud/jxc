@@ -86,14 +86,17 @@ export default {
     },
     toCheck(){
       if (this.billDate){
-      Checkout.toCheck({checkDate:this.billDate}).then(({data})=>{
-        message("结账成功~");
-        this.$store.commit('updateOrg', data);
+      Checkout.toCheck({checkDate:this.billDate}).then(({data,success})=>{
+        if (success){
+          message("结账成功~");
+          this.$store.commit('updateOrg', data);
+          window.location.replace("/");
+        }
       }).finally(()=>{
         this.loadList()
       })
       }else {
-        message.error("请结账时间")
+        message.error("请选择结账时间")
       }
     },
     antiCheckout() {

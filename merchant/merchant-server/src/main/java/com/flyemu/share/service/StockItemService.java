@@ -332,7 +332,7 @@ public class StockItemService extends AbsService {
                     stockItem.setCost(BigDecimal.ZERO);
                 } else {
                     BigDecimal totalQuantity = od.getSysQuantity();//待出库数量
-                    BigDecimal weightedCost = totalQuantity.multiply(stock.getWeightedAverageCost());//加权平均的成本
+                    BigDecimal weightedCost = totalQuantity. multiply(stock.getWeightedAverageCost());//加权平均的成本
                     if (stock.getTotalQuantity().compareTo(BigDecimal.ZERO) <= 0) {
                         stockItem.setUnitCost(stock.getInUnitCost());
                         stockItem.setCost(stock.getInUnitCost().multiply(od.getSysQuantity()));

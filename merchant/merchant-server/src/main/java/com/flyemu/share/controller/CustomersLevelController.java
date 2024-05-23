@@ -34,8 +34,6 @@ public class CustomersLevelController {
         return JsonResult.successful(customersLevelService.query(query));
     }
 
-
-
     @PostMapping
     public JsonResult save(@RequestBody @Valid CustomersLevel customersLevel, @SaAccountVal AccountDto accountDto) {
         Assert.isNull(customersLevel.getId(), "新增Id必须为空~");

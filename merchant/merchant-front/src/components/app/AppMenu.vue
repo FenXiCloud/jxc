@@ -2,13 +2,13 @@
   <div class="app-menu">
     <AppLogo/>
     <div class="h-menu h-menu-dark" :class="siderCollapsed?'h-menu-mode-collapse':'h-menu-mode-vertical'">
-      <li class="h-menu-li h-menu-first-level" v-for="m in menus" @click="trigger(m)">
+      <li class="h-menu-li h-menu-first-level" v-for="m in menus" @click.stop="trigger(m,1)">
         <Tooltip v-if="siderCollapsed&& m.children &&!m.children.length" :content="m.title" placement="right">
           <div class="h-menu-show" :class="{'h-menu-li-selected':selected(m)}">
           <span class="h-menu-show-icon" v-if="m.icon">
             <i :class="m.icon"></i>
           </span>
-            <span class="h-menu-show-desc text-14px">{{ m.title }}</span>
+            <span class="h-menu-show-desc text-16px">{{ m.title }}</span>
           </div>
         </Tooltip>
         <template v-else>
@@ -16,14 +16,14 @@
           <span class="h-menu-show-icon" v-if="m.icon">
             <i :class="m.icon"></i>
           </span>
-            <span class="h-menu-show-desc text-14px">{{ m.title }}</span>
+            <span class="h-menu-show-desc text-16px">{{ m.title }}</span>
           </div>
         </template>
         <div class="second-menu">
           <div class="second-menu-wrap">
             <ul class="second-menu-item" v-for="c1 in m.children" :key="c1.key">
               <span class="second-menu-title text-14px">{{ c1.title }}</span>
-              <li class="text-14px" v-for="c2 in c1.children" @click="trigger(c2)" :key="c2.key">{{ c2.title }}</li>
+              <li class="text-14px" v-for="c2 in c1.children" @click.stop="trigger(c2,2)" :key="c2.key">{{ c2.title }}</li>
             </ul>
           </div>
         </div>
@@ -35,6 +35,7 @@
 <script>
 import AppLogo from "@components/app/AppLogo";
 import {mapState,mapMutations} from 'vuex';
+import {pick} from "xe-utils";
 
 /**
  * @功能描述: 菜单
@@ -49,43 +50,54 @@ export default {
     theme: String
   },
   computed: {
-    ...mapState(['siderCollapsed', 'menus', 'currentTab']),
+    ...mapState(['siderCollapsed', 'menus', "currentTab", 'tabs']),
     menuMode() {
       return this.siderCollapsed ? 'collapse' : 'vertical';
     }
   },
-  created() {
-    console.log(this.menus)
+  watch: {
+    currentTab(val) {
+      location.hash = val;
+      localStorage.setItem("currentTab", JSON.stringify(pick(this.tabs.find(value => value.key === val), ['key', 'title'])))
+    }
   },
   methods: {
-    ...mapMutations(['newTab']),
+    ...mapMutations(['pushTab', 'updateTab']),
     selected(item) {
-      if (this.menus) {
-        let find = this.menus.find(val => {
-          if (val.key === this.currentTab) {
-            return true;
-          } else if (val.children) {
-            for (const c1 of val.children) {
-              if (c1.key === this.currentTab) {
-                return true;
-              } else if (c1.children) {
-                for (const c2 of c1.children) {
-                  if (c2.key === this.currentTab) {
-                    return true;
+      if ("DashboardMain" !== this.currentTab) {
+        if (this.menus) {
+          let find = this.menus.find(val => {
+            if (val.key === this.currentTab) {
+              return true;
+            } else if (val.children) {
+              for (const c1 of val.children) {
+                if (c1.key === this.currentTab) {
+                  return true;
+                } else if (c1.children) {
+                  for (const c2 of c1.children) {
+                    if (c2.key === this.currentTab) {
+                      return true;
+                    }
                   }
                 }
               }
             }
-          }
-        })
-        return find && (item.key === find.key);
+          })
+          return find && (item.key === find.key);
+        }
       }
       return false;
     },
-    trigger(data) {
-      if (data.children) return;
-      this.newTab(data.key);
-      this.$router.push({name: data.key});
+    trigger(data, level) {
+      if (data.key === 'DashboardMain') {
+        this.updateTab('DashboardMain');
+      } else if (data.key && level === 2) {
+        this.pushTab(data);
+      } else {
+        if (!data.children){
+          this.pushTab(data);
+        }
+      }
     },
     hideMenu() {
       this.$store.commit('updateSiderCollapse', true);

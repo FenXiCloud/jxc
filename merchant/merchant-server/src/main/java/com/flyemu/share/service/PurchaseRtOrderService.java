@@ -5,9 +5,11 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Dict;
 import com.blazebit.persistence.PagedList;
+import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
+import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
@@ -176,14 +178,14 @@ public class PurchaseRtOrderService extends AbsService {
 
 
     @Transactional
-    public void updateState(Order order, Long merchantId, Long organizationId,Long adminId,LocalDate checkDate) {
-        Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
+    public void updateState(Order order,  AccountDto accountDto) {
+        Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(accountDto.getMerchantId())).and(qOrder.organizationId.eq(accountDto.getOrganizationId()))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        Assert.isTrue(first.getBillDate().isAfter(checkDate),"小于等于结账时间:"+checkDate+"不能修改数据");
-        BigDecimal cost = stockItemService.outChange(order.getId(), merchantId, organizationId,"先");
+        Assert.isTrue(first.getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
+        BigDecimal cost = stockItemService.outChange(order.getId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getCostMethod());
         first.setCost(cost);
         first.setOrderStatus(OrderStatus.已审核);
-        first.setCheckId(adminId);
+        first.setCheckId(accountDto.getAdminId());
         first.setCheckOutTime(LocalDateTime.now());
         orderRepository.save(first);
     }

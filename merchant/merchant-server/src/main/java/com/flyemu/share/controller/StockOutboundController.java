@@ -92,7 +92,7 @@ public class StockOutboundController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        outboundService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getAdminId(), accountDto.getCheckDate());
+        outboundService.updateState(order, accountDto);
         return JsonResult.successful();
     }
 

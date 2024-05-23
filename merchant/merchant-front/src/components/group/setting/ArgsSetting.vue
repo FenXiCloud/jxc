@@ -4,10 +4,9 @@
       <div class="border-top pt-20px">成本参数核算方法</div>
       <Radio v-model="model.costMethod" :datas="param"/>
     </div>
-<!--    <div class="m-20px ml-50px">-->
-<!--      <div class="border-top  pt-20px">异常成本处理（当负库存出库、负结存出库等情形导致商品发出成本小于等于零时会采用本规则）</div>-->
-<!--    </div>-->
-
+    <!--    <div class="m-20px ml-50px">-->
+    <!--      <div class="border-top  pt-20px">异常成本处理（当负库存出库、负结存出库等情形导致商品发出成本小于等于零时会采用本规则）</div>-->
+    <!--    </div>-->
     <div class="flex justify-between py-5px px-5px bg-white-color">
       <div></div>
       <Button class="mr-50px" color="primary" @click="confirm" :loading="loading">
@@ -32,17 +31,17 @@ import SalesOrder from "@js/api/SalesOrder";
 
 export default {
   name: "ArgsSetting",
-  computed: {
-
-  },
+  computed: {},
   props: {
     entity: Object,
   },
   data() {
     return {
       loading: false,
-      param:[{key:'先',title:'先进先出法'},{key:'平',title:'移动平均法'}],
-      model:{costMethod:'先'}
+      param: [{key: '先', title: '先进先出法'}, {key: '平', title: '移动平均法'}],
+      model: {
+        costMethod:null
+      }
     }
   },
   methods: {
@@ -51,15 +50,17 @@ export default {
         title: "系统提示",
         content: `你正在修改系统参数`,
         onConfirm: () => {
-          ArgsSetting.update(this.model.costMethod).then(() => {
-            message("操作成功~");
-            this.loadArgsSetting();
+          ArgsSetting.update(this.model.costMethod).then(({success}) => {
+            if(success){
+              message("操作成功~");
+              window.location.replace("/");
+            }
           })
         }
       })
     },
-    loadArgsSetting(){
-      ArgsSetting.load().then(({data})=>{
+    loadArgsSetting() {
+      ArgsSetting.load().then(({data}) => {
         this.model = data
       })
     }

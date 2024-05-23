@@ -148,7 +148,7 @@ public class AdminService extends AbsService {
 
         Organization organization = bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(admin.getMerchantId()).and(qOrganization.current.isTrue())).fetchFirst();
 
-        ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qOrganization.id.eq(organization.getId()))).fetchFirst();
+        ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qArgsSetting.organizationId.eq(organization.getId()))).fetchFirst();
 
         return new AccountDto(admin, merchant, role,organization,argsSetting.getCostMethod());
     }
@@ -198,6 +198,7 @@ public class AdminService extends AbsService {
             menuDto.setParentId(tuple.get(qMenu.parentId));
             list.add(menuDto);
         }, List::addAll);
+
     }
 
     public List<String> loadFunction(Long merchantId, Role role) {

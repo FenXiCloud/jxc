@@ -2,9 +2,12 @@ package com.flyemu.share.controller;
 
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.session.SaSession;
+import cn.dev33.satoken.stp.StpUtil;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
+import com.flyemu.share.common.Constants;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.service.ArgsSettingService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,10 @@ public class ArgsSettingController {
     @PutMapping
     public JsonResult update(@RequestBody String costMethod, @SaAccountVal AccountDto accountDto) {
         settingService.update(costMethod, accountDto.getMerchantId(), accountDto.getOrganizationId());
+
+        SaSession session = StpUtil.getTokenSession();
+        accountDto.setCostMethod(costMethod);
+        session.set(Constants.SESSION_ACCOUNT, accountDto);
         return JsonResult.successful();
     }
 

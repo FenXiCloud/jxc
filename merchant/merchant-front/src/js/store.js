@@ -11,6 +11,7 @@ export default createStore({
     orgs: [],
     org: {},
     granted: [],
+    tabs: [],
     currentTab:  'DashboardMain',
   },
   mutations: {
@@ -42,6 +43,32 @@ export default createStore({
     newTab(state, key) {
       state.currentTab = key;
     },
+    updateTab(state, tab) {
+      state.currentTab = tab;
+    },
+    pushTab(state, tab) {
+      if (!state.tabs.map(val => val.key).includes(tab.key)) {
+        state.tabs.push(tab);
+      }
+      state.currentTab = tab.key;
+    },
+    clearTabs(state) {
+      state.tabs = [];
+      state.currentTab = 'DashboardMain';
+    },
+    closeOtherTab(state, index) {
+      state.tabs = index < 0 ? [] : [state.tabs[index]];
+      state.currentTab = index < 0 ? 'DashboardMain' : state.tabs[0].key;
+    },
+    closeSelfTab(state, index) {
+      state.currentTab = index - 1 > -1 ? state.tabs[index - 1].key : 'DashboardMain';
+      state.tabs.splice(index, 1);
+    },
+    closeTabKey(state, key) {
+      let index = state.tabs.findIndex(val => val.key === key);
+      state.tabs.splice(index, 1);
+      state.currentTab = index - 1 > -1 ? state.tabs[index - 1].key : 'DashboardMain';
+    },
   },
   actions: {
     init({commit}) {
@@ -51,6 +78,7 @@ export default createStore({
             commit('updateAccount', data);
             commit('updateOrgs', data);
             commit('updateMenus', toArrayTree(data.menus, {strict: true}));
+            console.log('data.menus',data.menus)
             resolve(data.account);
           } else {
             reject();

@@ -122,7 +122,7 @@ public class SalesOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        salesOrderService.updateState(order,accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(),accountDto.getCheckDate());
+        salesOrderService.updateState(order,accountDto);
         return JsonResult.successful();
     }
 
