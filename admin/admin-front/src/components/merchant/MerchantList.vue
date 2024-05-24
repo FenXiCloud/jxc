@@ -27,7 +27,7 @@
             </template>
           </vxe-column>
           <vxe-column title="联系人" field="linkman" width="200"/>
-          <vxe-column title="联系人电话" field="phone" width="130"/>
+          <vxe-column title="联系人电话" field="mobile" width="130"/>
           <vxe-column title="服务时间" field="serviceDate" align="center" width="200">
             <template #default="{row}">
               {{ row.serviceStartDate }} - {{ row.serviceEndDate }}

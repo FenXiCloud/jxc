@@ -78,7 +78,6 @@ export default createStore({
             commit('updateAccount', data);
             commit('updateOrgs', data);
             commit('updateMenus', toArrayTree(data.menus, {strict: true}));
-            console.log('data.menus',data.menus)
             resolve(data.account);
           } else {
             reject();

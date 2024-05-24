@@ -62,7 +62,11 @@ public class AccountDto implements Serializable {
 
     //TODO
     public Long getOrganizationId() {
-        return organization.getId();
+        if (organization != null){
+            return organization.getId();
+        }else {
+            return null;
+        }
     }
 
 }

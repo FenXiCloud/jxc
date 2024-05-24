@@ -13,7 +13,7 @@
         </Row>
       </div>
     </div>
-    <div class="h-panel mt-10px">
+    <div class="h-panel">
       <div class="h-panel-body">
         <div class="table-toolbar">
           <div class="table-toolbar-left">
@@ -109,7 +109,6 @@ export default {
       let layerId = layer.open({
         title: "组织信息",
         shadeClose: false,
-        closeBtn: false,
         area: ['50vw', 'auto'],
         content: h(OrganizationForm, {
           organization,
@@ -140,7 +139,7 @@ export default {
     doRemove(row) {
       confirm({
         title: "系统提示",
-        content: `确认删除门店：${row.name}?`,
+        content: `确认删除组织：${row.name}?`,
         onConfirm: () => {
           Organization.remove(row.id).then(() => {
             message("删除成功~");

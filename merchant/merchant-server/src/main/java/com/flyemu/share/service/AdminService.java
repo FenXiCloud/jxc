@@ -2,6 +2,7 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -147,10 +148,14 @@ public class AdminService extends AbsService {
         Role role = bqf.selectFrom(qRole).where(qRole.id.eq(admin.getRoleId())).fetchFirst();
 
         Organization organization = bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(admin.getMerchantId()).and(qOrganization.current.isTrue())).fetchFirst();
+        if(organization != null){
+            ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qArgsSetting.organizationId.eq(organization.getId()))).fetchFirst();
 
-        ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qArgsSetting.organizationId.eq(organization.getId()))).fetchFirst();
+            return new AccountDto(admin, merchant, role,organization,argsSetting.getCostMethod());
+        }else {
+            return new AccountDto(admin, merchant, role);
+        }
 
-        return new AccountDto(admin, merchant, role,organization,argsSetting.getCostMethod());
     }
 
     @Transactional

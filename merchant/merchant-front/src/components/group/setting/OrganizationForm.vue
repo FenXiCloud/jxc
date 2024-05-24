@@ -2,7 +2,7 @@
   <div class="modal-column">
     <div class="modal-column-full-body">
       <Form ref="form" :model="model" :rules="validationRules" :labelWidth="120" >
-        <blockquote>基本信息</blockquote>
+<!--        <blockquote>基本信息</blockquote>-->
         <FormItem label="门店名称" required prop="name">
           <Input placeholder="请输入门店名称" v-model="model.name"/>
         </FormItem>
@@ -52,11 +52,8 @@
 <!--        </template>-->
       </Form>
     </div>
-    <div class="modal-column-between">
-      <Button icon="fa fa-close" @click="$emit('close')" :loading="loading">
-        取消
-      </Button>
-      <Button icon="fa fa-save" color="primary" @click="confirm" :loading="loading">
+    <div class="modal-column-right">
+      <Button icon="fa fa-save" style="justify-content: right" color="primary" @click="confirm" :loading="loading">
         保存
       </Button>
     </div>

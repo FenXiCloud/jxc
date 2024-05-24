@@ -102,6 +102,10 @@ public class OrganizationService extends AbsService {
      */
     @Transactional
     public Organization save(OrganizationDto organizationForm) {
+       if(bqf.selectFrom(qOrganization)
+               .where(qOrganization.merchantId.eq(organizationForm.getMerchantId())).fetchCount()<=0) {
+           organizationForm.setCurrent(true);
+       }
         if (organizationForm.getId() != null) {
             //更新
             Organization original = organizationRepository.getById(organizationForm.getId());

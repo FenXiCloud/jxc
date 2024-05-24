@@ -1,7 +1,7 @@
 <template>
   <div class="modal-column">
     <div class="m-20px ml-50px">
-      <div class="border-top pt-20px">成本参数核算方法</div>
+      <div class="border-top pt-20px font-bold">成本参数核算方法</div>
       <Radio v-model="model.costMethod" :datas="param"/>
     </div>
     <!--    <div class="m-20px ml-50px">-->
