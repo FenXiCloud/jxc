@@ -8,7 +8,6 @@ import com.flyemu.share.common.Constants;
 import com.flyemu.share.entity.MerchantUser;
 import com.flyemu.share.service.MerchantUserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;

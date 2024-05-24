@@ -13,7 +13,7 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="primary">添加</Button>
+        <Button @click="showForm()" color="primary">新 增</Button>
         <Button @click="addCategoryForm()" color="primary">新增分类</Button>
       </template>
     </vxe-toolbar>

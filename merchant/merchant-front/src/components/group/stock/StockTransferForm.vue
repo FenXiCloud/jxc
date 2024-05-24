@@ -56,26 +56,6 @@
         </vxe-column>
         <vxe-column title="基本单位" field="unitName" align="center" width="120"/>
         <vxe-column title="基本数量" field="sysQuantity" width="160"/>
-<!--        <vxe-column title="出库单价" field="orderPrice" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+4" @keyup="handleEnter($event,rowIndex,4)" @blur="updatePrice(row)" v-model.number="row.orderPrice" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
-<!--        <vxe-column title="折扣率(%)" field="discount" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+5" @keyup="handleEnter($event,rowIndex,5)" @blur="updateDiscount(row)" v-model.number="row.discount" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
-<!--        <vxe-column title="折扣额" field="discountAmount" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+6" @keyup="handleEnter($event,rowIndex,6)" @blur="updateDiscountAmount(row)" v-model.number="row.discountAmount" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
-<!--        <vxe-column title="购货金额" field="discountedAmount" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+7" @keyup="handleEnter($event,rowIndex,7)" @blur="updateDiscountedAmount(row)" v-model.number="row.discountedAmount" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
         <vxe-column title="备注" field="remark">
           <template #default="{row,rowIndex}">
             <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+8" @keyup="handleEnter($event,rowIndex,8)" v-model="row.remark" placeholder="输入备注" :controls="false"></vxe-input>

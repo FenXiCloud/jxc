@@ -3,7 +3,7 @@
     <vxe-toolbar>
       <template #buttons>
         <div class="h-input-group">
-          <span class="h-input-addon ml-8px">单据日期</span>
+          <span class="h-input-addon">单据日期</span>
           <DateRangePicker v-model="dateRange"></DateRangePicker>
         </div>
         <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
@@ -11,9 +11,6 @@
                 placeholder="请输入订单号/客户名称" @search="doSearch">
           <i class="h-icon-search"/>
         </Search>
-      </template>
-      <template #tools>
-        <Button @click="showForm()" color="primary">新 增</Button>
       </template>
     </vxe-toolbar>
     <div class="flex1">

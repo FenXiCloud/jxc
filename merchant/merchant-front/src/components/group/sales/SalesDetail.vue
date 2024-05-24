@@ -57,7 +57,6 @@
                  :total="pagination.total"
                  :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
         <template #left>
-          <span class="mr-12px text-16px">合计金额：{{ amountTotal }}</span>
           <vxe-button @click="loadList(false)" type="text" size="mini" icon="h-icon-refresh"
                       :loading="loading"></vxe-button>
         </template>
@@ -142,7 +141,7 @@ export default {
           sums.push(total.toFixed(2));
         }
       })
-      return [["", "", "", "", "", "", "", "", "", ""].concat(sums)];
+      return [["", "", "", "", "","", "", "", "", "", ""].concat(sums)];
     },
     loadList(type = true) {
       if (this.dateRange.start && this.dateRange.end) {

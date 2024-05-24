@@ -2,11 +2,11 @@ dependencies {
     implementation project(":kernel")
 }
 bootJar {
-    archivesBaseName = 'invoice-admin'
+    archivesBaseName = 'jadmin'
     archiveVersion = '0.1'
     launchScript()
 }
 
-tasks.withType(Jar) {
+tasks.withType(Jar).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

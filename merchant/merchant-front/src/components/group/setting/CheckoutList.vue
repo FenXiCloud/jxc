@@ -23,7 +23,6 @@
                  :column-config="{resizable: true}"
                  :sort-config="{remote:true}"
                  :loading="loading">
-        <vxe-column type="checkbox" width="40" align="center"/>
         <vxe-column type="seq" width="50" title="序号"/>
         <vxe-column title="结账日" field="checkDate" />
         <vxe-column title="操作日期" field="createDate" />

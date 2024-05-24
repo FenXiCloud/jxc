@@ -288,6 +288,12 @@ public class PurchaseOrderService extends AbsService {
             return qOrder.billDate.desc();
         }
 
+        public void setStatus(OrderStatus status) {
+            if (status != null) {
+                builder.and(qOrder.orderStatus.eq(status));
+            }
+        }
+
         public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qOrder.merchantId.eq(merchantId));
