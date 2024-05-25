@@ -38,14 +38,20 @@
         </vxe-column>
         <vxe-column title="盘盈单" field="inOrderCode" align="center" width="200">
           <template #default="{row}">
-            <div class="text-hover" @click="showInOrder(row.inOrderId)">
+            <div v-if="row.intOrderId === 0" @click="showOrderView(row.id)">
+              未生成
+            </div>
+            <div class="text-hover" @click="showInOrder(row.inOrderId)" v-else>
               <span>{{ row.inOrderCode }}</span>
             </div>
           </template>
         </vxe-column>
         <vxe-column title="盘亏单" field="outOrderCode" align="center" width="200">
           <template #default="{row}">
-            <div class="text-hover" @click="showOutOrder(row.outOrderId)">
+            <div v-if="row.outOrderId === 0" @click="showOrderView(row.id)">
+              未生成
+            </div>
+            <div class="text-hover" @click="showOutOrder(row.outOrderId)" v-else>
               <span>{{ row.outOrderCode }}</span>
             </div>
           </template>

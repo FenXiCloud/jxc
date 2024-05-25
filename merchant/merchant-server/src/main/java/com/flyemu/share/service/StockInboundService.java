@@ -95,8 +95,15 @@ public class StockInboundService extends AbsService {
 
     @Transactional
     public void delete(Long orderId, Long merchantId, Long organizationId) {
-        jqf.delete(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).execute();
-        jqf.delete(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).execute();
+        Order original = orderRepository.getById(orderId);
+        if (original != null) {
+            if (original.getInventoryId() != null) {
+                jqf.update(qStockInventory).set(qStockInventory.inOrderId, 0l)
+                        .where(qStockInventory.id.eq(original.getInventoryId()).and(qStockInventory.inOrderId.eq(orderId)).and(qStockInventory.organizationId.eq(organizationId)).and(qStockInventory.merchantId.eq(merchantId))).execute();
+            }
+            jqf.delete(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).execute();
+            jqf.delete(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).execute();
+        }
     }
 
     @Transactional
@@ -138,13 +145,14 @@ public class StockInboundService extends AbsService {
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
             }
+
+            if (order.getInventoryId() != null) {
+                jqf.update(qStockInventory).set(qStockInventory.inOrderId, order.getId())
+                        .where(qStockInventory.id.eq(order.getInventoryId())
+                                .and(qStockInventory.organizationId.eq(organizationId))
+                                .and(qStockInventory.merchantId.eq(merchantId))).execute();
+            }
             orderDetailRepository.saveAll(orderForm.getDetailList());
-        }
-        if(orderForm.getInventoryId() != null){
-         jqf.update(qStockInventory).set(qStockInventory.inOrderId,order.getId())
-                 .where(qStockInventory.id.eq(orderForm.getInventoryId())
-                         .and(qStockInventory.organizationId.eq(organizationId))
-                         .and(qStockInventory.merchantId.eq(merchantId))).execute();
         }
     }
 
@@ -192,17 +200,16 @@ public class StockInboundService extends AbsService {
 
 
     @Transactional
-    public void updateState(Order order, Long merchantId, Long organizationId,LocalDate checkDate) {
+    public void updateState(Order order, Long merchantId, Long organizationId, LocalDate checkDate) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        Assert.isTrue(first.getBillDate().isAfter(checkDate),"小于等于结账时间:"+checkDate+"不能修改数据");
+        Assert.isTrue(first.getBillDate().isAfter(checkDate), "小于等于结账时间:" + checkDate + "不能修改数据");
         stockItemService.inChange(order.getId(), merchantId, organizationId);
         first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);
     }
 
 
-    
     @Data
     public static class DetailQuery {
         private String goodsFilter;
@@ -251,6 +258,7 @@ public class StockInboundService extends AbsService {
                 builder.and(qOrder.orderStatus.eq(state));
             }
         }
+
         public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qOrder.merchantId.eq(merchantId));

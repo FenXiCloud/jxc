@@ -3,6 +3,7 @@ package com.flyemu.share.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
+import com.flyemu.share.entity.QVendors;
 import com.flyemu.share.entity.QVendorsCategory;
 import com.flyemu.share.entity.VendorsCategory;
 import com.flyemu.share.repository.VendorsCategoryRepository;
@@ -28,6 +29,7 @@ import java.util.List;
 public class VendorsCategoryService extends AbsService {
 
     private final static QVendorsCategory qVendorsCategory = QVendorsCategory.vendorsCategory;
+    private final static QVendors qVendors = QVendors.vendors;
 
     private final VendorsCategoryRepository vendorsCategoryRepository;
 
@@ -70,6 +72,7 @@ public class VendorsCategoryService extends AbsService {
 
     @Transactional
     public void delete(Long vendorsCategoryId, Long merchantId, Long organizationId) {
+        Assert.isFalse(bqf.selectFrom(qVendors).where(qVendors.vendorsCategoryId.eq(vendorsCategoryId).and(qVendors.merchantId.eq(merchantId)).and(qVendors.organizationId.eq(organizationId))).fetchCount()>0,"分类已使用，不能删除");
         jqf.delete(qVendorsCategory)
                 .where(qVendorsCategory.id.eq(vendorsCategoryId).and(qVendorsCategory.merchantId.eq(merchantId)).and(qVendorsCategory.organizationId.eq(organizationId)))
                 .execute();

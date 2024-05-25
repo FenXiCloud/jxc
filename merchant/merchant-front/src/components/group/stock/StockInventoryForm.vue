@@ -3,7 +3,8 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
         <template #buttons><label class="mr-20px" style="font-size: 16px !important;">盘点日期：</label>
-          <DatePicker v-model="form.stockDate" :option="{start:org.checkoutSDate}"  :clearable="false" disabled="false"></DatePicker>
+          <DatePicker v-model="form.stockDate" :option="{start:org.checkoutSDate}" :clearable="false"
+                      disabled="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">仓库：</label>
           <Select class="w-260px" filterable required :datas="warehousesList" keyName="id" titleName="name"
                   :deletable="false" @change="warehousesChange($event)" v-model="params.warehousesId"
@@ -42,14 +43,10 @@
         <vxe-column title="盘点库存" field="inventoryQuantity" align="center" width="160" :edit-render="{}">
           <template #edit="{row,rowIndex}">
             <vxe-input :id="'r'+rowIndex+''+3" ref="inventoryQuantity" v-model.number="row.inventoryQuantity"
-                       type="float" :controls="false"></vxe-input>
+                       type="float" :controls="false" @blur="changeQ(row)"></vxe-input>
           </template>
         </vxe-column>
-        <vxe-column title="盘盈盘亏" width="90">
-          <template #default="{row}">
-            {{ row.inventoryQuantity ? row.inventoryQuantity - row.sysQuantity : 0 }}
-          </template>
-        </vxe-column>
+        <vxe-column title="盘盈盘亏" field="difQuantity" width="90"/>
       </vxe-table>
     </div>
     <div class="flex justify-between items-center pt-5px">
@@ -109,6 +106,8 @@ export default {
       form: {
         id: null,
         stockDate: manba().format("YYYY-MM-dd"),
+        inOrderId: null,
+        outOrderId: null,
       },
       productsStockData: [],
     }
@@ -123,16 +122,25 @@ export default {
         loading.close()
         return
       }
+      if (inventoryList.filter(c => c.difQuantity > 0).length > 0) {
+        console.log("in")
+        this.form.inOrderId = 0
+      }
+      if (inventoryList.filter(c => c.difQuantity < 0).length > 0) {
+        console.log("out")
+        this.form.outOrderId = 0
+      }
+      console.log(this.form)
       StockInventory.save({
         inventory: Object.assign(this.form),
         type: this.type,
         itemList: inventoryList
       }).then((success) => {
-        if(success){
+        if (success) {
           message("保存成功~");
           this.$emit('success');
         }
-      }).finally(()=>{
+      }).finally(() => {
         loading.close();
       })
     },
@@ -161,6 +169,9 @@ export default {
         this.pagination.total = total;
       }).finally(() => this.loading = false);
     },
+    changeQ(item) {
+      item.difQuantity = item.inventoryQuantity - item.sysQuantity
+    }
   },
   created() {
     loading("加载中....");

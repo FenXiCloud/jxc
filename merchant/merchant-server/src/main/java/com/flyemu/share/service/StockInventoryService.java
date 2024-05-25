@@ -65,7 +65,7 @@ public class StockInventoryService extends AbsService {
         if (StrUtil.isNotEmpty(selectQuery.getFilter())) {
             builder.and(qProducts.name.contains(selectQuery.getFilter()).or(qProducts.code.contains(selectQuery.getFilter())));
         }
-        PagedList<Tuple> pagedList = bqf.selectFrom(qStock).select(qProducts.unitId,qProducts.id,qProducts.name,qProducts.specification,qProducts.code,qWarehouses.name,qWarehouses.id, qStock.totalQuantity, qUnits.name, qProductsCategory.name)
+        PagedList<Tuple> pagedList = bqf.selectFrom(qStock).select(qProducts.unitId, qProducts.id, qProducts.name, qProducts.specification, qProducts.code, qWarehouses.name, qWarehouses.id, qStock.totalQuantity, qUnits.name, qProductsCategory.name)
                 .leftJoin(qProducts).on(qProducts.id.eq(qStock.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
                 .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId).and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId)))
                 .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId).and(qUnits.merchantId.eq(merchantId)).and(qUnits.organizationId.eq(organizationId)))
@@ -75,7 +75,7 @@ public class StockInventoryService extends AbsService {
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<StockInventoryItemDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockInventoryItemDto dto = new StockInventoryItemDto();
-            dto.setSysQuantity(tuple.get(qStock.totalQuantity) != null?tuple.get(qStock.totalQuantity):BigDecimal.ZERO);
+            dto.setSysQuantity(tuple.get(qStock.totalQuantity) != null ? tuple.get(qStock.totalQuantity) : BigDecimal.ZERO);
             dto.setUnitId(tuple.get(qProducts.unitId));
             dto.setUnitName(tuple.get(qUnits.name));
             dto.setWarehouseId(tuple.get(qWarehouses.id));
@@ -97,7 +97,7 @@ public class StockInventoryService extends AbsService {
                 .leftJoin(qInOrder).on(qInOrder.id.eq(qStockInventory.inOrderId))
                 .leftJoin(qOutOrder).on(qOutOrder.id.eq(qStockInventory.outOrderId))
                 .where(query.builder)
-                .orderBy( qStockInventory.id.desc())
+                .orderBy(qStockInventory.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<StockInventoryDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockInventoryDto dto = BeanUtil.toBean(tuple.get(qStockInventory), StockInventoryDto.class);
@@ -126,7 +126,6 @@ public class StockInventoryService extends AbsService {
 
             Set<Long> ids = new HashSet<>();
             for (StockInventoryItem d : inventoryForm.getItemList()) {
-
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
@@ -179,7 +178,7 @@ public class StockInventoryService extends AbsService {
                             .set("sysQuantity", od.getSysQuantity())
                             .set("unitId", od.getUnitId())
                             .set("unitName", od.getUnitName())
-                            .set("differ", NumberUtil.sub(od.getInventoryQuantity(), od.getSysQuantity()))
+                            .set("difQuantity", od.getDifQuantity())
                             .set("warehouseId", od.getWarehouseId())
                             .set("warehouseName", tuple.get(qWarehouses.name))
                             .set("remark", od.getRemark())

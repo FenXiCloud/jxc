@@ -1,4 +1,5 @@
-<template><div class="frame-page flex flex-column">
+<template>
+  <div class="frame-page flex flex-column">
   <vxe-toolbar>
     <template #buttons>
       <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
@@ -12,7 +13,6 @@
     </template>
   </vxe-toolbar>
   <div class="flex1">
-
       <vxe-table row-id="id"
                  ref="table"
                  :data="dataList"

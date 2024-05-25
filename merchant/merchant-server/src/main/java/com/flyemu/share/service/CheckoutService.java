@@ -32,6 +32,7 @@ public class CheckoutService extends AbsService {
 
     private final static QOrder qOrder = QOrder.order;
     private final static QCheckout qCheckout = QCheckout.checkout;
+    private final static QStockInventory qStockInventory = QStockInventory.stockInventory;
     private final static QAdmin qAdmin = QAdmin.admin;
     private final static QOrganization qOrganization = QOrganization.organization;
 
@@ -76,6 +77,18 @@ public class CheckoutService extends AbsService {
                     String str = tuple.get(qOrder.orderType).toString()+"-未审核条数："+tuple.get(qOrder.id.count());
                     strings.add(str);
                });
+        if(CollUtil.isNotEmpty(strings)){
+            throw  new ServiceException(strings.toString());
+        }
+        bqf.selectFrom(qStockInventory)
+                .select(qStockInventory.id.count())
+                .where(qStockInventory.stockDate.loe(checkout.getCheckDate())
+                        .and(qStockInventory.outOrderId.eq(0l).or(qStockInventory.inOrderId.eq(0l)))
+                        .and(qStockInventory.merchantId.eq(checkout.getMerchantId())).and(qStockInventory.organizationId.eq(checkout.getOrganizationId())))
+                .groupBy(qStockInventory.merchantId).fetch().forEach(tuple->{
+                    String str = "盘点单还有未生成单据的条数："+tuple;
+                    strings.add(str);
+                });
        if(CollUtil.isNotEmpty(strings)){
            throw  new ServiceException(strings.toString());
        }

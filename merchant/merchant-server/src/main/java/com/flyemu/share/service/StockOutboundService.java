@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Dict;
+import cn.hutool.core.util.NumberUtil;
 import com.blazebit.persistence.PagedList;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
@@ -98,8 +99,15 @@ public class StockOutboundService extends AbsService {
 
     @Transactional
     public void delete(Long orderId, Long merchantId, Long organizationId) {
-        jqf.delete(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).execute();
-        jqf.delete(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).execute();
+        Order original = orderRepository.getById(orderId);
+        if (original != null) {
+            if (original.getInventoryId() != null) {
+                jqf.update(qStockInventory).set(qStockInventory.outOrderId,0l)
+                        .where(qStockInventory.id.eq(original.getInventoryId()).and(qStockInventory.outOrderId.eq(orderId)).and(qStockInventory.organizationId.eq(organizationId)).and(qStockInventory.merchantId.eq(merchantId))).execute();
+            }
+            jqf.delete(qOrder).where(qOrder.id.eq(orderId).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).execute();
+            jqf.delete(qOrderDetail).where(qOrderDetail.orderId.eq(orderId).and(qOrderDetail.merchantId.eq(merchantId)).and(qOrderDetail.organizationId.eq(organizationId))).execute();
+        }
     }
 
     @Transactional
@@ -141,13 +149,15 @@ public class StockOutboundService extends AbsService {
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
             }
+
+            if (order.getInventoryId() != null) {
+                jqf.update(qStockInventory)
+                        .set(qStockInventory.outOrderId, order.getId())
+                        .where(qStockInventory.id.eq(order.getInventoryId())
+                                .and(qStockInventory.organizationId.eq(organizationId))
+                                .and(qStockInventory.merchantId.eq(merchantId))).execute();
+            }
             orderDetailRepository.saveAll(orderForm.getDetailList());
-        }
-        if(orderForm.getInventoryId() != null){
-            jqf.update(qStockInventory).set(qStockInventory.outOrderId,order.getId())
-                    .where(qStockInventory.id.eq(orderForm.getInventoryId())
-                            .and(qStockInventory.organizationId.eq(organizationId))
-                            .and(qStockInventory.merchantId.eq(merchantId))).execute();
         }
     }
 
@@ -197,8 +207,8 @@ public class StockOutboundService extends AbsService {
     public void updateState(Order order, AccountDto accountDto) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(accountDto.getMerchantId())).and(qOrder.organizationId.eq(accountDto.getOrganizationId()))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        Assert.isTrue(first.getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
-       BigDecimal cost =  stockItemService.outChange(order.getId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getCostMethod());
+        Assert.isTrue(first.getBillDate().isAfter(accountDto.getCheckDate()), "小于等于结账时间:" + accountDto.getCheckDate() + "不能修改数据");
+        BigDecimal cost = stockItemService.outChange(order.getId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getCostMethod());
         first.setCost(cost);
         first.setOrderStatus(OrderStatus.已审核);
         first.setCheckId(accountDto.getAdminId());
@@ -207,7 +217,6 @@ public class StockOutboundService extends AbsService {
     }
 
 
-    
     @Data
     public static class DetailQuery {
         private String goodsFilter;

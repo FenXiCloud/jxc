@@ -22,6 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ArgsSettingService extends AbsService {
     private final static QArgsSetting qArgsSetting = QArgsSetting.argsSetting;
 
+    /**
+     * 更新系统参数
+     * @param costMethod
+     * @param merchantId
+     * @param organizationId
+     */
     @Transactional
     public void update(String costMethod, Long merchantId, Long organizationId) {
         jqf.update(qArgsSetting)
@@ -29,6 +35,12 @@ public class ArgsSettingService extends AbsService {
                 .where(qArgsSetting.merchantId.eq(merchantId).and(qArgsSetting.organizationId.eq(organizationId))).execute();
     }
 
+    /**
+     * 系统参数详情
+     * @param merchantId
+     * @param organizationId
+     * @return
+     */
     public Dict load(Long merchantId, Long organizationId) {
        ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting)
                 .where(qArgsSetting.merchantId.eq(merchantId).and(qArgsSetting.organizationId.eq(organizationId))).fetchFirst();

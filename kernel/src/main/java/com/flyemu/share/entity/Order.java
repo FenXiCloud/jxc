@@ -87,6 +87,9 @@ public class Order {
     @Comment("供货商ID")
     private Long vendorsId;
 
+    @Comment("供货商ID")
+    private Long inventoryId;
+
     @Comment("客户ID")
     private Long customersId;
 

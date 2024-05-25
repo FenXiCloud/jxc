@@ -8,7 +8,7 @@
           <span class="ml-16px" style="font-size: 15px!important;" v-if="order.outOrderCode">盘亏单: {{ order.outOrderCode }}</span>
         </template>
         <template #tools>
-          <Button @click="toOrder" color="primary">生成盘点单据</Button>
+          <Button @click="toOrder" color="primary" v-if="order.inOrderId === 0 || order.outOrderId === 0 ">生成盘点单据</Button>
         </template>
       </vxe-toolbar>
       <div class="pt-13px">
@@ -101,13 +101,16 @@ export default {
       }).finally(() => loading.close());
     },
     toOrder() {
-      this.inList = this.productsData.filter(c => c.sysQuantity < c.inventoryQuantity);
-      this.outList = this.productsData.filter(c => c.sysQuantity > c.inventoryQuantity);
-      if (this.inList && this.inList.length > 0 && !this.order.inOrderId) {
+      this.isOut = false
+      this.isIn = false
+      this.opened = false
+      this.inList = this.productsData.filter(c => c.difQuantity > 0);
+      this.outList = this.productsData.filter(c => c.difQuantity < 0);
+      if (this.inList && this.inList.length > 0 && this.order.inOrderId === 0) {
         this.isIn = true
         this.opened = true
       }
-      if (this.outList && this.outList.length > 0 && !this.order.outOrderId) {
+      if (this.outList && this.outList.length > 0 && this.order.outOrderId === 0) {
         this.isOut = true
         this.opened = true
       }

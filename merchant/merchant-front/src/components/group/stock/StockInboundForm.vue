@@ -183,6 +183,7 @@ export default {
         businessType: "其他入库",
         vendorsId: null,
         customersId: null,
+        inventoryId: null,
         remark: null,
       },
       productsData: [],
@@ -312,10 +313,12 @@ export default {
         loading.close()
         return
       }
+      if(this.inventoryId){
+        this.form.inventoryId = this.inventoryId
+      }
       StockInbound.save({
         order: Object.assign(this.form, {discountedAmount: this.discountedAmount}),
         type: this.type,
-        inventoryId: this.inventoryId,
         detailList: productsData
       }).then((success) => {
         if(success){
@@ -498,8 +501,8 @@ export default {
             productsCode:item.productsCode,
             productsName:item.productsName,
             productsId:item.productsId,
-            sysQuantity: item.differ,
-            orderQuantity: item.differ,
+            sysQuantity: item.difQuantity,
+            orderQuantity: item.difQuantity,
             orderPrice: 0,
             warehouseId: item.warehouseId,
             price: 0,

@@ -64,7 +64,7 @@ public class StockInventoryController {
      */
     @PostMapping
     public JsonResult save(@RequestBody StockInventoryForm inventoryForm, @SaAccountVal AccountDto accountDto) {
-        Assert.isTrue(inventoryForm.getInventory().getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
+        Assert.isTrue(inventoryForm.getInventory().getStockDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
         stockInventoryService.save(inventoryForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
