@@ -35,6 +35,8 @@ const groupRoutes = [
 
 	{name: 'CheckoutList', component: defineAsyncComponent(() => import('@components/group/setting/CheckoutList'))},
 
+	{name: 'CwRelation', component: defineAsyncComponent(() => import('@components/group/setting/CwRelation'))},
+
 	{name: 'SalesOrderList', component: defineAsyncComponent(() => import('@components/group/sales/SalesOrderList'))},
 
 	{name: 'SalesDetail', component: defineAsyncComponent(() => import('@components/group/sales/SalesDetail'))},
