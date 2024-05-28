@@ -79,4 +79,12 @@
                     group by od.products_id
             ]]></value>
     </sql>
+
+    <sql id="initSubjectRelation">
+        <value>
+            <![CDATA[
+            insert into s_relation_subject (name,merchant_id,organization_id,cw_relation_id)
+                values (:name,:merchantId,:organizationId,:cwRelationId)
+            ]]></value>
+    </sql>
 </sqltoy>

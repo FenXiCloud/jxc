@@ -1,7 +1,7 @@
 <template>
   <div class="frame-page flex flex-column">
     <div class="flex1">
-      <vxe-table row-id="id"
+      <vxe-table
                  ref="table"
                  :data="dataList"
                  highlight-hover-row
@@ -12,13 +12,13 @@
             <div>已关联</div>
           </template>
         </vxe-column>
-        <vxe-column title="进销存组织编码" field="code" width="150"/>
-        <vxe-column title="进销存组织名称" field="name" min-width="150"/>
-        <vxe-column title="关联财务软件帐套" field="name" min-width="150"/>
+        <vxe-column title="进销存组织编码" field="organizationCode" width="150"/>
+        <vxe-column title="进销存组织名称" field="organizationName" min-width="150"/>
+        <vxe-column title="关联财务软件帐套" field="companyName" min-width="150"/>
         <vxe-column title="操作" align="center" width="120" fixed="right">
           <template #default="{row}">
             <div class="flex items-center justify-center">
-              <span class=" primary-color text-hover ml-10px" @click="showForm(row)" size="s">编辑</span>
+              <span class=" primary-color text-hover ml-10px" @click="showForm()" size="s">编辑</span>
             </div>
           </template>
         </vxe-column>
@@ -30,7 +30,7 @@
             <div class="pt-20px">
               <Icon type="h-icon-setting" :size="40"/>
             </div>
-            <div class="p-10px" style="font-weight: bold">关联进销存帐套</div>
+            <div class="p-10px" style="font-weight: bold">关联财务帐套</div>
             <div class="pb-20px" style="text-align: left;color: gray;font-size: small">
               只有同时拥有财务软件和进销存的账套管理员才有权限设置关联
             </div>
@@ -38,7 +38,7 @@
           <div class="m-10px icon-center">
             <Icon type="h-icon-right" :size="50" color="gainsboro"/>
           </div>
-          <div class="w-150px p-10px bg-gray4-color br">
+          <div class="w-150px p-10px bg-gray4-color br" @click="toSubject">
             <div class="pt-20px">
               <Icon type="h-icon-setting" :size="40"/>
             </div>
@@ -75,12 +75,12 @@
 </template>
 
 <script>
-import Organization from "@js/api/Organization";
-import {confirm, message} from "heyui.ext";
 import {layer} from "@layui/layer-vue";
 import {h} from "vue";
 import RelationForm from "@components/group/setting/RelationForm.vue";
-import Relation from "@js/api/Relation";
+import CwRelation from "@js/api/RelationCw";
+import {message} from "heyui.ext";
+import RelationSubjectFrom from "@components/group/setting/RelationSubjectFrom.vue";
 
 
 export default {
@@ -90,47 +90,25 @@ export default {
   },
   data() {
     return {
-      opened: true,
       loading: false,
-      params: {
-        areaId: null,
-        name: null,
-        merchantId: null,
-      },
-      checkedRows: [],
+      isRelation: false,
       dataList: [],
-      pagination: {
-        page: 1,
-        size: 20,
-        total: 0
-      },
-      param: [
-        {title: '启用', key: 'enabled'},
-        {title: '禁用', key: 'disabled'},
-      ]
-
-    }
-  },
-  computed: {
-    queryParams() {
-      return Object.assign(this.params, {
-        page: this.pagination.page,
-        pageSize: this.pagination.size
-      })
     }
   },
   methods: {
     showForm() {
+      let cwRelation = this.dataList[0]
       let layerId = layer.open({
         title: "关联财务系统",
         shadeClose: false,
-        area: ['50vw', 'auto'],
+        area: ['600px', '360px'],
         content: h(RelationForm, {
+          cwRelation,
           onClose: () => {
             layer.close(layerId);
           },
           onSuccess: () => {
-            this.doSearch();
+            this.loadList();
             layer.close(layerId);
           }
         })
@@ -138,11 +116,33 @@ export default {
     },
     loadList() {
       this.loading = true;
-      Organization.list(this.queryParams).then(({data}) => {
-        this.dataList = data.results;
-        this.pagination.total = data.total;
+      CwRelation.load().then(({data}) => {
+        this.dataList = data;
+        this.isRelation = this.dataList[0].isRelation
       }).finally(() => this.loading = false);
     },
+    toSubject(){
+      if(this.isRelation){
+        let relationCwId = this.dataList[0].id
+        let layerId = layer.drawer({
+          title: "默认对应会计科目",
+          shadeClose: false,
+          area: ['80vw', '100vh'],
+          content: h(RelationSubjectFrom, {
+            relationCwId,
+            onClose: () => {
+              layer.close(layerId);
+            },
+            onSuccess: () => {
+              this.loadList();
+              layer.close(layerId);
+            }
+          })
+        });
+      }else {
+        message.error("请先关联财务系统帐套!")
+      }
+    }
   },
   created() {
     this.loadList();

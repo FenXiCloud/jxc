@@ -15,5 +15,5 @@ heyuiConfig.initDict({
   defaultRadios: [{key: true, title: '是'}, {key: false, title: '否'}],
   statusRadios: [{key: true, title: '上架'}, {key: false, title: '下架'}],
   enableRadios: [{key: true, title: '启用'}, {key: false, title: '禁用'}],
-  relationRadios: [{key: true, title: '已关联'}, {key: false, title: '不关联'}],
+  relationRadios: [{key: true, title: '关联'}, {key: false, title: '不关联'}],
 });

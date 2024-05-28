@@ -32,24 +32,31 @@ public class AccountDto implements Serializable {
 
     private String costMethod;
 
+    private Long accountSetsId;
+
     /**
      * 授权功能
      */
     private List<String> granted;
 
-    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization,String costMethod) {
+    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization,String costMethod,Long accountSetsId) {
         this.admin = admin;
         this.merchant = merchant;
         this.role = role;
         this.organization = organization;
         this.checkDate = organization.getCheckoutDate();
         this.costMethod = costMethod;
+        this.accountSetsId = accountSetsId;
     }
 
     public AccountDto(Admin admin, Merchant merchant, Role role) {
         this.admin = admin;
         this.merchant = merchant;
         this.role = role;
+    }
+
+    public Long getAccountSetsId() {
+        return accountSetsId;
     }
 
     public Long getAdminId() {

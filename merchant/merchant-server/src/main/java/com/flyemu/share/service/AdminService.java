@@ -50,6 +50,7 @@ public class AdminService extends AbsService {
     private final static QMerchantMenu qMerchantMenu = QMerchantMenu.merchantMenu;
 
     private final static QArgsSetting qArgsSetting = QArgsSetting.argsSetting;
+    private final static QRelationCw qRelationCw = QRelationCw.relationCw;
 
     private final AdminRepository adminRepository;
 
@@ -148,9 +149,9 @@ public class AdminService extends AbsService {
 
         Organization organization = bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(admin.getMerchantId()).and(qOrganization.current.isTrue())).fetchFirst();
         if(organization != null){
-            ArgsSetting argsSetting = bqf.selectFrom(qArgsSetting).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qArgsSetting.organizationId.eq(organization.getId()))).fetchFirst();
-
-            return new AccountDto(admin, merchant, role,organization,argsSetting.getCostMethod());
+            String costMethod = bqf.selectFrom(qArgsSetting).select(qArgsSetting.costMethod).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qArgsSetting.organizationId.eq(organization.getId()))).fetchFirst();
+            Long accountSetsId = bqf.selectFrom(qRelationCw).select(qRelationCw.accountSetsId).where(qRelationCw.merchantId.eq(admin.getMerchantId()).and(qRelationCw.organizationId.eq(organization.getId()))).fetchFirst();
+            return new AccountDto(admin, merchant, role,organization,costMethod,accountSetsId);
         }else {
             return new AccountDto(admin, merchant, role);
         }

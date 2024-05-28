@@ -28,7 +28,8 @@
         <vxe-column title="商品信息" width="300">
           <template #default="{row,rowIndex}">
             <div class="h-input-group goodsSelect" v-if="row.isNew" @keyup.stop="void(0)">
-              <Select ref="ms" @change="doChange($event,rowIndex)" v-model="products" :datas="productsList" filterable placeholder="输入编码/名称" keyName="productsId" ><template v-slot:item="{ item }">
+              <Select ref="ms" @change="doChange($event,rowIndex)" v-model="products" :datas="productsList" filterable placeholder="输入编码/名称" keyName="productsId" >
+                <template v-slot:item="{ item }">
                 <div>{{ item.productsCode }} {{ item.productsName }}</div>
               </template>
               </Select>
