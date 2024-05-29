@@ -14,11 +14,11 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="primary">添 加</Button>
+        <Button @click="showForm()" color="primary">新 增</Button>
       </template>
     </vxe-toolbar>
     <div class="flex flex-1">
-      <div class="flex border w-200px" style="height:calc(100vh - 176px); overflow-y:auto;min-width: 200px">
+      <div class="flex border w-200px" style="height:calc(100vh - 226px); overflow-y:auto;min-width: 200px">
         <Tree :option="categoryOption" ref="categoryOption" class="w-200px" @select="categorySelect" filterable
               selectOnClick
               className="h-tree-theme-row-selected">
@@ -40,7 +40,7 @@
                    :column-config="{resizable: true}"
                    :loading="loading">
 <!--          <vxe-column type="checkbox" width="50" align="center"/>-->
-          <vxe-column title="商品分类" field="categoryName" sortable width="150"/>
+          <vxe-column title="商品分类" field="categoryName" width="150"/>
           <vxe-column title="商品" width="300" field="imgPath">
             <template #default="{row}">
               <div class="flex">
@@ -71,7 +71,7 @@
               <vxe-input placeholder.number="排序" v-model="row.sort" min="0" type="integer"></vxe-input>
             </template>
           </vxe-column>
-          <vxe-column title="状态" field="enabled" width="80" sortable align="center">
+          <vxe-column title="状态" field="enabled" width="80"  align="center">
             <template #default="{row}">
               <Tag color="primary" v-if="row.enabled" class="cursor-pointer">正常</Tag>
               <Tag color="gray" v-else class="cursor-pointer">禁用</Tag>

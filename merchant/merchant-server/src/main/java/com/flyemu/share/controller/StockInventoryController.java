@@ -2,6 +2,7 @@ package com.flyemu.share.controller;
 
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
@@ -63,6 +64,7 @@ public class StockInventoryController {
      */
     @PostMapping
     public JsonResult save(@RequestBody StockInventoryForm inventoryForm, @SaAccountVal AccountDto accountDto) {
+        Assert.isTrue(inventoryForm.getInventory().getStockDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
         stockInventoryService.save(inventoryForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }

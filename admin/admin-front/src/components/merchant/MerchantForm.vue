@@ -6,15 +6,15 @@
       </FormItem>
       <div class="flex">
         <FormItem label="联系人姓名" required prop="linkman" class="flex-1 ">
-          <Input placeholder="请输入联系人常用手机号" v-model="model.linkman"/>
+          <Input placeholder="请输入联系人姓名" v-model="model.linkman"/>
         </FormItem>
-        <FormItem label="联系人电话" required prop="phone" class="flex-1">
-          <Input placeholder="请输入联系人常用手机号" v-model="model.phone"/>
+        <FormItem label="联系人电话" required prop="mobile" class="flex-1">
+          <Input placeholder="请输入联系人常用手机号" v-model="model.mobile"/>
         </FormItem>
       </div>
       <div class="flex">
         <FormItem label="邮箱" prop="email" class="flex-1 mr-16px">
-          <Input placeholder="请输入联系人常用手机号" v-model="model.email"/>
+          <Input placeholder="请输入联系人常用邮箱" v-model="model.email"/>
         </FormItem>
         <FormItem label="地址" prop="address" class="flex-1">
           <Input placeholder="请输入地址" v-model="model.address"/>

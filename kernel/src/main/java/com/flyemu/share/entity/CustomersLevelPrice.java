@@ -26,7 +26,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Table(uniqueConstraints = {
-        @UniqueConstraint(name = "uc_products_customersCategory", columnNames = {"merchantId", "productsId", "customersLevelId"})
+        @UniqueConstraint(name = "uc_customers_level_price", columnNames = {"merchantId","organizationId", "productsId", "customersLevelId"})
 })
 public class CustomersLevelPrice implements Serializable {
 

@@ -5,13 +5,16 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Dict;
 import com.blazebit.persistence.PagedList;
+import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
+import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.OrderType;
+import com.flyemu.share.enums.StockType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +54,6 @@ public class PurchaseRtOrderService extends AbsService {
     private final OrderRepository orderRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final CodeSeedService codeSeedService;
-    private final PurchasePriceService purchasePriceService;
     private final StockItemService stockItemService;
 
 
@@ -109,6 +112,7 @@ public class PurchaseRtOrderService extends AbsService {
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
+                d.setStockType(StockType.减);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
@@ -126,7 +130,7 @@ public class PurchaseRtOrderService extends AbsService {
             order.setOrganizationId(organizationId);
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
-
+                d.setStockType(StockType.减);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
@@ -174,11 +178,15 @@ public class PurchaseRtOrderService extends AbsService {
 
 
     @Transactional
-    public void updateState(Order order, Long merchantId, Long organizationId) {
-        Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
+    public void updateState(Order order,  AccountDto accountDto) {
+        Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(accountDto.getMerchantId())).and(qOrder.organizationId.eq(accountDto.getOrganizationId()))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        stockItemService.change(order.getId(), merchantId, organizationId, "减");
+        Assert.isTrue(first.getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
+        BigDecimal cost = stockItemService.outChange(order.getId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getCostMethod());
+        first.setCost(cost);
         first.setOrderStatus(OrderStatus.已审核);
+        first.setCheckId(accountDto.getAdminId());
+        first.setCheckOutTime(LocalDateTime.now());
         orderRepository.save(first);
     }
 
@@ -225,6 +233,12 @@ public class PurchaseRtOrderService extends AbsService {
             return qOrder.billDate.desc();
         }
 
+
+        public void setState(OrderStatus state) {
+            if (state != null) {
+                builder.and(qOrder.orderStatus.eq(state));
+            }
+        }
         public void setMerchantId(Long merchantId) {
             if (merchantId != null) {
                 builder.and(qOrder.merchantId.eq(merchantId));

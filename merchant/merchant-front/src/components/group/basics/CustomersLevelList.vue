@@ -1,24 +1,18 @@
 <template>
-  <div class="frame-page" style="margin: 0">
-    <div class="h-panel">
-      <div class="h-panel-body">
-        <div class="table-toolbar">
-          <div class="table-toolbar-left">
-            <Search
-                v-model="params.name"
-                search-button-theme="h-btn-default"
-                show-search-button
-                class="w-360px pl-8px"
-                placeholder="请输入等级名称"
-                :loading="loading"
-                @search="doSearch">
-              <i class="h-icon-search"/>
-            </Search>
-          </div>
-          <div class="table-toolbar-right">
-            <Button @click="showForm()" color="primary">新 增</Button>
-          </div>
-        </div>
+  <div class="frame-page flex flex-column">
+  <vxe-toolbar>
+    <template #buttons>
+      <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
+              show-search-button class="w-260px"
+              placeholder="请输入等级名称" @search="doSearch">
+        <i class="h-icon-search"/>
+      </Search>
+    </template>
+    <template #tools>
+      <Button @click="showForm()" color="primary">新 增</Button>
+    </template>
+  </vxe-toolbar>
+  <div class="flex1">
       <vxe-table row-id="id"
                  ref="table"
                  :data="dataList"
@@ -43,7 +37,6 @@
       </vxe-table>
     </div>
   </div>
-  </div>
 </template>
 
 <script>
@@ -67,7 +60,7 @@ export default {
       loading: false,
       dataList: [],
       params: {
-        name: null,
+        filter: null,
       },
     }
   },
@@ -96,14 +89,14 @@ export default {
     },
     loadList() {
       this.loading = true;
-      CustomersLevel.list().then(({data}) => {
+      CustomersLevel.list(this.params).then(({data}) => {
         this.dataList = data;
       }).finally(() => this.loading = false);
     },
     doRemove(row) {
       confirm({
         title: "系统提示",
-        content: `确认删除单位：${row.name}?`,
+        content: `确认删除：${row.name}?`,
         onConfirm: () => {
           CustomersLevel.remove(row.id).then(() => {
             message("删除成功~");

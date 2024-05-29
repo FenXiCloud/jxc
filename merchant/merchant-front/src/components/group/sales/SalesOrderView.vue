@@ -34,6 +34,7 @@
               </div>
             </template>
           </vxe-column>
+          <vxe-column title="出库仓库" field="warehouseName" align="center" width="80"/>
           <vxe-column title="出库单位" field="orderUnitName" align="center" width="80"/>
           <vxe-column title="出库数量" field="orderQuantity" align="center" width="80"/>
           <vxe-column title="出库单价" field="orderPrice" width="80"/>

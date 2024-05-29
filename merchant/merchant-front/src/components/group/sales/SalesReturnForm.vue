@@ -6,7 +6,7 @@
           <label class="mr-20px" style="font-size: 16px !important;">客户：</label>
           <Select class="w-300px" filterable required :datas="customersList" keyName="id" titleName="name" :deletable="false" @change="customersChange($event)" v-model="customersId" placeholder="请选择客户"/>
           <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}"  :clearable="false"></DatePicker>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -117,6 +117,7 @@ import Warehouses from "@js/api/Warehouses";
 import Customers from "@js/api/Customers";
 import Products from "@js/api/Products";
 import SalesReturn from "@js/api/SalesReturn";
+import {mapState} from "vuex";
 
 export default {
   name: "SalesReturnForm",
@@ -125,6 +126,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -146,6 +148,7 @@ export default {
       warehousesList: [],
       customersList: [],
       customersId: null,
+      warehousesId: null,
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
@@ -225,7 +228,7 @@ export default {
     //选择商品
     doChange(d, index) {
       if (d) {
-        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:null, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
+        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:this.warehousesId, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
         this.productsData[index] = Object.assign(Object.assign(g, d), d);
         if (!this.productsData[index + 1]) {
           this.productsData.push({isNew: true});
@@ -263,10 +266,12 @@ export default {
         loading.close()
         return
       }
-      SalesReturn.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      SalesReturn.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear()
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     },
     clear() {
@@ -311,9 +316,7 @@ export default {
           this.loadSelectProducts();
         }
       }
-
-    }
-    ,
+    },
     //选择客户时加载商品
     loadSelectProducts() {
       if (this.form.customersId) {
@@ -411,6 +414,9 @@ export default {
     ]).then((results) => {
       this.customersList = results[0].data || [];
       this.warehousesList = results[1].data || [];
+      if (this.warehousesList != null) {
+        this.warehousesId = this.warehousesList.find(val => val.isDefault).id
+      }
       //订单详情/编辑订单
       if (this.orderId) {
         SalesReturn.load(this.orderId).then(({data: {order, productsData}}) => {

@@ -24,7 +24,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Table(uniqueConstraints = {
-        @UniqueConstraint(name = "uc_vendorsId_productsId", columnNames = {"vendorsId", "productsId"})
+        @UniqueConstraint(name = "uc_vendorsId_productsId", columnNames = {"merchantId","organizationId","vendorsId", "productsId"})
 })
 public class PurchasePriceRecords {
     @Id

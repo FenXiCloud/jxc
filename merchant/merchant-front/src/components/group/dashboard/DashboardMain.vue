@@ -28,6 +28,9 @@
 import {HomeView} from "@js/api/App";
 import {mapMutations, mapState} from "vuex";
 import manba from "manba";
+import {layer} from "@layui/layer-vue";
+import {h} from "vue";
+import OrganizationForm from "@components/group/setting/OrganizationForm.vue";
 
 export default {
   name: "DashboardMain",
@@ -38,10 +41,27 @@ export default {
     }
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user', 'orgs',]),
   },
   methods: {
     ...mapMutations(['newTab']),
+    addOrg() {
+      let layerId = layer.open({
+        title: "请先添加组织信息",
+        shadeClose: false,
+        closeBtn: false,
+        area: ['50vw', 'auto'],
+        content: h(OrganizationForm, {
+          onClose: () => {
+            layer.close(layerId);
+          },
+          onSuccess: () => {
+            window.location.replace("/");
+            layer.close(layerId);
+          }
+        })
+      });
+    },
     homeView() {
       this.loading = true;
       Promise.all([
@@ -56,6 +76,9 @@ export default {
     },
   },
   created() {
+    if (!this.orgs || this.orgs === null) {
+      this.addOrg()
+    }
     this.homeView();
   }
 }

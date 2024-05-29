@@ -1,5 +1,5 @@
 <template>
-  <Layout class="app-frame" v-if="!loading" :siderCollapsed="siderCollapsed" siderFixed>
+  <Layout class="app-frame" :siderCollapsed="siderCollapsed" siderFixed>
     <Sider theme="dark" style="overflow: unset;!important;">
       <AppMenu theme="dark"/>
     </Sider>
@@ -10,7 +10,43 @@
       <SysTabs :homePage="currentTab"/>
       <Content>
         <div class="app-frame-content h-full p-10px pt-10px">
-          <router-view  class="h-full bg-white-color"/>
+          <Suspense>
+            <component is="DashboardMain" v-show="'DashboardMain'===currentTab"/>
+            <template #fallback>
+              <div class="bg-white-color h-full flex justify-center items-center flex-column">
+                <div class="mb-16px">
+                  <div class="loading" data-v-79c34abf="">
+                    <div data-v-79c34abf=""></div>
+                    <div data-v-79c34abf=""></div>
+                    <div data-v-79c34abf=""></div>
+                    <div data-v-79c34abf=""></div>
+                    <div data-v-79c34abf=""></div>
+                  </div>
+                </div>
+                <div>页面加载中,请稍后...</div>
+              </div>
+            </template>
+          </Suspense>
+          <template v-for="tab in tabs">
+            <Suspense>
+              <component class="h-full bg-white-color" v-show="tab.key===currentTab" :is="tab.key" :pro="tab.params"/>
+              <!-- 加载中状态 -->
+              <template #fallback>
+                <div class="bg-white-color h-full flex justify-center items-center flex-column">
+                  <div class="mb-16px">
+                    <div class="loading" data-v-79c34abf="">
+                      <div data-v-79c34abf=""></div>
+                      <div data-v-79c34abf=""></div>
+                      <div data-v-79c34abf=""></div>
+                      <div data-v-79c34abf=""></div>
+                      <div data-v-79c34abf=""></div>
+                    </div>
+                  </div>
+                  <div>页面加载中,请稍后...</div>
+                </div>
+              </template>
+            </Suspense>
+          </template>
         </div>
         <HFooter>
           <AppFooter/>
@@ -25,7 +61,8 @@ import AppHead from "@components/app/AppHead";
 import AppMenu from "@components/app/AppMenu";
 import AppFooter from "@components/app/AppFooter";
 import SysTabs from "@components/common/sys-tabs";
-import {mapMutations, mapState} from "vuex";
+import {mapState} from "vuex";
+import {message} from "heyui.ext";
 
 /**
  * @功能描述: FRAME
@@ -38,25 +75,16 @@ export default {
   name: "AppFrame",
   components: {SysTabs, AppFooter, AppMenu, AppHead},
   computed: {
-    ...mapState(['siderCollapsed', 'currentTab'])
+    ...mapState(['siderCollapsed', 'currentTab', 'tabs'])
   },
-  methods: {
-    ...mapMutations(['newTab']),
-  },
-  watch: {
-    currentTab(val) {
-      localStorage.setItem("currentTab", val);
-    }
-  },
-  data() {
-    return {
-      loading: false
-    }
-  },
-  created() {
-    const currentTab = localStorage.getItem("currentTab")
-    if (currentTab) {
-      this.newTab(currentTab);
+  errorCaptured(args) {
+    if (args.name === 'ChunkLoadError') {
+      alert('系统已更新，即将刷新页面...');
+      window.location.reload();
+      return false;
+    } else {
+      message.error(args.message);
+      return true;
     }
   }
 }

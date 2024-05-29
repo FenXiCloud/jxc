@@ -66,9 +66,11 @@ public class Organization implements Serializable {
     @Column(updatable = false)
     private LocalDateTime createDate;
 
-
     @CreationTimestamp
     private LocalDate startDate;
+
+    @Column(updatable = false)
+    private LocalDate checkoutDate;
 
     private Boolean enabled;
 

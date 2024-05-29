@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"code", "merchantId"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"code", "merchantId", "organizationId"})})
 public class Order {
 
     @Id
@@ -45,16 +45,26 @@ public class Order {
     @Comment("优惠金额")
     private BigDecimal discountAmount ;
 
+    @Comment("销售成本")
+    private BigDecimal cost ;
+
+    @Comment("单位总数量")
+    private BigDecimal unitQuantity;
+
     @Comment("折后金额")
     private BigDecimal discountedAmount ;
 
     @Comment("订单类型")
+    @Enumerated(EnumType.STRING)
     private OrderType orderType;
 
     @Comment("业务类型")
+    @Enumerated(EnumType.STRING)
     private BusinessType businessType;
 
     @Comment("订单状态")
+    @Column(nullable = false,length = 32, columnDefinition = "varchar(20) default '已保存'")
+    @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
     @Comment("创建时间")
@@ -76,6 +86,9 @@ public class Order {
 
     @Comment("供货商ID")
     private Long vendorsId;
+
+    @Comment("供货商ID")
+    private Long inventoryId;
 
     @Comment("客户ID")
     private Long customersId;

@@ -1,18 +1,18 @@
 <template>
-  <div class="frame-page" style="margin: 0">
-    <div class="h-panel">
-      <div class="h-panel-body">
-        <div class="table-toolbar">
-          <div class="table-toolbar-left">
-            <div class="h-input-group">
-              <Input id="name" v-model="params.name" class="flex-1" placeholder="请输入货商分类名称"/>
-              <span class="h-input-addon" @click="doSearch" :loading="loading"><i class="h-icon-search"></i></span>
-            </div>
-          </div>
-          <div class="table-toolbar-right">
+  <div class="frame-page flex flex-column">
+        <vxe-toolbar>
+          <template #buttons>
+            <Search v-model.trim="params.name" search-button-theme="h-btn-default"
+                    show-search-button class="w-260px"
+                    placeholder="请输入货商分类名称" @search="doSearch">
+              <i class="h-icon-search"/>
+            </Search>
+          </template>
+          <template #tools>
             <Button @click="showForm()" color="primary">新 增</Button>
-          </div>
-        </div>
+          </template>
+        </vxe-toolbar>
+        <div class="flex1">
         <vxe-table row-id="id"
                    ref="table"
                    :data="dataList"
@@ -32,7 +32,6 @@
         </vxe-table>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -64,7 +63,7 @@ export default {
     showForm(entity) {
       let type = 0;
       let layerId = layer.open({
-        title: "单位信息",
+        title: "货商分类信息",
         shadeClose: false,
         closeBtn: false,
         area: ['400px', '330px'],

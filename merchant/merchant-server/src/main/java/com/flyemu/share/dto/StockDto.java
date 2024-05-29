@@ -10,7 +10,7 @@ public class StockDto extends Stock {
     private Long parentId;
     private String treeId;
     private String pTreeId;
-    private String warehousesName;
+    private String warehouseName;
     private String categoryName;
     private String productsName;
     private String imgPath;

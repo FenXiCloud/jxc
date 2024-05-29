@@ -1,157 +1,119 @@
 <template>
-  <div class="frame-page">
-    <div class="h-panel">
-      <div class="h-panel-body">
-        <div class="table-toolbar">
-          <div class="table-toolbar-left">
-            <label for="checkYear" class="mr-10px">年度</label>
-            <DatePicker id="checkYear" v-model="params.checkYear" type="year" placeholder="请选择年度"/>
-            <Button color="primary" icon="fa fa-search" :loading="loading" @click="doSearch">查询</Button>
-          </div>
-          <div class="table-toolbar-right">
-            当前会计期：{{ checkout.checkYear }}-{{ checkout.checkMonth }}期
-          </div>
-        </div>
-        <vxe-table row-id="id"
-                   ref="table"
-                   :data="dataList"
-                   highlight-hover-row
-                   show-overflow
-                   :loading="loading">
-          <vxe-column type="seq" width="60" align="center"/>
-          <vxe-column title="操作日期" field="checkDate"/>
-          <vxe-column title="年度" field="checkYear"/>
-          <vxe-column title="月度" field="checkMonth"/>
-          <vxe-column title="结账状态" field="status">
-            <template #default="{row:{status}}"><!--0未结账 1 已结账 -->
-              <Tag color="green" v-if="status==1">已结账</Tag>
-              <Tag color="red" v-else>未结账</Tag>
-            </template>
-          </vxe-column>
-          <vxe-column title="操作" align="center" width="130">
-            <template #default="{row}">
-              <div class="flex items-center justify-center">
-                <!--TODO 结账前需要检查所有单据审核状态，如发现提示 14条未处理 显示明细：单号 单据类型 组织名称  结账时会自动创建下一会计期间，状态未结账-->
-                <span v-if="row.status==0" class=" primary-color text-hover ml-10px" @click="checkoutForm(row)"
-                      size="s">结账</span>
-                <span v-else class="primary-color ml-10px text-hover" @click="unCheckoutForm(row)"
-                      size="s">反结账</span>
-              </div>
-            </template>
-          </vxe-column>
-        </vxe-table>
-        <Pagination align="right" class="mt-16px" v-model="pagination" @change="pageChange" small/>
-      </div>
+  <div class="frame-page flex flex-column">
+    <vxe-toolbar>
+      <template #buttons>
+        <label class="mr-5px" style="font-size: 16px !important;">结账日期：</label>
+        <DatePicker v-model="billDate" :clearable="false"></DatePicker>
+      </template>
+      <template #tools>
+        <Button @click="toCheck" color="primary">结账</Button>
+        <Button  @click="antiCheckout">反结账</Button>
+      </template>
+    </vxe-toolbar>
+    <div class="mb-5px">结账日期不能小于系统启用日期：{{org.startDate}}，也不能小于或等于上次结账日期: {{org.checkoutDate}}，结账日期之前的数据只能查询，不能修改。</div>
+    <div class="flex1">
+      <vxe-table row-id="id"
+                 ref="table"
+                 height="auto"
+                 :data="dataList"
+                 highlight-hover-row
+                 show-overflow
+                 show-footer
+                 :row-config="{height: 48}"
+                 :column-config="{resizable: true}"
+                 :sort-config="{remote:true}"
+                 :loading="loading">
+        <vxe-column type="seq" width="50" title="序号"/>
+        <vxe-column title="结账日" field="checkDate" />
+        <vxe-column title="操作日期" field="createDate" />
+        <vxe-column title="操作员" field="checkName"  />
+      </vxe-table>
+    </div>
+    <div class="flex justify-between items-center pt-5px">
+      <div></div>
+      <vxe-pager perfect @page-change="loadList(false)"
+                 v-model:current-page="pagination.page"
+                 v-model:page-size="pagination.pageSize"
+                 :total="pagination.total"
+                 :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
+        <template #left>
+          <vxe-button @click="loadList(false)" type="text" size="mini" icon="fa fa-refresh"
+                      :loading="loading"></vxe-button>
+        </template>
+      </vxe-pager>
     </div>
   </div>
 </template>
-
 <script>
-import {layer} from "@layui/layer-vue";
-import {h} from "vue";
-import CheckoutForm from "@components/group/setting/CheckoutForm";
-import Checkout from "@js/api/Checkout";
 import {confirm, message} from "heyui.ext";
-
+import Checkout from "@js/api/Checkout";
+import manba from "manba";
+import {mapState} from 'vuex';
 
 export default {
   name: "CheckoutList",
   data() {
     return {
-      loading: false,
-      params: {
-        checkYear: null,
-      },
-      checkedRows: [],
       dataList: [],
+      loading: false,
+      billDate: manba().format("YYYY-MM-dd"),
+      startDate:null,
+      checkoutDate:null,
       pagination: {
         page: 1,
-        size: 20,
+        pageSize: 20,
         total: 0
       },
     }
   },
   computed: {
-    checkout: {
-      get() {
-        return this.$store.state.checkout;
+    ...mapState(['org']),
+    queryParams() {
+      return Object.assign({
+        page: this.pagination.page,
+        pageSize: this.pagination.pageSize,
+      })
+    },
+  },
+  methods: {
+    loadList() {
+      this.loading = true;
+      Checkout.list(this.queryParams).then(({data: {results, total}}) => {
+        this.dataList = results || [];
+        this.pagination.total = total;
+      }).finally(() => this.loading = false);
+    },
+    toCheck(){
+      if (this.billDate){
+      Checkout.toCheck({checkDate:this.billDate}).then(({data,success})=>{
+        if (success){
+          message("结账成功~");
+          this.$store.commit('updateOrg', data);
+          window.location.replace("/");
+        }
+      }).finally(()=>{
+        this.loadList()
+      })
+      }else {
+        message.error("请选择结账时间")
       }
     },
-    queryParams() {
-      return Object.assign(this.params, {
-        page: this.pagination.page,
-        pageSize: this.pagination.size
+    antiCheckout() {
+      confirm({
+        title: "系统提示",
+        content: `确认要反结账吗?`,
+        onConfirm: () => {
+          Checkout.antiCheckout().then(({data}) => {
+            message("操作成功~");
+            this.$store.commit('updateOrg', data);
+            this.loadList();
+          })
+        }
       })
     }
   },
-  methods: {
-    checkoutForm(checkout) {
-      this.loading = true;
-      Checkout.check(checkout).then(({data: {notData, minCheck}}) => {
-        if (notData) {
-          let layerId = layer.open({
-            title: `[${checkout.checkYear}-${checkout.checkMonth}]结账${notData.length}条未审核数据`,
-            shadeClose: false,
-            closeBtn: false,
-            area: ['600px', '600px'],
-            content: h(CheckoutForm, {
-              notData,
-              onClose: () => {
-                layer.close(layerId);
-              },
-              onSuccess: () => {
-                layer.close(layerId);
-              }
-            })
-          });
-        }
-        if (minCheck) {
-          this.$store.commit('updateCheckout', minCheck);
-          message('操作成功~');
-          this.doSearch();
-        }
-      }).finally(() => this.loading = false);
-    },
-    unCheckoutForm(checkout) {
-      confirm({
-        title: "系统提示",
-        content: `反月末结转可补录目标月份数据，补录后会影响“反月结会计期”月份报表数据请慎重操作?`,
-        onConfirm: () => {
-          this.loading = true;
-          Checkout.update(checkout).then(({data}) => {
-            if (data) {
-              this.$store.commit('updateCheckout', data);
-              message('操作成功~');
-              this.loadList();
-            }
-          }).finally(() => this.loading = false);
-        }
-      })
-    },
-    loadList() {
-      this.loading = true;
-      Checkout.list(this.queryParams).then(({data}) => {
-        this.dataList = data.results;
-        this.pagination.total = data.total;
-      }).finally(() => this.loading = false);
-    },
-    pageChange() {
-      this.loadList();
-    },
-    tableCheck() {
-      this.checkedRows = this.$refs.table.getCheckboxRecords();
-    },
-    doSearch() {
-      this.pagination.page = 1;
-      this.loadList();
-    },
-  },
   created() {
-    this.doSearch();
+    this.loadList();
   }
 }
 </script>
-
-<style scoped>
-
-</style>

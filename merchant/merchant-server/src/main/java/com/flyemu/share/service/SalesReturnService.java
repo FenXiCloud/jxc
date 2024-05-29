@@ -12,6 +12,7 @@ import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.entity.*;
 import com.flyemu.share.enums.OrderStatus;
 import com.flyemu.share.enums.OrderType;
+import com.flyemu.share.enums.StockType;
 import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.repository.OrderDetailRepository;
 import com.flyemu.share.repository.OrderRepository;
@@ -105,6 +106,7 @@ public class SalesReturnService extends AbsService {
             Set<Long> ids = new HashSet<>();
             for (OrderDetail d : orderForm.getDetailList()) {
 
+                d.setStockType(StockType.加);
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
@@ -125,6 +127,7 @@ public class SalesReturnService extends AbsService {
             order.setOrganizationId(organizationId);
             orderRepository.save(order);
             for (OrderDetail d : orderForm.getDetailList()) {
+                d.setStockType(StockType.加);
                 d.setOrderId(order.getId());
                 d.setMerchantId(merchantId);
                 d.setOrganizationId(organizationId);
@@ -172,10 +175,11 @@ public class SalesReturnService extends AbsService {
 
 
     @Transactional
-    public void updateState(Order order, Long merchantId, Long organizationId) {
+    public void updateState(Order order, Long merchantId, Long organizationId,LocalDate checkDate) {
         Order first = jqf.selectFrom(qOrder).where(qOrder.id.eq(order.getId()).and(qOrder.merchantId.eq(merchantId)).and(qOrder.organizationId.eq(organizationId))).fetchFirst();
         Assert.isFalse(first == null, "非法操作...");
-        stockItemService.change(order.getId(),merchantId,organizationId,"加");
+        Assert.isTrue(first.getBillDate().isAfter(checkDate),"小于等于结账时间:"+checkDate+"不能修改数据");
+        stockItemService.inChange(order.getId(),merchantId,organizationId);
         first.setOrderStatus(OrderStatus.已审核);
         orderRepository.save(first);
     }
@@ -221,6 +225,12 @@ public class SalesReturnService extends AbsService {
                 }
             }
             return qOrder.billDate.desc();
+        }
+
+        public void setState(OrderStatus state) {
+            if (state != null) {
+                builder.and(qOrder.orderStatus.eq(state));
+            }
         }
 
         public void setMerchantId(Long merchantId) {

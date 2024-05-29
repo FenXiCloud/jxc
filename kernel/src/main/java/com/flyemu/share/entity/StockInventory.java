@@ -37,6 +37,7 @@ public class StockInventory {
     @Comment("盘点日期")
     private LocalDate stockDate;
 
+
     @Comment("盘盈订单ID")
     private Long inOrderId;
 

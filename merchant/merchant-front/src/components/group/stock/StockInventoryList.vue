@@ -2,15 +2,13 @@
   <div class="frame-page flex flex-column">
     <vxe-toolbar>
       <template #buttons>
-        <Select v-model="params.state" class="w-120px" :datas="{待审核:'待审核',已审核:'已审核'}"
-                placeholder="全部订单"/>
         <div class="h-input-group">
-          <span class="h-input-addon ml-8px">单据日期</span>
+          <span class="h-input-addon">盘点日期</span>
           <DateRangePicker v-model="dateRange"></DateRangePicker>
         </div>
         <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
                 show-search-button class="w-360px ml-8px"
-                placeholder="请输入订单号" @search="doSearch">
+                placeholder="请输入盘点单号" @search="doSearch">
           <i class="h-icon-search"/>
         </Search>
       </template>
@@ -38,11 +36,30 @@
             </div>
           </template>
         </vxe-column>
-        <vxe-column title="盘亏单" field="outOrderCode" align="center" width="200" sortable/>
-        <vxe-column title="盘盈单" field="inOrderCode" align="center" width="130" sortable/>
+        <vxe-column title="盘盈单" field="inOrderCode" align="center" width="200">
+          <template #default="{row}">
+            <div v-if="row.intOrderId === 0" @click="showOrderView(row.id)">
+              未生成
+            </div>
+            <div class="text-hover" @click="showInOrder(row.inOrderId)" v-else>
+              <span>{{ row.inOrderCode }}</span>
+            </div>
+          </template>
+        </vxe-column>
+        <vxe-column title="盘亏单" field="outOrderCode" align="center" width="200">
+          <template #default="{row}">
+            <div v-if="row.outOrderId === 0" @click="showOrderView(row.id)">
+              未生成
+            </div>
+            <div class="text-hover" @click="showOutOrder(row.outOrderId)" v-else>
+              <span>{{ row.outOrderCode }}</span>
+            </div>
+          </template>
+        </vxe-column>
       </vxe-table>
     </div>
     <div class="flex justify-between items-center pt-5px">
+      <div></div>
       <vxe-pager perfect @page-change="loadList(false)"
                  v-model:current-page="pagination.page"
                  v-model:page-size="pagination.pageSize"
@@ -64,6 +81,8 @@ import {h} from "vue";
 import StockInventoryForm from "@components/group/stock/StockInventoryForm.vue";
 import StockInventoryView from "@components/group/stock/StockInventoryView.vue";
 import StockInventory from "@js/api/StockInventory";
+import StockInboundView from "@components/group/stock/StockInboundView.vue";
+import StockOutboundView from "@components/group/stock/StockOutboundView.vue";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");
 const endTime = manba().endOf(manba.DAY).format("YYYY-MM-dd");
@@ -144,9 +163,49 @@ export default {
           },
         }),
         onClose: () => {
-          if (state === '待审核') {
-            this.loadList();
-          }
+          this.doSearch();
+        }
+      });
+    },
+    showOutOrder(orderId = null, state) {
+      let layerId = layer.drawer({
+        title: "盘亏单内容",
+        shadeClose: false,
+        closeBtn: 1,
+        ZIndex: 100,
+        area: ['90vw', '100vh'],
+        content: h(StockOutboundView, {
+          orderId,
+          onClose: () => {
+            layer.close(layerId);
+          },
+          onSuccess: () => {
+            layer.close(layerId);
+          },
+        }),
+        onClose: () => {
+          this.loadList();
+        }
+      });
+    },
+    showInOrder(orderId = null, state) {
+      let layerId = layer.drawer({
+        title: "盘盈单内容",
+        shadeClose: false,
+        closeBtn: 1,
+        ZIndex: 100,
+        area: ['90vw', '100vh'],
+        content: h(StockInboundView, {
+          orderId,
+          onClose: () => {
+            layer.close(layerId);
+          },
+          onSuccess: () => {
+            layer.close(layerId);
+          },
+        }),
+        onClose: () => {
+          this.loadList();
         }
       });
     },

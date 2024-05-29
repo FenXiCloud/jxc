@@ -2,7 +2,6 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.lang.Dict;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -10,17 +9,10 @@ import com.blazebit.persistence.PagedList;
 import com.flyemu.share.common.Constants;
 import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
-import com.flyemu.share.dto.PurchasePriceRecordsDto;
-import com.flyemu.share.dto.PurchaserOrderDto;
 import com.flyemu.share.dto.StockInventoryDto;
 import com.flyemu.share.dto.StockInventoryItemDto;
 import com.flyemu.share.entity.*;
-import com.flyemu.share.enums.OrderStatus;
-import com.flyemu.share.enums.OrderType;
-import com.flyemu.share.form.OrderForm;
 import com.flyemu.share.form.StockInventoryForm;
-import com.flyemu.share.repository.OrderDetailRepository;
-import com.flyemu.share.repository.OrderRepository;
 import com.flyemu.share.repository.StockInventoryItemRepository;
 import com.flyemu.share.repository.StockInventoryRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -29,7 +21,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,7 +65,7 @@ public class StockInventoryService extends AbsService {
         if (StrUtil.isNotEmpty(selectQuery.getFilter())) {
             builder.and(qProducts.name.contains(selectQuery.getFilter()).or(qProducts.code.contains(selectQuery.getFilter())));
         }
-        PagedList<Tuple> pagedList = bqf.selectFrom(qStock).select(qProducts.unitId,qProducts.id,qProducts.name,qProducts.specification,qProducts.code,qWarehouses.name,qWarehouses.id, qStock.totalQuantity, qUnits.name, qProductsCategory.name)
+        PagedList<Tuple> pagedList = bqf.selectFrom(qStock).select(qProducts.unitId, qProducts.id, qProducts.name, qProducts.specification, qProducts.code, qWarehouses.name, qWarehouses.id, qStock.totalQuantity, qUnits.name, qProductsCategory.name)
                 .leftJoin(qProducts).on(qProducts.id.eq(qStock.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
                 .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId).and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId)))
                 .leftJoin(qUnits).on(qUnits.id.eq(qProducts.unitId).and(qUnits.merchantId.eq(merchantId)).and(qUnits.organizationId.eq(organizationId)))
@@ -84,7 +75,7 @@ public class StockInventoryService extends AbsService {
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<StockInventoryItemDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockInventoryItemDto dto = new StockInventoryItemDto();
-            dto.setSysQuantity(tuple.get(qStock.totalQuantity) != null?tuple.get(qStock.totalQuantity):BigDecimal.ZERO);
+            dto.setSysQuantity(tuple.get(qStock.totalQuantity) != null ? tuple.get(qStock.totalQuantity) : BigDecimal.ZERO);
             dto.setUnitId(tuple.get(qProducts.unitId));
             dto.setUnitName(tuple.get(qUnits.name));
             dto.setWarehouseId(tuple.get(qWarehouses.id));
@@ -106,7 +97,7 @@ public class StockInventoryService extends AbsService {
                 .leftJoin(qInOrder).on(qInOrder.id.eq(qStockInventory.inOrderId))
                 .leftJoin(qOutOrder).on(qOutOrder.id.eq(qStockInventory.outOrderId))
                 .where(query.builder)
-                .orderBy( qStockInventory.id.desc())
+                .orderBy(qStockInventory.id.desc())
                 .fetchPage(page.getOffset(), page.getOffsetEnd());
         ArrayList<StockInventoryDto> collect = pagedList.stream().collect(ArrayList::new, (list, tuple) -> {
             StockInventoryDto dto = BeanUtil.toBean(tuple.get(qStockInventory), StockInventoryDto.class);
@@ -135,7 +126,6 @@ public class StockInventoryService extends AbsService {
 
             Set<Long> ids = new HashSet<>();
             for (StockInventoryItem d : inventoryForm.getItemList()) {
-
                 if (d.getId() != null) {
                     ids.add(d.getId());
                 }
@@ -173,9 +163,10 @@ public class StockInventoryService extends AbsService {
         dto.setInOrderCode(fetchFirst.get(qInOrder.code));
         ArrayList<Dict> collect = jqf.selectFrom(qStockInventoryItem)
                 .select(qStockInventoryItem, qWarehouses.name, qProducts.code, qProducts.name,
-                        qProducts.imgPath, qProducts.specification)
+                        qProducts.imgPath, qProducts.specification, qProductsCategory.name)
                 .leftJoin(qProducts).on(qProducts.id.eq(qStockInventoryItem.productsId).and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId)))
                 .leftJoin(qWarehouses).on(qWarehouses.id.eq(qStockInventoryItem.warehouseId).and(qWarehouses.merchantId.eq(merchantId)).and(qWarehouses.organizationId.eq(organizationId)))
+                .leftJoin(qProductsCategory).on(qProductsCategory.id.eq(qProducts.categoryId).and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId)))
                 .where(qStockInventoryItem.stockInventoryId.eq(inventoryId).and(qStockInventoryItem.merchantId.eq(merchantId)).and(qStockInventoryItem.organizationId.eq(organizationId)))
                 .orderBy(qStockInventoryItem.id.asc())
                 .fetch().stream().collect(ArrayList::new, (list, tuple) -> {
@@ -187,13 +178,18 @@ public class StockInventoryService extends AbsService {
                             .set("sysQuantity", od.getSysQuantity())
                             .set("unitId", od.getUnitId())
                             .set("unitName", od.getUnitName())
-                            .set("differ", NumberUtil.sub(od.getInventoryQuantity(), od.getSysQuantity()))
+                            .set("difQuantity", od.getDifQuantity())
                             .set("warehouseId", od.getWarehouseId())
-                            .set("warehouse", tuple.get(qWarehouses.name))
+                            .set("warehouseName", tuple.get(qWarehouses.name))
                             .set("remark", od.getRemark())
                             .set("productsCode", tuple.get(qProducts.code))
                             .set("productsName", tuple.get(qProducts.name))
-                            .set("spec", tuple.get(qProducts.specification))
+                            .set("unitId", od.getUnitId())
+                            .set("unitName", od.getUnitName())
+                            .set("orderUnitId", od.getUnitId())
+                            .set("orderUnitName", od.getUnitName())
+                            .set("specification", tuple.get(qProducts.specification))
+                            .set("categoryName", tuple.get(qProductsCategory.name))
                             .set("imgPath", tuple.get(qProducts.imgPath));
                     list.add(dict);
                 }, List::addAll);

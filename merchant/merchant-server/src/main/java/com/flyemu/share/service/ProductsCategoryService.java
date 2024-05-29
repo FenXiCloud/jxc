@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.flyemu.share.entity.ProductsCategory;
 import com.flyemu.share.entity.QProducts;
 import com.flyemu.share.entity.QProductsCategory;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -82,15 +80,28 @@ public class ProductsCategoryService extends AbsService {
 
 
     @Transactional
-    public void delete(Long merchantId, Long productsCategoryId,Long organizationId) {
+    public void delete(Long merchantId, Long productsCategoryId, Long organizationId) {
         ProductsCategory productsCategory = productsCategoryRepository.getReferenceById(productsCategoryId);
 
         List<Long> ids = bqf.selectFrom(qProductsCategory)
                 .select(qProductsCategory.id)
-                .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId))).fetch();
+                .where(qProductsCategory.path.like(productsCategory.getPath() + "%").and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId))).fetch();
 
         QProducts qProducts = QProducts.products;
+        Assert.isFalse(bqf.selectFrom(qProducts).where(qProducts.categoryId.in(ids)
+                .and(qProducts.merchantId.eq(merchantId)).and(qProducts.organizationId.eq(organizationId))).fetchCount() > 0, "商品已使用，不能删除");
 
+        if (productsCategory.getPid() != null) {
+            long count = bqf.selectFrom(qProductsCategory)
+                    .where(qProductsCategory.pid.eq(productsCategory.getPid()).and(qProductsCategory.merchantId.eq(merchantId)).and(qProductsCategory.organizationId.eq(organizationId))).fetchCount();
+            if (count == 1) {
+                jqf.update(qProductsCategory)
+                        .set(qProductsCategory.leaf, true)
+                        .where(qProductsCategory.id.eq(productsCategory.getPid())
+                                .and(qProductsCategory.merchantId.eq(merchantId))
+                                .and(qProductsCategory.organizationId.eq(organizationId))).execute();
+            }
+        }
         jqf.delete(qProductsCategory)
                 .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId)).and(qProductsCategory.id.in(ids)))
                 .execute();
@@ -108,17 +119,16 @@ public class ProductsCategoryService extends AbsService {
                 .fetchFirst();
     }
 
-    public List<ProductsCategory> listAll(Long merchantId,Long organizationId) {
+    public List<ProductsCategory> listAll(Long merchantId, Long organizationId) {
         return bqf.selectFrom(qProductsCategory)
                 .where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId)))
                 .orderBy(qProductsCategory.sort.desc(), qProductsCategory.id.asc())
                 .fetch();
     }
 
-    public List<ProductsCategory> select(Long merchantId,Long organizationId) {
+    public List<ProductsCategory> select(Long merchantId, Long organizationId) {
         return bqf.selectFrom(qProductsCategory).where(qProductsCategory.merchantId.eq(merchantId).and(qProductsCategory.organizationId.eq(organizationId))).orderBy(qProductsCategory.sort.desc()).fetch();
     }
-
 
 
     /**

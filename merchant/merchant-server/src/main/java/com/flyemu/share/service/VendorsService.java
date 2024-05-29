@@ -41,9 +41,7 @@ public class VendorsService extends AbsService {
     private final static QPurchasePriceRecords qPurchasePriceRecords = QPurchasePriceRecords.purchasePriceRecords;
     private final static QUnits qUnits = QUnits.units;
     private final static QProductsCategory qProductsCategory = QProductsCategory.productsCategory;
-
     private final static QVendorsCategory qVendorsCategory = QVendorsCategory.vendorsCategory;
-
     private final VendorsRepository vendorsRepository;
 
 
@@ -150,6 +148,7 @@ public class VendorsService extends AbsService {
         public void setFilter(String filter) {
             if (StrUtil.isNotBlank(filter)) {
                 builder.and(qVendors.code.contains(filter)
+                        .or(qVendors.linkman.contains(filter))
                         .or(qVendors.phone.contains(filter))
                         .or(qVendors.name.contains(filter)));
             }

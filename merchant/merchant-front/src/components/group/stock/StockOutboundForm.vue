@@ -2,14 +2,19 @@
   <div class="modal-column">
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
-        <template #buttons> <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+        <template #buttons><label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">供货商：</label>
-          <Select class="w-260px" filterable required :datas="vendorsList" keyName="id" titleName="name" :deletable="false" @change="vendorsChange($event)" v-model="form.vendorsId" placeholder="请选择供货商"/>
+          <Select class="w-260px" filterable required :datas="vendorsList" keyName="id" titleName="name"
+                  :deletable="false" @change="vendorsChange($event)" v-model="form.vendorsId"
+                  placeholder="请选择供货商"/>
           <label class="ml-10px" style="font-size: 16px !important;">客户：</label>
-          <Select class="w-260px" filterable required :datas="customersList" keyName="id" titleName="name" :deletable="false" @change="customersChange($event)" v-model="form.customersId" placeholder="请选择客户"/>
+          <Select class="w-260px" filterable required :datas="customersList" keyName="id" titleName="name"
+                  :deletable="false" @change="customersChange($event)" v-model="form.customersId"
+                  placeholder="请选择客户"/>
           <label class="ml-10px" style="font-size: 16px !important;">业务类型：</label>
-          <Select class="w-160px" filterable required :deletable="false" v-model="form.businessType"  :datas="{其他出库:'其他出库',盘亏:'盘亏'}" placeholder="请选择业务类型"/>
+          <Select class="w-160px" filterable required :deletable="false" v-model="form.businessType"
+                  :datas="{其他出库:'其他出库',盘亏:'盘亏'}" placeholder="请选择业务类型"/>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -31,9 +36,11 @@
         <vxe-column title="商品信息" width="300">
           <template #default="{row,rowIndex}">
             <div class="h-input-group goodsSelect" v-if="row.isNew" @keyup.stop="void(0)">
-              <Select ref="ms" @change="doChange($event,rowIndex)" v-model="products" :datas="productsList" filterable placeholder="输入编码/名称" keyName="productsId" ><template v-slot:item="{ item }">
-                <div>{{ item.productsCode }} {{ item.productsName }}</div>
-              </template>
+              <Select ref="ms" @change="doChange($event,rowIndex)" v-model="products" :datas="productsList" filterable
+                      placeholder="输入编码/名称" keyName="productsId">
+                <template v-slot:item="{ item }">
+                  <div>{{ item.productsCode }} {{ item.productsName }}</div>
+                </template>
               </Select>
             </div>
             <div v-else class="flex">
@@ -46,7 +53,9 @@
         <vxe-column title="出库单位" field="orderUnitName" align="center" width="80">
           <template #default="{row,rowIndex}">
             <template v-if="!row.isNew">
-              <Select v-if="row.unitPrice" :deletable="false" @change="changOrderUnit($event,row)" v-model="row.orderUnitId" :datas="row.unitPrice" filterable placeholder="输入编码/名称" keyName="unitId" titleName="unitName"/>
+              <Select v-if="row.unitPrice" :deletable="false" @change="changOrderUnit($event,row)"
+                      v-model="row.orderUnitId" :datas="row.unitPrice" filterable placeholder="输入编码/名称"
+                      keyName="unitId" titleName="unitName"/>
               <span v-else>{{ row.orderUnitName }}</span>
             </template>
           </template>
@@ -54,40 +63,52 @@
         <vxe-column title="出库仓库" field="warehouses" align="center" width="120">
           <template #default="{row,rowIndex}">
             <template v-if="!row.isNew">
-              <Select  :deletable="false" v-model="row.warehouseId" :datas="warehousesList" filterable keyName="id" titleName="name"/>
+              <Select :deletable="false" v-model="row.warehouseId" :datas="warehousesList" filterable keyName="id"
+                      titleName="name"/>
             </template>
           </template>
         </vxe-column>
         <vxe-column title="数量" field="orderQuantity" width="90">
           <template #default="{row,rowIndex,columnIndex}">
-            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+3" @keyup="handleEnter($event,rowIndex,3)" @blur="updateQuantity(row)" ref="inputQuantity" v-model.number="row.orderQuantity" type="float" min="0" :controls="false"></vxe-input>
+            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+3" @keyup="handleEnter($event,rowIndex,3)"
+                       @blur="updateQuantity(row)" ref="inputQuantity" v-model.number="row.orderQuantity" type="float"
+                       min="0" :controls="false"></vxe-input>
           </template>
         </vxe-column>
         <vxe-column title="基本单位" field="unitName" align="center" width="80"/>
         <vxe-column title="基本数量" field="sysQuantity" width="90"/>
         <vxe-column title="出库单价" field="orderPrice" width="100">
           <template #default="{row,rowIndex}">
-            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+4" @keyup="handleEnter($event,rowIndex,4)" @blur="updatePrice(row)" v-model.number="row.orderPrice" type="float" min="0" :controls="false"></vxe-input>
+            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+4" @keyup="handleEnter($event,rowIndex,4)"
+                       @blur="updatePrice(row)" v-model.number="row.orderPrice" type="float" min="0"
+                       :controls="false"></vxe-input>
           </template>
         </vxe-column>
         <vxe-column title="折扣率(%)" field="discount" width="100">
           <template #default="{row,rowIndex}">
-            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+5" @keyup="handleEnter($event,rowIndex,5)" @blur="updateDiscount(row)" v-model.number="row.discount" type="float" min="0" :controls="false"></vxe-input>
+            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+5" @keyup="handleEnter($event,rowIndex,5)"
+                       @blur="updateDiscount(row)" v-model.number="row.discount" type="float" min="0"
+                       :controls="false"></vxe-input>
           </template>
         </vxe-column>
         <vxe-column title="折扣额" field="discountAmount" width="100">
           <template #default="{row,rowIndex}">
-            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+6" @keyup="handleEnter($event,rowIndex,6)" @blur="updateDiscountAmount(row)" v-model.number="row.discountAmount" type="float" min="0" :controls="false"></vxe-input>
+            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+6" @keyup="handleEnter($event,rowIndex,6)"
+                       @blur="updateDiscountAmount(row)" v-model.number="row.discountAmount" type="float" min="0"
+                       :controls="false"></vxe-input>
           </template>
         </vxe-column>
         <vxe-column title="购货金额" field="discountedAmount" width="100">
           <template #default="{row,rowIndex}">
-            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+7" @keyup="handleEnter($event,rowIndex,7)" @blur="updateDiscountedAmount(row)" v-model.number="row.discountedAmount" type="float" min="0" :controls="false"></vxe-input>
+            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+7" @keyup="handleEnter($event,rowIndex,7)"
+                       @blur="updateDiscountedAmount(row)" v-model.number="row.discountedAmount" type="float" min="0"
+                       :controls="false"></vxe-input>
           </template>
         </vxe-column>
         <vxe-column title="备注" field="remark">
           <template #default="{row,rowIndex}">
-            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+8" @keyup="handleEnter($event,rowIndex,8)" v-model="row.remark" placeholder="输入备注" :controls="false"></vxe-input>
+            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+8" @keyup="handleEnter($event,rowIndex,8)"
+                       v-model="row.remark" placeholder="输入备注" :controls="false"></vxe-input>
           </template>
         </vxe-column>
       </vxe-table>
@@ -121,14 +142,19 @@ import Warehouses from "@js/api/Warehouses";
 import Products from "@js/api/Products";
 import Customers from "@js/api/Customers";
 import StockOutbound from "@js/api/StockOutbound";
+import {mapState} from "vuex";
 
 export default {
   name: "StockInboundForm",
   props: {
     orderId: [String, Number],
     type: String,
+    inventoryId: [String, Number],
+    bType: String,
+    pList: [Array, Object],
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -154,9 +180,10 @@ export default {
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
-        businessType:"其他出库",
+        businessType: "其他出库",
         vendorsId: null,
         customersId: null,
+        inventoryId: null,
         remark: null,
       },
       productsData: [],
@@ -228,13 +255,26 @@ export default {
           }
         }
       })
-      return [["", "", "", "", "", "",  "", sysQuantity.toFixed(2), "", ""].concat(sums)];
+      return [["", "", "", "", "", "", "", sysQuantity.toFixed(2), "", ""].concat(sums)];
     }
     ,
     //选择商品
     doChange(d, index) {
       if (d) {
-        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:this.warehousesId, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
+        let g = {
+          sysQuantity: 1,
+          orderQuantity: 1,
+          orderPrice: d.price || 0,
+          warehouseId: this.warehousesId,
+          price: d.price || 0,
+          discountAmount: 0.00,
+          discount: 0.00,
+          discountedAmount: d.price || 0,
+          num: 1,
+          orderUnitId: d.unitId,
+          orderUnitName: d.unitName,
+          remark: ""
+        };
         this.productsData[index] = Object.assign(Object.assign(g, d), d);
         if (!this.productsData[index + 1]) {
           this.productsData.push({isNew: true});
@@ -273,16 +313,24 @@ export default {
         loading.close()
         return
       }
-      StockOutbound.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      if (this.inventoryId) {
+        this.form.inventoryId = this.inventoryId
+      }
+      StockOutbound.save({
+        order: Object.assign(this.form,
+            {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData
+      }).then((success) => {
+        if (success) {
+          message("保存成功~");
+          this.$emit('success');
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     },
     clear() {
       this.form = {
         billDate: manba().format("YYYY-MM-dd"),
-        businessType:"其他出库",
+        businessType: "其他出库",
         vendorsId: null,
         customersId: null,
         remark: null,
@@ -301,7 +349,7 @@ export default {
     ,
     //修改供货商
     vendorsChange(e) {
-      if(this.form.customersId !== null){
+      if (this.form.customersId !== null) {
         confirm({
           title: "系统提示",
           content: `修改客户，所选客户将被清空，确定修改？`,
@@ -317,7 +365,7 @@ export default {
     },
     //修改供货商
     customersChange(e) {
-      if(this.form.vendorsId !== null){
+      if (this.form.vendorsId !== null) {
         confirm({
           title: "系统提示",
           content: `修改客户，所选供应商将被清空，确定修改？`,
@@ -335,7 +383,7 @@ export default {
     loadProducts() {
       Products.loadToOrder().then(({data}) => {
         this.productsList = data || [];
-        if (!this.form.id) {
+        if (!this.form.id && !this.bType) {
           this.productsData = [{isNew: true}];
         }
       }).finally(() =>
@@ -428,8 +476,8 @@ export default {
       this.vendorsList = results[0].data || [];
       this.warehousesList = results[1].data || [];
       this.customersList = results[2].data || [];
-      if(this.warehousesList != null){
-        this.warehousesId = this.warehousesList.find(val=> val.isDefault).id
+      if (this.warehousesList != null) {
+        this.warehousesId = this.warehousesList.find(val => val.isDefault).id
       }
       //订单详情/编辑订单
       if (this.orderId) {
@@ -444,9 +492,34 @@ export default {
           this.productsData = productsData || [];
           this.productsData.push({isNew: true});
         })
+      } else if (this.bType === '盘亏') {
+        this.form.businessType = this.bType
+        this.pList.forEach(item => {
+          let g = {
+            productsCode: item.productsCode,
+            productsName: item.productsName,
+            productsId: item.productsId,
+            sysQuantity: -item.difQuantity,
+            orderQuantity: -item.difQuantity,
+            orderPrice: 0,
+            warehouseId: item.warehouseId,
+            price: 0,
+            discountAmount: 0.00,
+            discount: 0.00,
+            discountedAmount: 0,
+            num: 1,
+            unitId: item.unitId,
+            unitName: item.unitName,
+            orderUnitId: item.unitId,
+            orderUnitName: item.unitName,
+            remark: ""
+          };
+          this.productsData.push(Object.assign(g))
+        })
+        this.productsData.push({isNew: true});
       }
-    }).finally(() => loading.close());
-    this.loadProducts()
+    }).finally(() => this.loadProducts(), loading.close());
+
   },
 }
 </script>

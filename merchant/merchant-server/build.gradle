@@ -6,12 +6,12 @@ dependencies {
 }
 
 bootJar {
-    archivesBaseName = 'invoice-merchant'
+    archivesBaseName = 'jxc'
     archiveVersion = '0.1'
     launchScript()
 }
 
-tasks.withType(Jar) {
+tasks.withType(Jar).configureEach {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 

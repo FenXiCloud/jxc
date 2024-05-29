@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 /**
  * @功能描述: AccountDto
@@ -27,18 +28,35 @@ public class AccountDto implements Serializable {
 
     private Role role;
 
-    private Checkout checkout;
+    private LocalDate checkDate;
+
+    private String costMethod;
+
+    private Long accountSetsId;
 
     /**
      * 授权功能
      */
     private List<String> granted;
 
-    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization) {
+    public AccountDto(Admin admin, Merchant merchant, Role role,Organization organization,String costMethod,Long accountSetsId) {
         this.admin = admin;
         this.merchant = merchant;
         this.role = role;
         this.organization = organization;
+        this.checkDate = organization.getCheckoutDate();
+        this.costMethod = costMethod;
+        this.accountSetsId = accountSetsId;
+    }
+
+    public AccountDto(Admin admin, Merchant merchant, Role role) {
+        this.admin = admin;
+        this.merchant = merchant;
+        this.role = role;
+    }
+
+    public Long getAccountSetsId() {
+        return accountSetsId;
     }
 
     public Long getAdminId() {
@@ -51,7 +69,11 @@ public class AccountDto implements Serializable {
 
     //TODO
     public Long getOrganizationId() {
-        return organization.getId();
+        if (organization != null){
+            return organization.getId();
+        }else {
+            return null;
+        }
     }
 
 }

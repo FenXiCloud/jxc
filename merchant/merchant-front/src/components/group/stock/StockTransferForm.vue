@@ -3,7 +3,7 @@
     <div class="modal-column-full-body">
       <vxe-toolbar class-name="!size--mini">
         <template #buttons> <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
           <label class="ml-10px" style="font-size: 16px !important;">调出仓库：</label>
           <Select class="w-260px" filterable required :datas="warehousesList" keyName="id" titleName="name" :deletable="false" v-model="form.inWarehouseId" placeholder="请选择调出仓库"/>
           <label class="ml-10px" style="font-size: 16px !important;">调入仓库：</label>
@@ -56,26 +56,6 @@
         </vxe-column>
         <vxe-column title="基本单位" field="unitName" align="center" width="120"/>
         <vxe-column title="基本数量" field="sysQuantity" width="160"/>
-<!--        <vxe-column title="出库单价" field="orderPrice" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+4" @keyup="handleEnter($event,rowIndex,4)" @blur="updatePrice(row)" v-model.number="row.orderPrice" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
-<!--        <vxe-column title="折扣率(%)" field="discount" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+5" @keyup="handleEnter($event,rowIndex,5)" @blur="updateDiscount(row)" v-model.number="row.discount" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
-<!--        <vxe-column title="折扣额" field="discountAmount" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+6" @keyup="handleEnter($event,rowIndex,6)" @blur="updateDiscountAmount(row)" v-model.number="row.discountAmount" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
-<!--        <vxe-column title="购货金额" field="discountedAmount" width="100">-->
-<!--          <template #default="{row,rowIndex}">-->
-<!--            <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+7" @keyup="handleEnter($event,rowIndex,7)" @blur="updateDiscountedAmount(row)" v-model.number="row.discountedAmount" type="float" min="0" :controls="false"></vxe-input>-->
-<!--          </template>-->
-<!--        </vxe-column>-->
         <vxe-column title="备注" field="remark">
           <template #default="{row,rowIndex}">
             <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+8" @keyup="handleEnter($event,rowIndex,8)" v-model="row.remark" placeholder="输入备注" :controls="false"></vxe-input>
@@ -110,6 +90,7 @@ import {CopyObj} from "@common/utils";
 import Warehouses from "@js/api/Warehouses";
 import Products from "@js/api/Products";
 import StockTransfer from "@js/api/StockTransfer";
+import {mapState} from "vuex";
 
 export default {
   name: "StockTransferForm",
@@ -118,6 +99,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -245,10 +227,13 @@ export default {
         loading.close()
         return
       }
-      StockTransfer.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      StockTransfer.save({order: Object.assign(this.form,
+            {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear();
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     },
     clear() {

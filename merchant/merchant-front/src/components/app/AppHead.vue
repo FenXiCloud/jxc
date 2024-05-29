@@ -2,7 +2,7 @@
   <div class="app-header">
     <div class="flex">
       <div class="account">
-        <Select v-model="selectOrgId" :datas="orgs"  @change="changeCurrent"></Select>
+        <Select v-model="selectOrgId" :datas="orgs"  @change="changeCurrent" :deletable="false"></Select>
       </div>
     </div>
     <div class="flex app-header-info flex items-center" v-if="user.admin">
@@ -30,7 +30,7 @@
  * @公司介绍: 专注于财务相关软件开发, 企业会计自动化解决方案
  */
 import {onMounted, onUnmounted} from 'vue';
-import {mapState} from 'vuex';
+import {mapMutations, mapState} from 'vuex';
 import {loading, confirm, message} from 'heyui.ext';
 import { Logout} from "@js/api/App";
 import organization from "@js/api/Organization";
@@ -80,6 +80,7 @@ export default {
     });
   },
   methods: {
+    ...mapMutations(['pushTab']),
     changeCurrent(){
       loading("正在切换，请稍后...");
       organization.changeCurrent(this.selectOrgId).then(() => {
@@ -97,12 +98,12 @@ export default {
             loading("登出中....");
             Logout().then(() => {
               localStorage.removeItem("SYS_TABS");
-              this.$router.replace({name: 'Login'});
+              window.location.replace("/")
             }).finally(() => loading.close())
           }
         });
       } else {
-        this.$router.push({name: 'AccountBasic'});
+        this.pushTab({key:'AccountBasic',title:'个人信息'})
       }
     },
   },

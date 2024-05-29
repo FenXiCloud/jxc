@@ -48,10 +48,23 @@ public class CustomersCategoryService extends AbsService {
         if (customersCategory.getId() != null) {
             //更新
             CustomersCategory original = customersCategoryRepository.getById(customersCategory.getId());
+
+            //检查重复
+            long count = bqf.selectFrom(qCustomersCategory)
+                    .where(qCustomersCategory.merchantId.eq(original.getMerchantId()).and(qCustomersCategory.name.eq(customersCategory.getName()))
+                            .and(qCustomersCategory.id.ne(customersCategory.getId())).and(qCustomersCategory.organizationId.eq(original.getOrganizationId())))
+                    .fetchCount();
+            Assert.isTrue(count == 0, customersCategory.getName() + "名称已存在~");
             BeanUtil.copyProperties(customersCategory, original, CopyOptions.create().ignoreNullValue());
             return customersCategoryRepository.save(original);
         }
 
+        //检查重复
+        long count = bqf.selectFrom(qCustomersCategory)
+                .where(qCustomersCategory.merchantId.eq(customersCategory.getMerchantId()).and(qCustomersCategory.name.eq(customersCategory.getName()))
+                        .and(qCustomersCategory.organizationId.eq(customersCategory.getOrganizationId())))
+                .fetchCount();
+        Assert.isTrue(count == 0, customersCategory.getName() + "名称已存在~");
         return customersCategoryRepository.save(customersCategory);
     }
 

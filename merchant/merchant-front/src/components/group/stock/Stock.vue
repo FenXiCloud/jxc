@@ -41,7 +41,7 @@
             </div>
           </template>
         </vxe-column>
-        <vxe-column title="仓库" field="warehousesName" width="120" tree-node></vxe-column>
+        <vxe-column title="仓库" field="warehouseName" width="120" tree-node></vxe-column>
         <vxe-column title="基本数量" field="totalQuantity" align="center" width="130">
           <template #default="{row}">
             <div>{{ row.totalQuantity }}{{ row.unitsName }}</div>
@@ -63,9 +63,6 @@
 </template>
 <script>
 import manba from "manba";
-import {layer} from "@layui/layer-vue";
-import {h} from "vue";
-import PurchaseOrderForm from "@components/group/purchase/PurchaseOrderForm.vue";
 import Stock from "@js/api/Stock";
 
 const startTime = manba().startOf(manba.MONTH).format("YYYY-MM-dd");

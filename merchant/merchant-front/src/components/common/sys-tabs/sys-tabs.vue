@@ -1,23 +1,27 @@
 <template>
-  <div class="sys-tabs-vue" :class="{ 'sys-tabs-oversize': tagList.length > 15 }">
+  <div class="sys-tabs-vue" :class="{ 'sys-tabs-oversize': tabs.length > 15 }">
     <div class="tabs-container" ref="scrollOuter">
       <div class="tabs-body">
         <DropdownMenu :datas="menus" @clickItem="trigger" @show="show" trigger="contextMenu" :toggleIcon="false">
-          <div
-              v-for="(item, index) of tagList"
-              :key="`sys-tab-${index}`"
-              :index="index"
-              @click="handleClick(item)"
-              class="tabs-item"
-              :class="{ 'tabs-item-chosen': isCurrentTab(item) }"
-          >
+          <div @click="updateTab('DashboardMain')" class="tabs-item" :class="{ 'tabs-item-chosen': currentTab=== 'DashboardMain' }">
             <div class="tabs-item-background"></div>
             <div class="tabs-item-title">
-              <!--              <span :class="item.meta.icon" v-if="item.meta.icon" class="tabs-item-icon"></span>-->
-              <span class="tabs-item-icon"></span>
-              <span>{{ item.meta.title }}</span>
+              <span class="tabs-item-icon icon-monitor"></span>
+              <span>桌面</span>
             </div>
-            <span class="tabs-item-close h-icon-close" @click.stop="handleClose(item)" v-if="'DashboardMain' !== item.name"></span>
+          </div>
+          <div v-for="(item, index) of tabs"
+               :key="`sys-tab-${index}`"
+               :index="index"
+               @click="handleClick(item)"
+               class="tabs-item"
+               :class="{ 'tabs-item-chosen': currentTab=== item.key }">
+            <div class="tabs-item-background"></div>
+            <div class="tabs-item-title">
+              <span :class="item.icon" v-if="item.icon" class="tabs-item-icon"></span>
+              <span>{{ item.title }}</span>
+            </div>
+            <span class="tabs-item-close h-icon-close" @click.stop="handleClose(item,index)"></span>
           </div>
         </DropdownMenu>
       </div>
@@ -26,8 +30,7 @@
 </template>
 
 <script>
-import {isExsit, routeEqual, showTitle} from './utils';
-import {confirm} from "heyui.ext";
+import {mapMutations, mapState} from "vuex";
 
 export default {
   name: 'TagsNav',
@@ -41,17 +44,14 @@ export default {
   data() {
     return {
       nowIndex: null,
-      tagList: [],
       menus: {}
     };
   },
   computed: {
-    currentRouteObj() {
-      const {name, params, query} = this.$route;
-      return {name, params, query};
-    }
+    ...mapState(['tabs', 'currentTab']),
   },
   methods: {
+    ...mapMutations(['updateTab', 'clearTabs', 'closeOtherTab', 'closeSelfTab']),
     show(event) {
       let parent = event.target.parentNode;
       this.nowIndex = parent.getAttribute('index') || parent.parentNode.getAttribute('index');
@@ -67,96 +67,22 @@ export default {
         };
       }
     },
-    trigger(key, data, event) {
-      if (key == 'closeAll') {
-        this.clearTab();
+    trigger(key) {
+      if (key === 'closeAll') {
+        this.clearTabs();
       } else if (this.nowIndex) {
-        let item = this.tagList[this.nowIndex];
-        if (key == 'closeOther') {
-          this.closeOtherTab(item, this.nowIndex);
-        } else if (key == 'closeSelf') {
-          this.close(item);
+        if (key === 'closeOther') {
+          this.closeOtherTab(this.nowIndex);
+        } else if (key === 'closeSelf') {
+          this.closeSelfTab(this.nowIndex);
         }
       }
     },
-    init() {
-      let cache = localStorage.getItem("ADMIN_SYS_TABS");
-      this.tagList = cache ? JSON.parse(cache) : [];
-      this.gotoTab(this.$route);
-    },
-    beforeClose() {
-      return confirm('确定要关闭这一页吗');
-    },
-    handleClose(item) {
-      if (item.meta && item.meta.beforeCloseName) {
-        return new Promise(this.beforeClose[item.meta.beforeCloseName]).then(close => {
-          if (close) {
-            this.close(item);
-          }
-        });
-      } else {
-        this.close(item);
-      }
-    },
-    close(item) {
-      let index = this.tagList.indexOf(item);
-      this.tagList.splice(index, 1);
-      let newroute = null;
-      if (this.isCurrentTab(item)) {
-        if (this.tagList.length > index) {
-          newroute = this.tagList[index];
-        } else if (this.tagList.length > 0) {
-          newroute = this.tagList[index - 1];
-        } else {
-          this.$router.replace({name: this.homePage});
-        }
-        if (newroute) this.$router.replace(newroute);
-      }
-      this.saveLocal();
+    handleClose(item, index) {
+      this.closeSelfTab(index);
     },
     handleClick(item) {
-      this.$router.push(item);
-    },
-    showTitleInside(item) {
-      return showTitle(item, this);
-    },
-    isCurrentTab(item) {
-      return routeEqual(this.currentRouteObj, item);
-    },
-    gotoTab(item) {
-      if (!item.name) return;
-      const {name, query, params, meta} = item;
-      let routeObj = {name, query, params, meta: meta || {}};
-      if (!isExsit(routeObj, this.tagList) && routeObj.name !== 'Login') {
-        this.tagList.push(routeObj);
-        this.saveLocal();
-      }
-    },
-    closeOtherTab(item, index) {
-      if (!this.isCurrentTab(item)) {
-        this.$router.push(item);
-      }
-      this.tagList.splice(0, index);
-      this.tagList.splice(1);
-      this.saveLocal();
-    },
-    clearTab() {
-      this.tagList = [];
-      this.saveLocal();
-      if (!this.isCurrentTab({name: this.homePage})) {
-        this.$router.push({name: this.homePage});
-      }
-    },
-    saveLocal() {
-      localStorage.setItem("ADMIN_SYS_TABS", JSON.stringify(this.tagList))
-    }
-  },
-  mounted() {
-    this.init();
-  },
-  watch: {
-    $route(to) {
-      this.gotoTab(to);
+      this.updateTab(item.key)
     }
   }
 };
@@ -311,7 +237,7 @@ export default {
 
         .tabs-item-background {
           background: #f5f7fa;
-          border-top:#3d74ff 2px solid;
+          border-top: #3d74ff 2px solid;
           border-bottom: none;
         }
 
@@ -360,3 +286,4 @@ export default {
   }
 }
 </style>
+

@@ -6,7 +6,7 @@
           <label class="mr-20px" style="font-size: 16px !important;">客户：</label>
           <Select class="w-300px" filterable required :datas="customersList" keyName="id" titleName="name" :deletable="false" @change="customersChange($event)" v-model="customersId" placeholder="请选择客户"/>
           <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}" :clearable="false"></DatePicker>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -48,14 +48,14 @@
             </template>
           </template>
         </vxe-column>
-        <vxe-column title="仓库" field="warehouses" align="center" width="120">
+        <vxe-column title="出库仓库" field="warehouses" align="center" width="120">
           <template #default="{row,rowIndex}">
             <template v-if="!row.isNew">
               <Select  :deletable="false" v-model="row.warehouseId" :datas="warehousesList" filterable keyName="id" titleName="name"/>
             </template>
           </template>
         </vxe-column>
-        <vxe-column title="数量" field="orderQuantity" width="90">
+        <vxe-column title="出库数量" field="orderQuantity" width="90">
           <template #default="{row,rowIndex,columnIndex}">
             <vxe-input v-if="!row.isNew" :id="'r'+rowIndex+''+3" @keyup="handleEnter($event,rowIndex,3)" @blur="updateQuantity(row)" ref="inputQuantity" v-model.number="row.orderQuantity" type="float" min="0" :controls="false"></vxe-input>
           </template>
@@ -117,6 +117,7 @@ import Warehouses from "@js/api/Warehouses";
 import Customers from "@js/api/Customers";
 import Products from "@js/api/Products";
 import SalesOrder from "@js/api/SalesOrder";
+import {mapState} from "vuex";
 
 export default {
   name: "SalesOrderForm",
@@ -125,11 +126,30 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
         if (val.sysQuantity > 0) {
           total += parseFloat(val.discountedAmount);
+        }
+      });
+      return total.toFixed(2);
+    },
+    discountAmount() {
+      let total = 0;
+      this.productsData.forEach(val => {
+        if (val.sysQuantity > 0) {
+          total += parseFloat(val.discountAmount);
+        }
+      });
+      return total.toFixed(2);
+    },
+    sysQuantity() {
+      let total = 0;
+      this.productsData.forEach(val => {
+        if (val.sysQuantity > 0) {
+          total += parseFloat(val.sysQuantity);
         }
       });
       return total.toFixed(2);
@@ -146,6 +166,10 @@ export default {
       warehousesList: [],
       customersList: [],
       customersId: null,
+      warehousesId: null,
+      dateParam:{
+        start: null,
+      },
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
@@ -227,7 +251,7 @@ export default {
     //选择商品
     doChange(d, index) {
       if (d) {
-        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:null, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
+        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:this.warehousesId, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
         this.productsData[index] = Object.assign(Object.assign(g, d), d);
         if (!this.productsData[index + 1]) {
           this.productsData.push({isNew: true});
@@ -266,10 +290,14 @@ export default {
         loading.close()
         return
       }
-      SalesOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      SalesOrder.save({order: Object.assign(this.form,
+            {discountedAmount: this.discountedAmount,discountAmount: this.discountAmount,unitQuantity: this.sysQuantity}),
+        type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear()
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     }
     ,
@@ -344,6 +372,7 @@ export default {
       row.num = item.num || 1;
       row.sysQuantity = (row.orderQuantity * row.num).toFixed(2);
       row.discountedAmount = (row.orderQuantity * row.orderPrice).toFixed(2);
+      row.discountAmount = (((row.orderQuantity * row.orderPrice) * row.discount) / 100).toFixed(2);
     },
     //计算公式
     updateQuantity(item) {
@@ -409,6 +438,7 @@ export default {
     })
   },
   created() {
+    console.log(manba(this.org.checkoutDate).add(1,manba.DAY).format("YYYY-MM-dd"))
     loading("加载中....");
     Promise.all([
       Customers.select(),
@@ -416,6 +446,9 @@ export default {
     ]).then((results) => {
       this.customersList = results[0].data || [];
       this.warehousesList = results[1].data || [];
+      if (this.warehousesList != null) {
+        this.warehousesId = this.warehousesList.find(val => val.isDefault).id
+      }
       //订单详情/编辑订单
       if (this.orderId) {
         SalesOrder.load(this.orderId).then(({data: {order, productsData}}) => {

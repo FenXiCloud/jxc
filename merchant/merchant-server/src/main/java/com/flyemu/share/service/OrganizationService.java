@@ -10,9 +10,7 @@ import com.flyemu.share.controller.Page;
 import com.flyemu.share.controller.PageResults;
 import com.flyemu.share.dto.OrganizationDto;
 import com.flyemu.share.entity.*;
-import com.flyemu.share.repository.CheckoutRepository;
-import com.flyemu.share.repository.OrganizationRepository;
-import com.flyemu.share.repository.UnitsRepository;
+import com.flyemu.share.repository.*;
 import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,15 +33,13 @@ public class OrganizationService extends AbsService {
 
     private final OrganizationRepository organizationRepository;
 
-    private final CheckoutRepository checkoutRepository;
+    private final ArgsSettingRepository argsSettingRepository;
+    private final RelationCwRepository relationCwRepository;
+
 
     private final CodeSeedService codeSeedService;
 
     private final QMerchant qMerchant = QMerchant.merchant;
-
-    private final UnitsRepository unitsRepository;
-
-    private final AdminService adminService;
 
     public PageResults<OrganizationDto> query(Page page, Query query) {
         PagedList<Organization> fetchPage = bqf.selectFrom(qOrganization).where(query.builder).orderBy(qOrganization.id.desc()).fetchPage(page.getOffset(),page.getOffsetEnd());
@@ -66,10 +62,12 @@ public class OrganizationService extends AbsService {
      */
     public List<Dict> loadOrg(Long merchantId) {
         List<Dict> dictList = new ArrayList<>();
-         bqf.selectFrom(qOrganization).select(qOrganization.id,qOrganization.name,qOrganization.current).where(qOrganization.merchantId.eq(merchantId))
+         bqf.selectFrom(qOrganization).select(qOrganization.id,qOrganization.name,qOrganization.current,qOrganization.startDate,qOrganization.checkoutDate).where(qOrganization.merchantId.eq(merchantId))
                 .orderBy(qOrganization.id.desc()).fetch().forEach(tuple->{
                     Dict dict = new Dict().set("key",tuple.get(qOrganization.id))
                             .set("title",tuple.get(qOrganization.name))
+                            .set("startDate",tuple.get(qOrganization.startDate))
+                            .set("checkoutDate",tuple.get(qOrganization.checkoutDate))
                             .set("current",tuple.get(qOrganization.current));
                     dictList.add(dict);
                  });
@@ -97,6 +95,10 @@ public class OrganizationService extends AbsService {
      */
     @Transactional
     public Organization save(OrganizationDto organizationForm) {
+       if(bqf.selectFrom(qOrganization)
+               .where(qOrganization.merchantId.eq(organizationForm.getMerchantId())).fetchCount()<=0) {
+           organizationForm.setCurrent(true);
+       }
         if (organizationForm.getId() != null) {
             //更新
             Organization original = organizationRepository.getById(organizationForm.getId());
@@ -123,6 +125,12 @@ public class OrganizationService extends AbsService {
             Assert.isTrue(count == 0, organization.getCode() + "编码已存在~");
         }
         organizationRepository.save(organization);
+
+        ArgsSetting argsSetting = new ArgsSetting();
+        argsSetting.setMerchantId(organization.getMerchantId());
+        argsSetting.setOrganizationId(organization.getId());
+        argsSetting.setCostMethod("平");
+        argsSettingRepository.save(argsSetting);
 
         return organization;
     }

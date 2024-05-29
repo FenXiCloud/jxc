@@ -1,19 +1,18 @@
-<template>
-  <div class="frame-page" style="margin: 0">
-    <div class="h-panel">
-      <div class="h-panel-body">
-        <div class="table-toolbar">
-          <div class="table-toolbar-left">
-            <div class="h-input-group">
-              <Input id="name" v-model="params.name" class="flex-1" placeholder="请输入用户名"/>
-              <span class="h-input-addon" @click="doSearch" :loading="loading"><i class="h-icon-search"></i></span>
-            </div>
-          </div>
-          <div class="table-toolbar-right">
-            <Button @click="showForm()" color="primary">新 增</Button>
-            <Button @click="addCategoryForm()" color="primary">新增分类</Button>
-          </div>
-        </div>
+<template><div class="frame-page flex flex-column">
+  <vxe-toolbar>
+    <template #buttons>
+      <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
+              show-search-button class="w-260px"
+              placeholder="请输入客户名称" @search="doSearch">
+        <i class="h-icon-search"/>
+      </Search>
+    </template>
+    <template #tools>
+      <Button @click="showForm()" color="primary">新 增</Button>
+      <Button @click="addCategoryForm()" color="primary">新增分类</Button>
+    </template>
+  </vxe-toolbar>
+  <div class="flex1">
         <vxe-table row-id="id"
                    ref="table"
                    :data="dataList"
@@ -38,7 +37,21 @@
           </vxe-column>
         </vxe-table>
       </div>
+  <div class="flex justify-between items-center pt-5px">
+    <div>
     </div>
+    <vxe-pager perfect @page-change="loadList(false)"
+               v-model:current-page="pagination.page"
+               v-model:page-size="pagination.pageSize"
+               :total="pagination.total"
+               :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
+      <template #left>
+        <!--          <span class="mr-12px text-16px">总金额：{{ amountTotal }}元</span>-->
+        <vxe-button @click="loadList(false)" type="text" size="mini" icon="fa fa-refresh"
+                    :loading="loading"></vxe-button>
+      </template>
+    </vxe-pager>
+  </div>
   </div>
 </template>
 
@@ -76,7 +89,9 @@ export default {
   },
   computed: {
     queryParams() {
-      return Object.assign(this.params, {})
+      return Object.assign(this.params, {
+        page: this.pagination.page,
+        pageSize: this.pagination.pageSize,})
     }
   },
   methods: {
@@ -119,12 +134,10 @@ export default {
     },
     loadList() {
       this.loading = true;
-      Customers.list(this.queryParams).then(({data}) => {
-        this.dataList = data.results;
+      Customers.list(this.queryParams).then(({data: {results, total}}) => {
+        this.dataList = results || [];
+        this.pagination.total = total;
       }).finally(() => this.loading = false);
-    },
-    pageChange() {
-      this.loadList();
     },
     doSearch() {
       this.pagination.page = 1;

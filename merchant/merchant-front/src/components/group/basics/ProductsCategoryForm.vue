@@ -30,7 +30,7 @@
       <Button @click="$emit('close')" :loading="loading">
         取消
       </Button>
-      <Button color="green" @click="primary" :loading="loading">
+      <Button color="primary" @click="confirm" :loading="loading">
         保存
       </Button>
     </div>

@@ -132,7 +132,7 @@ public class AdminService extends AbsService {
 
         Role role = bqf.selectFrom(qRole).where(qRole.id.eq(admin.getRoleId())).fetchFirst();
 
-        return new AccountDto(admin, merchant, role,null);
+        return new AccountDto(admin, merchant, role);
     }
 
     @Transactional

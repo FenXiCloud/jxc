@@ -1,13 +1,16 @@
 package com.flyemu.share.entity;
 
+import com.flyemu.share.enums.StockType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @功能描述: 库存明细表
@@ -22,13 +25,15 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Table
 public class StockItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Comment("订单Id")
     private Long orderId;
+
+    @Comment("订单Id")
+    private Long orderDetailId;
 
     @Comment("单号")
     private String code;
@@ -40,6 +45,7 @@ public class StockItem {
     private LocalDate billDate;
 
     @Comment("库存业务类型")
+    @Enumerated(EnumType.STRING)
     private InventoryType inventoryType;
 
     @Comment("数量")
@@ -52,14 +58,11 @@ public class StockItem {
     @Comment("可出库数量")
     private BigDecimal  availableQuantity;
 
-    @Comment("变动前数量")
-    private BigDecimal  beforeQuantity;
-
-    @Comment("变动后数量")
-    private BigDecimal  afterQuantity;
-
     @Comment("单位成本")
     private BigDecimal unitCost;
+
+    @Comment("成本金额")
+    private BigDecimal cost;
 
     @Comment("小计金额")
     private BigDecimal totalAmount;
@@ -74,6 +77,16 @@ public class StockItem {
     @Comment("商户ID")
     @Column(nullable = false)
     private Long merchantId;
+
+    @Comment("创建时间")
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createDate;
+
+    @Comment("仓库类型")
+    @Column(nullable = false,length = 32)
+    @Enumerated(EnumType.STRING)
+    private StockType stockType;
 
     public enum InventoryType {
         采购入库,采购退货,销售出库,销售退货,盘盈,盘亏,其他出库,其他入库,调拨

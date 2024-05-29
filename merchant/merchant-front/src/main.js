@@ -14,14 +14,13 @@ import directive from '@/js/directive'
 import '@common/dict';
 
 let app = createApp(App);
-app.use(layer).use(store).use(useTable).use(heyui).directive("auth",directive);
+app.use(layer).use(store).use(useTable).use(heyui).directive("auth", directive);
 store.dispatch('init').then((account) => {
-	app.use(router(account.group));
+	console.log("sdfsd",router)
+	app.use(router);
 	app.mount('#app')
 }).catch(() => {
-	let routerInst = router(false);
-	app.use(routerInst);
+	app.use(router);
 	app.mount('#app')
-	routerInst.push("/login")
 });
 

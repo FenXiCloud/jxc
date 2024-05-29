@@ -43,6 +43,9 @@ public class StockInventoryItem {
     @Comment("盘点数量")
     private BigDecimal inventoryQuantity;
 
+    @Comment("盘亏盘盈数量")
+    private BigDecimal difQuantity;
+
     @Comment("备注")
     private String remark;
 

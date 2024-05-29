@@ -30,4 +30,11 @@ public class StockController {
         return JsonResult.successful(stockService.query(page, query));
     }
 
+    @GetMapping("/adjustment")
+    public JsonResult adjustment(Page page, StockService.Query query, @SaMerchantId Long merchantId, @SaOrganizationId Long organizationId) {
+        query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
+        return JsonResult.successful(stockService.adjustment(page, query));
+    }
+
 }

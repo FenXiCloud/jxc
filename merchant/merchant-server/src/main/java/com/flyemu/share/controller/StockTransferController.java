@@ -2,13 +2,13 @@ package com.flyemu.share.controller;
 
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
 import com.flyemu.share.dto.AccountDto;
 import com.flyemu.share.entity.Order;
 import com.flyemu.share.form.OrderForm;
-import com.flyemu.share.service.StockInboundService;
 import com.flyemu.share.service.StockTransferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -77,6 +77,7 @@ public class StockTransferController {
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
+        Assert.isTrue(orderForm.getOrder().getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
         transferService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
@@ -91,7 +92,7 @@ public class StockTransferController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        transferService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
+        transferService.updateState(order, accountDto);
         return JsonResult.successful();
     }
 

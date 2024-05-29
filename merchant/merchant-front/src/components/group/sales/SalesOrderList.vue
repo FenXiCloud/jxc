@@ -2,7 +2,7 @@
   <div class="frame-page flex flex-column">
     <vxe-toolbar>
       <template #buttons>
-        <Select v-model="params.state" class="w-120px" :datas="{待审核:'待审核',已审核:'已审核'}"
+        <Select v-model="params.state" class="w-120px" :datas="{已保存:'待审核',已审核:'已审核'}"
                 placeholder="全部订单"/>
         <div class="h-input-group">
           <span class="h-input-addon ml-8px">单据日期</span>
@@ -10,7 +10,7 @@
         </div>
         <Search v-model.trim="params.filter" search-button-theme="h-btn-default"
                 show-search-button class="w-360px ml-8px"
-                placeholder="请输入订单号/供应商名称" @search="doSearch">
+                placeholder="请输入订单号/客户名称" @search="doSearch">
           <i class="h-icon-search"/>
         </Search>
       </template>
@@ -38,7 +38,7 @@
         <vxe-column title="客户名称" field="customersName" min-width="120"/>
         <vxe-column title="创建时间" field="createDate" align="center" width="200" />
         <vxe-column title="单据日期" field="billDate" align="center" width="130" />
-        <vxe-column title="金额" field="discountedAmount" width="80"/>
+        <vxe-column title="金额" field="discountedAmount" width="120"/>
         <vxe-column title="状态" field="orderStatus" width="80"/>
         <vxe-column title="操作" align="center" width="200">
           <template #default="{row}">

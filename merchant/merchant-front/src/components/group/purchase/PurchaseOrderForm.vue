@@ -6,7 +6,7 @@
           <label class="mr-20px" style="font-size: 16px !important;">供货商：</label>
           <Select class="w-300px" filterable required :datas="vendorsList" keyName="id" titleName="name" :deletable="false" @change="vendorsChange($event)" v-model="vendorsId" placeholder="请选择供货商"/>
           <label class="mr-20px ml-16px" style="font-size: 16px !important;">单据日期：</label>
-          <DatePicker v-model="form.billDate" :clearable="false"></DatePicker>
+          <DatePicker v-model="form.billDate" :option="{start:org.checkoutSDate}"  :clearable="false"></DatePicker>
         </template>
       </vxe-toolbar>
       <vxe-table
@@ -28,7 +28,8 @@
         <vxe-column title="商品信息" width="300">
           <template #default="{row,rowIndex}">
             <div class="h-input-group goodsSelect" v-if="row.isNew" @keyup.stop="void(0)">
-              <Select ref="ms" @change="doChange($event,rowIndex)" v-model="products" :datas="productsList" filterable placeholder="输入编码/名称" keyName="productsId" ><template v-slot:item="{ item }">
+              <Select ref="ms" @change="doChange($event,rowIndex)" v-model="products" :datas="productsList" filterable placeholder="输入编码/名称" keyName="productsId" >
+                <template v-slot:item="{ item }">
                 <div>{{ item.productsCode }} {{ item.productsName }}</div>
               </template>
               </Select>
@@ -116,6 +117,7 @@ import {CopyObj} from "@common/utils";
 import PurchaseOrder from "@js/api/PurchaseOrder";
 import Vendors from "@js/api/Vendors";
 import Warehouses from "@js/api/Warehouses";
+import {mapState} from "vuex";
 
 export default {
   name: "PurchaseOrderForm",
@@ -124,6 +126,7 @@ export default {
     type: String,
   },
   computed: {
+    ...mapState(['org']),
     discountedAmount() {
       let total = 0;
       this.productsData.forEach(val => {
@@ -145,6 +148,7 @@ export default {
       warehousesList: [],
       vendorsList: [],
       vendorsId: null,
+      warehousesId: null,
       form: {
         id: null,
         billDate: manba().format("YYYY-MM-dd"),
@@ -226,7 +230,7 @@ export default {
     //选择商品
     doChange(d, index) {
       if (d) {
-        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:null, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
+        let g = {sysQuantity: 1, orderQuantity: 1, orderPrice: d.price || 0,warehouseId:this.warehousesId, price: d.price || 0, discountAmount: 0.00, discount: 0.00, discountedAmount: d.price || 0, num: 1, orderUnitId: d.unitId, orderUnitName: d.unitName, remark: ""};
         this.productsData[index] = Object.assign(Object.assign(g, d), d);
         if (!this.productsData[index + 1]) {
           this.productsData.push({isNew: true});
@@ -265,10 +269,12 @@ export default {
         loading.close()
         return
       }
-      PurchaseOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then(() => {
-        message("保存成功~");
+      PurchaseOrder.save({order: Object.assign(this.form, {discountedAmount: this.discountedAmount}), type: this.type, detailList: productsData}).then((success) => {
+        if(success){
+          message("保存成功~");
+          this.clear()
+        }
       }).finally(() =>
-              this.clear(),
           loading.close());
     }
     ,
@@ -415,6 +421,9 @@ export default {
     ]).then((results) => {
       this.vendorsList = results[0].data || [];
       this.warehousesList = results[1].data || [];
+      if (this.warehousesList != null) {
+        this.warehousesId = this.warehousesList.find(val => val.isDefault).id
+      }
       //订单详情/编辑订单
       if (this.orderId) {
         PurchaseOrder.load(this.orderId).then(({data: {order, productsData}}) => {

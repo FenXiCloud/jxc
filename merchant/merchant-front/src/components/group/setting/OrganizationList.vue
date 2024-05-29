@@ -1,28 +1,18 @@
 <template>
-  <div class="frame-page">
-    <div class="h-panel">
-      <div class="h-panel-body">
-        <Row :space-x="10">
-          <Cell width="6" class="flex items-center">
-            <label for="name" class="mr-10px">名称</label>
-            <Input id="name" v-model="params.name" class="flex-1" placeholder="请输入名称"/>
-          </Cell>
-          <Cell width="6">
-            <Button color="primary" icon="fa fa-search" :loading="loading" @click="doSearch">查询</Button>
-          </Cell>
-        </Row>
-      </div>
-    </div>
-    <div class="h-panel mt-10px">
-      <div class="h-panel-body">
-        <div class="table-toolbar">
-          <div class="table-toolbar-left">
-            <Button @click="showForm()" color="primary" icon="fa fa-plus">添加</Button>
-          </div>
-          <div class="table-toolbar-right">
-            <i @click="loadList" class="table-toolbar-right-icon fa fa-refresh"></i>
-          </div>
-        </div>
+    <div class="frame-page flex flex-column">
+      <vxe-toolbar>
+        <template #buttons>
+          <Search v-model.trim="params.name" search-button-theme="h-btn-default"
+                  show-search-button class="w-360px"
+                  placeholder="请输入名称" @search="doSearch">
+            <i class="h-icon-search"/>
+          </Search>
+        </template>
+        <template #tools>
+          <Button @click="showForm()" color="primary">新 增</Button>
+        </template>
+      </vxe-toolbar>
+      <div class="flex1">
         <vxe-table row-id="id"
                    ref="table"
                    :data="dataList"
@@ -51,8 +41,19 @@
             </template>
           </vxe-column>
         </vxe-table>
-        <Pagination align="right" class="mt-16px" v-model="pagination" @change="pageChange" small/>
-      </div>
+        <div class="flex justify-between items-center pt-5px">
+          <div></div>
+          <vxe-pager perfect @page-change="loadList()"
+                     v-model:current-page="pagination.page"
+                     v-model:page-size="pagination.pageSize"
+                     :total="pagination.total"
+                     :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']">
+            <template #left>
+              <vxe-button @click="loadList(false)" type="text" size="mini" icon="fa fa-refresh"
+                          :loading="loading"></vxe-button>
+            </template>
+          </vxe-pager>
+        </div>
     </div>
   </div>
 </template>
@@ -109,7 +110,6 @@ export default {
       let layerId = layer.open({
         title: "组织信息",
         shadeClose: false,
-        closeBtn: false,
         area: ['50vw', 'auto'],
         content: h(OrganizationForm, {
           organization,
@@ -140,7 +140,7 @@ export default {
     doRemove(row) {
       confirm({
         title: "系统提示",
-        content: `确认删除门店：${row.name}?`,
+        content: `确认删除组织：${row.name}?`,
         onConfirm: () => {
           Organization.remove(row.id).then(() => {
             message("删除成功~");

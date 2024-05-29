@@ -35,11 +35,11 @@
               </div>
             </template>
           </vxe-column>
+          <vxe-column title="调拨数量" field="orderQuantity" align="center" width="120"/>
           <vxe-column title="调拨单位" field="orderUnitName" align="center" width="80"/>
-          <vxe-column title="调拨数量" field="orderQuantity" align="center" width="80"/>
 <!--          <vxe-column title="调拨单价" field="orderPrice" width="80"/>-->
+          <vxe-column title="基本数量" field="sysQuantity" align="center" width="120"/>
           <vxe-column title="基本单位" field="unitName" align="center" width="80"/>
-          <vxe-column title="基本数量" field="sysQuantity" width="80"/>
 <!--          <vxe-column title="折扣率(%)" field="discount" width="90"/>-->
 <!--          <vxe-column title="折扣额" field="discountAmount" width="80"/>-->
 <!--          <vxe-column title="调拨金额" field="discountedAmount" width="120"/>-->

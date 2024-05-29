@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
- * @功能描述: 月度结账
+ * @功能描述: 结账
  * @创建时间: 2024年04月28日
  * @公司官网: www.fenxi365.com
  * @公司信息: 纷析云（杭州）科技有限公司
@@ -19,19 +22,19 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @NoArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"checkYear", "checkMonth", "organizationId", "merchantId"})})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = { "checkDate", "organizationId", "merchantId"})})
 public class Checkout implements Serializable {
-    private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer checkYear;
+    @Comment("创建时间")
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createDate;
 
-    private Integer checkMonth;
-
-    private Status status;
+    @Comment("结账人")
+    private Long checkId;
 
     private LocalDate checkDate;
 
@@ -41,7 +44,4 @@ public class Checkout implements Serializable {
     @Column(nullable = false)
     private Long merchantId;
 
-    public enum Status {
-        未结账,已结账
-    }
 }

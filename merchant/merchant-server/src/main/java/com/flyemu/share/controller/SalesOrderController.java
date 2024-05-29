@@ -2,6 +2,7 @@ package com.flyemu.share.controller;
 
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaAccountVal;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;
@@ -42,6 +43,36 @@ public class SalesOrderController {
     }
 
     /**
+     * 出库单利润列表
+     *
+     * @param merchantId
+     * @param page
+     * @param query
+     * @return
+     */
+    @GetMapping("/profit")
+    public JsonResult profit( Page page, SalesOrderService.Query query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
+        return JsonResult.successful(salesOrderService.profitList(page, query));
+    }
+
+    /**
+     * 出库单利润列表
+     *
+     * @param merchantId
+     * @param page
+     * @param query
+     * @return
+     */
+    @GetMapping("/rankProducts")
+    public JsonResult rankProducts( Page page, SalesOrderService.RankQuery query,@SaMerchantId Long merchantId,@SaOrganizationId Long organizationId) {
+        query.setMerchantId(merchantId);
+        query.setOrganizationId(organizationId);
+        return JsonResult.successful(salesOrderService.rankProducts(page, query));
+    }
+
+    /**
      * 条件出库单总金额
      *
      * @param merchantId
@@ -76,6 +107,7 @@ public class SalesOrderController {
      */
     @PostMapping
     public JsonResult save(@RequestBody OrderForm orderForm, @SaAccountVal AccountDto accountDto) {
+        Assert.isTrue(orderForm.getOrder().getBillDate().isAfter(accountDto.getCheckDate()),"小于等于结账时间:"+accountDto.getCheckDate()+"不能修改数据");
         salesOrderService.save(orderForm, accountDto.getAdminId(), accountDto.getMerchantId(), accountDto.getOrganizationId(), accountDto.getMerchant().getCode());
         return JsonResult.successful();
     }
@@ -90,7 +122,7 @@ public class SalesOrderController {
      */
     @PutMapping
     public JsonResult updateState(@RequestBody Order order, @SaAccountVal AccountDto accountDto) {
-        salesOrderService.updateState(order, accountDto.getMerchantId(), accountDto.getOrganizationId());
+        salesOrderService.updateState(order,accountDto);
         return JsonResult.successful();
     }
 
@@ -105,6 +137,18 @@ public class SalesOrderController {
     @GetMapping("load/{orderId}")
     public JsonResult load(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
         return JsonResult.successful(salesOrderService.load(merchantId, orderId, organizationId));
+    }
+
+    /**
+     * 出库单利润详情
+     *
+     * @param merchantId
+     * @param orderId
+     * @return
+     */
+    @GetMapping("loadProfit/{orderId}")
+    public JsonResult loadProfit(@SaMerchantId Long merchantId, @PathVariable Long orderId, @SaOrganizationId Long organizationId) {
+        return JsonResult.successful(salesOrderService.loadProfit(merchantId, orderId, organizationId));
     }
 
 

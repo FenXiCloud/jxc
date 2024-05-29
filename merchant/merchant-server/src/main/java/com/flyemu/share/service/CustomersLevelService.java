@@ -2,9 +2,10 @@ package com.flyemu.share.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
+import cn.hutool.core.lang.Assert;
 import com.flyemu.share.entity.CustomersLevel;
 import com.flyemu.share.entity.QCustomersLevel;
-import com.flyemu.share.entity.QOrganization;
+import com.flyemu.share.entity.QCustomersLevelPrice;
 import com.flyemu.share.repository.CustomersLevelRepository;
 import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,9 @@ import java.util.List;
 public class CustomersLevelService extends AbsService {
 
     private final static QCustomersLevel qCustomersLevel = QCustomersLevel.customersLevel;
+    private final static QCustomersLevelPrice qCustomersLevelPrice = QCustomersLevelPrice.customersLevelPrice;
 
     private final CustomersLevelRepository customersLevelRepository;
-    private final  QOrganization qOrganization = QOrganization.organization;
 
 
     public List<CustomersLevel> query(Query query) {
@@ -47,10 +48,24 @@ public class CustomersLevelService extends AbsService {
         if (customersLevel.getId() != null) {
             //更新
             CustomersLevel original = customersLevelRepository.getById(customersLevel.getId());
+
+            //检查重复
+            long count = bqf.selectFrom(qCustomersLevel)
+                    .where(qCustomersLevel.merchantId.eq(original.getMerchantId()).and(qCustomersLevel.name.eq(customersLevel.getName()))
+                            .and(qCustomersLevel.id.ne(customersLevel.getId())).and(qCustomersLevel.organizationId.eq(original.getOrganizationId())))
+                    .fetchCount();
+            Assert.isTrue(count == 0, customersLevel.getName() + "名称已存在~");
             BeanUtil.copyProperties(customersLevel, original, CopyOptions.create().ignoreNullValue());
             return customersLevelRepository.save(original);
         }
 
+
+        //检查重复
+        long count = bqf.selectFrom(qCustomersLevel)
+                .where(qCustomersLevel.merchantId.eq(customersLevel.getMerchantId()).and(qCustomersLevel.name.eq(customersLevel.getName()))
+                        .and(qCustomersLevel.organizationId.eq(customersLevel.getOrganizationId())))
+                .fetchCount();
+        Assert.isTrue(count == 0, customersLevel.getName() + "名称已存在~");
         return customersLevelRepository.save(customersLevel);
     }
 
@@ -61,6 +76,7 @@ public class CustomersLevelService extends AbsService {
      */
     @Transactional
     public void delete(Long customersLevelId, Long merchantId,Long organizationId) {
+        Assert.isFalse(bqf.selectFrom(qCustomersLevelPrice).where(qCustomersLevelPrice.customersLevelId.eq(customersLevelId).and(qCustomersLevelPrice.merchantId.eq(merchantId)).and(qCustomersLevelPrice.organizationId.eq(organizationId))).fetchCount()>0,"等级已使用，不能删除");
         jqf.delete(qCustomersLevel).where(qCustomersLevel.id.eq(customersLevelId).and(qCustomersLevel.merchantId.eq(merchantId)).and(qCustomersLevel.organizationId.eq(organizationId))).execute();
     }
 
@@ -80,6 +96,11 @@ public class CustomersLevelService extends AbsService {
         public void setOrganizationId(Long organizationId) {
             if (organizationId != null) {
                 builder.and(qCustomersLevel.organizationId.eq(organizationId));
+            }
+        }
+        public void setFilter(String filter) {
+            if (filter != null) {
+                builder.and(qCustomersLevel.name.contains(filter));
             }
         }
     }

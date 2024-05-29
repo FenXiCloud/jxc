@@ -53,6 +53,7 @@ public class OrganizationController {
         organization.setCurrent(false);
         organization.setMerchantId(merchantId);
         organization.setEnabled(true);
+        organization.setStartDate(organization.getStartDate());
         organizationService.save(organization);
         return JsonResult.successful();
     }

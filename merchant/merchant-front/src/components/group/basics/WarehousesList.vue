@@ -9,7 +9,7 @@
               <Button color="primary" icon="fa fa-search" :loading="loading" @click="doSearch">查询</Button>
             </Cell>
           </Row>
-          <div> <Button @click="showForm()" color="primary" icon="fa fa-plus">新增</Button></div>
+          <div> <Button @click="showForm()" color="primary">新 增</Button></div>
         </div>
         <vxe-table row-id="id"
                    ref="table"

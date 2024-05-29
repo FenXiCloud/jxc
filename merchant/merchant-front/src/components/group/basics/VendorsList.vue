@@ -13,7 +13,7 @@
         </Search>
       </template>
       <template #tools>
-        <Button @click="showForm()" color="primary">添加</Button>
+        <Button @click="showForm()" color="primary">新 增</Button>
         <Button @click="addCategoryForm()" color="primary">新增分类</Button>
       </template>
     </vxe-toolbar>
@@ -34,7 +34,6 @@
         <vxe-column title="联系人" field="linkman" width="100"/>
         <vxe-column title="电话" field="phone" width="150"/>
         <vxe-column title="地址" field="address" min-width="100"/>
-        <vxe-column title="创建时间" field="createDate" width="140"/>
         <vxe-column title="状态" field="enabled" width="60">
           <template #default="{row}">
             <Tag color="primary" v-if="row.enabled">启用</Tag>
@@ -43,7 +42,6 @@
         </vxe-column>
         <vxe-column title="操作" align="center" width="150" fixed="right">
           <template #default="{row}">
-            <span class="primary-color text-hover  ml-10px" @click="supplierGoods(row)">供货商品</span>
             <span class="primary-color h-icon-edit text-hover ml-10px" @click="showForm(row)"></span>
             <span class="primary-color h-icon-trash text-hover ml-10px" @click="doRemove(row)"></span>
           </template>
@@ -99,7 +97,7 @@ export default {
     addCategoryForm(entity) {
       let type = 0;
       let layerId = layer.open({
-        title: "单位信息",
+        title: "货商分类信息",
         shadeClose: false,
         closeBtn: false,
         area: ['400px', '330px'],
@@ -117,7 +115,7 @@ export default {
     },
     showForm(entity) {
       let layerId = layer.open({
-        title: "供货商信息",
+        title: "货商信息",
         shadeClose: false,
         area: ['800px', 'auto'],
         content: h(VendorsForm, {

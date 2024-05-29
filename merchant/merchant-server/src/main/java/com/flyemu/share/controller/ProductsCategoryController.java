@@ -1,6 +1,5 @@
 package com.flyemu.share.controller;
 
-
 import cn.hutool.core.lang.Assert;
 import com.flyemu.share.annotation.SaMerchantId;
 import com.flyemu.share.annotation.SaOrganizationId;

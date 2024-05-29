@@ -2,7 +2,7 @@
   <div class="frame-page flex flex-column">
     <vxe-toolbar>
       <template #buttons>
-        <Select v-model="params.state" class="w-120px" :datas="{待审核:'待审核',已审核:'已审核'}"
+        <Select v-model="params.status" class="w-120px" :datas="{已保存:'待审核',已审核:'已审核'}"
                 placeholder="全部订单"/>
         <div class="h-input-group">
           <span class="h-input-addon ml-8px">单据日期</span>
@@ -103,7 +103,7 @@ export default {
       },
       params: {
         filter: null,
-        state: null,
+        status: null,
         sortCol: null,
         sort: null,
       },
@@ -125,7 +125,7 @@ export default {
     downParams() {
       return Object.assign({
         filter: this.params.filter,
-        state: this.params.state,
+        status: this.params.status,
         orderType: this.params.orderType,
         start: this.dateRange.start,
         end: this.dateRange.end,
@@ -177,7 +177,7 @@ export default {
         }
       });
     },
-    showOrderView(orderId = null, state) {
+    showOrderView(orderId = null, status) {
       let layerId = layer.drawer({
         title: "采购单信息",
         shadeClose: false,
@@ -194,7 +194,7 @@ export default {
           },
         }),
         onClose: () => {
-          if (state === '待审核') {
+          if (status === '已保存') {
             this.loadList();
           }
         }
@@ -274,12 +274,12 @@ export default {
         }
       })
     },
-    updateState(row, stateName, state) {
+    updateState(row, stateName, status) {
       confirm({
         title: "系统提示",
-        content: `${stateName}：${row.purchaserName}-单号：${row.code}?`,
+        content: `${stateName}：${row.vendorsName}-单号：${row.code}?`,
         onConfirm: () => {
-          PurchaseOrder.updateState({id: row.id, purchaserOrderState: state}).then(() => {
+          PurchaseOrder.updateState({id: row.id, purchaserOrderState: status}).then(() => {
             message("操作成功~");
             this.loadList();
           })

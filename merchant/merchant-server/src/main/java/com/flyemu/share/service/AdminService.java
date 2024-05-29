@@ -49,6 +49,9 @@ public class AdminService extends AbsService {
 
     private final static QMerchantMenu qMerchantMenu = QMerchantMenu.merchantMenu;
 
+    private final static QArgsSetting qArgsSetting = QArgsSetting.argsSetting;
+    private final static QRelationCw qRelationCw = QRelationCw.relationCw;
+
     private final AdminRepository adminRepository;
 
     private final CodeSeedService codeSeedService;
@@ -145,8 +148,14 @@ public class AdminService extends AbsService {
         Role role = bqf.selectFrom(qRole).where(qRole.id.eq(admin.getRoleId())).fetchFirst();
 
         Organization organization = bqf.selectFrom(qOrganization).where(qOrganization.merchantId.eq(admin.getMerchantId()).and(qOrganization.current.isTrue())).fetchFirst();
+        if(organization != null){
+            String costMethod = bqf.selectFrom(qArgsSetting).select(qArgsSetting.costMethod).where(qArgsSetting.merchantId.eq(admin.getMerchantId()).and(qArgsSetting.organizationId.eq(organization.getId()))).fetchFirst();
+            Long accountSetsId = bqf.selectFrom(qRelationCw).select(qRelationCw.accountSetsId).where(qRelationCw.merchantId.eq(admin.getMerchantId()).and(qRelationCw.organizationId.eq(organization.getId()))).fetchFirst();
+            return new AccountDto(admin, merchant, role,organization,costMethod,accountSetsId);
+        }else {
+            return new AccountDto(admin, merchant, role);
+        }
 
-        return new AccountDto(admin, merchant, role,organization);
     }
 
     @Transactional
@@ -194,6 +203,7 @@ public class AdminService extends AbsService {
             menuDto.setParentId(tuple.get(qMenu.parentId));
             list.add(menuDto);
         }, List::addAll);
+
     }
 
     public List<String> loadFunction(Long merchantId, Role role) {
