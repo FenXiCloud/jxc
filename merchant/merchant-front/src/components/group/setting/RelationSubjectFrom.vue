@@ -2,7 +2,6 @@
   <div class="modal-column">
     <div class="modal-column-full-body">
       <vxe-table
-          size="mini"
           ref="xTable"
           border="border"
           :row-config="{height: 40}"
@@ -13,7 +12,7 @@
         <vxe-column title="对应科目" field="title" align="center" width="260" :edit-render="{}">
           <template #edit="{row,rowIndex}">
             <vxe-select v-model="row.title" filterable @change="changeSub($event,row)">
-              <vxe-option v-for="item in subjectList" :key="item.subjectId" :value="item.subjectId" :label="item.name"> </vxe-option>
+              <vxe-option v-for="item in subjectList" :key="item.subjectId" :value="item.subjectId" :label="item.subjectName"> </vxe-option>
             </vxe-select>
           </template>
         </vxe-column>
@@ -75,7 +74,7 @@ export default {
       const subject = this.subjectList.find(val=> val.subjectId === event.value)
       row.subjectId = subject.subjectId
       row.code = subject.subjectCode
-      row.title = subject.name
+      row.title = subject.subjectName
       console.log(row)
     }
   },

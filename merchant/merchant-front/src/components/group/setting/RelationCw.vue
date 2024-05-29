@@ -46,18 +46,18 @@
             <div class="pb-20px" style="text-align: left;color: gray;font-size: small">检查确定进销存核算参数的设置
             </div>
           </div>
-          <div class="m-10px icon-center ">
-            <Icon type="h-icon-right" :size="50" color="gainsboro"/>
-          </div>
-          <div class="w-150px p-10px bg-gray4-color br">
-            <div class="pt-20px">
-              <Icon type="h-icon-setting" :size="40"/>
-            </div>
-            <div class="p-10px" style="font-weight: bold">完善进销存资料</div>
-            <div class="pb-20px" style="text-align: left;color: gray;font-size: small">
-              设置进销存基础资料与财务软件账套的会计科目之间的对应关系
-            </div>
-          </div>
+<!--          <div class="m-10px icon-center ">-->
+<!--            <Icon type="h-icon-right" :size="50" color="gainsboro"/>-->
+<!--          </div>-->
+<!--          <div class="w-150px p-10px bg-gray4-color br">-->
+<!--            <div class="pt-20px">-->
+<!--              <Icon type="h-icon-setting" :size="40"/>-->
+<!--            </div>-->
+<!--            <div class="p-10px" style="font-weight: bold">完善进销存资料</div>-->
+<!--            <div class="pb-20px" style="text-align: left;color: gray;font-size: small">-->
+<!--              设置进销存基础资料与财务软件账套的会计科目之间的对应关系-->
+<!--            </div>-->
+<!--          </div>-->
           <div class="m-10px icon-center">
             <Icon type="h-icon-right" :size="50" color="gainsboro"/>
           </div>
@@ -98,6 +98,8 @@ export default {
   methods: {
     showForm() {
       let cwRelation = this.dataList[0]
+      console.log(this.dataList[0])
+      console.log(cwRelation)
       let layerId = layer.open({
         title: "关联财务系统",
         shadeClose: false,

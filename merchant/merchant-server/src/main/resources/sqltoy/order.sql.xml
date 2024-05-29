@@ -13,6 +13,7 @@
               and organization_id = :organizationId
             ]]></value>
     </sql>
+
     <sql id="summaryByProducts">
         <value>
             <![CDATA[
@@ -61,30 +62,27 @@
             ]]></value>
     </sql>
 
-    <sql id="salesRankProducts">
+    <sql id="relationOrderVoucher">
         <value>
-            <![CDATA[select p.name productsName,p.code productsCode,p.specification,u.name unitName, pc.name categoryName,count(od.id) salesCount,  SUM(si.cost) cost,sum(si.total_amount) totalAmount, sum(od.sys_quantity) sysQuantity,sum(od.discounted_amount) discountedAmount
-                    from  s_order_detail od
-                    inner join s_stock_item si on si.order_detail_id = od.id
-                    inner join s_order o on o.id = od.order_id
-                    left join s_products p on p.id = od.products_id
-                    left join s_products_category pc on pc.id = p.category_id
-                    left join s_units u on u.id = p.unit_id
-                    where o.order_type = :orderType
-                      and o.order_status = :orderStatus
-                    and od.merchant_id = :merchantId
-                    and od.organization_id = :organizationId
+            <![CDATA[select o.code,o.id,o.discounted_amount discountedAmount,o.bill_date billDate,
+            r.voucher_id voucherId,r.code voucherCode,r.word voucherWord,r.voucher_date voucherDate
+                from s_order o
+                    left join s_relation_order_voucher r on (o.id=r.order_id)
+                    where  o.order_status = :orderStatus
+                    and o.merchant_id = :merchantId
+                    and o.organization_id = :organizationId
                 and o.bill_date between :start and :end
-                #[AND (p.code like :filter or p.name like :filter or p.pinyin like :filter)]
-                    group by od.products_id
+                #[AND o.code like :filter]
+                #[AND o.order_type = :orderType]
+                order by r.id desc,o.id desc
             ]]></value>
     </sql>
 
     <sql id="initSubjectRelation">
         <value>
             <![CDATA[
-            insert into s_relation_subject (name,merchant_id,organization_id,cw_relation_id)
-                values (:name,:merchantId,:organizationId,:cwRelationId)
+            insert into s_relation_subject (name,merchant_id,organization_id,cw_relation_id,account_sets_id)
+                values (:name,:merchantId,:organizationId,:cwRelationId,:accountSetsId)
             ]]></value>
     </sql>
 </sqltoy>

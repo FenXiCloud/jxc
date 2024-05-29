@@ -28,6 +28,7 @@ public class RelationCwService extends AbsService{
     private final Fenxi fenxi;
     private final RelationCwRepository relationCwRepository;
     private static final QRelationCw qRelationCw = QRelationCw.relationCw;
+    private static final QRelationSubject qRelationSubject = QRelationSubject.relationSubject;
     private static final QOrganization qOrganization = QOrganization.organization;
     private static final QAdmin qAdmin = QAdmin.admin;
 
@@ -37,7 +38,7 @@ public class RelationCwService extends AbsService{
         if(object != null){
             List<JSONObject> list = (List<JSONObject>) object.get("accountSetsList");
             list.forEach(item->{
-              Dict dict = new Dict().set("companyName",item.get("companyName"))
+              Dict dict = new Dict().set("companyName",item.getString("companyName"))
                       .set("accountSetsId",item.getString("id"));
                 dicts.add(dict);
             });
@@ -82,19 +83,30 @@ public class RelationCwService extends AbsService{
         }
         if (relationCw.getId() == null ){
            relationCw = relationCwRepository.save(relationCw);
-           lazyDao.batchUpdate("initSubjectRelation",toRelations(relationCw.getMerchantId(), relationCw.getOrganizationId(), relationCw.getId()));
+           lazyDao.batchUpdate("initSubjectRelation",toRelations(relationCw.getMerchantId(), relationCw.getOrganizationId(), relationCw.getId(),relationCw.getAccountSetsId()));
         }else {
+            RelationCw orgRelationCw = relationCwRepository.getById(relationCw.getId());
+            if(orgRelationCw.getAccountSetsId() != null && !orgRelationCw.getAccountSetsId().equals( relationCw.getAccountSetsId())){
+                jqf.update(qRelationSubject)
+                        .set(qRelationSubject.accountSetsId,relationCw.getAccountSetsId())
+                        .setNull(qRelationSubject.subjectId)
+                        .setNull(qRelationSubject.title)
+                        .setNull(qRelationSubject.type)
+                        .setNull(qRelationSubject.code)
+                        .where(qRelationSubject.cwRelationId.eq(relationCw.getId()).and(qRelationSubject.merchantId.eq(relationCw.getMerchantId())).and(qRelationSubject.organizationId.eq(relationCw.getOrganizationId()))).execute();
+            }
             relationCwRepository.save(relationCw);
         }
         return relationCw.getAccountSetsId();
     }
 
-    private List<RelationSubject> toRelations(Long merchantId, Long organizationId, Long cwRelationId) {
+    private List<RelationSubject> toRelations(Long merchantId, Long organizationId, Long cwRelationId,Long accountSetsId) {
         List<String> strings =new ArrayList<>(Arrays.asList("应收账款","应付账款","库存盘亏","库存盘赢","库存商品","订单收入","订单成本","其他收入","其他成本","客户","供应商"));
         RelationSubject relationSubject = new RelationSubject();
         relationSubject.setMerchantId(merchantId);
         relationSubject.setOrganizationId(organizationId);
         relationSubject.setCwRelationId(cwRelationId);
+        relationSubject.setAccountSetsId(accountSetsId);
         List<RelationSubject> relations = new ArrayList<>();
         strings.forEach(str->{
             RelationSubject sRelation = new RelationSubject();

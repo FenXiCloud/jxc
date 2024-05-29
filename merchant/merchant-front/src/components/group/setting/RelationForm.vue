@@ -75,6 +75,8 @@ export default {
   },
   created() {
     CopyObj(this.model, this.cwRelation);
+    console.log(this.cwRelation)
+    console.log(this.model)
     Relation.loadAccountSets().then(({data})=>{
       this.accountSetsList = data||[]
     })

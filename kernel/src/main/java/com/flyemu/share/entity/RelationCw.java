@@ -1,6 +1,8 @@
 package com.flyemu.share.entity;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +44,7 @@ public class RelationCw {
     private Long adminId;
 
     @Comment("帐套ID")
+    @JsonSerialize(using= ToStringSerializer.class)
     private Long accountSetsId;
 
     @Comment("单位名称")

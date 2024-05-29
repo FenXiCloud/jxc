@@ -11,6 +11,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.flyemu.share.dto.VoucherDto;
 import com.flyemu.share.exception.ServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,27 @@ public final class Fenxi {
     }
 
     public JSONArray loadSubject(Long accountSetsId) {
-        JSONObject res = this.executeJson(Dict.create(), "/accountBook/subject/"+accountSetsId);
-        log.info("帐套信息", res);
+        JSONObject res = this.executeJson(Dict.create(), "/subject/voucher/select/"+accountSetsId);
+        log.info("科目", res);
         return res.getJSONArray("data");
+    }
+
+    public JSONObject loadVoucher(Long accountSetsId,Long voucherId) {
+        JSONObject res = this.executeJson(Dict.create(), "/voucher/"+accountSetsId+"/"+voucherId);
+        log.info("凭证详情", res);
+        return res.getJSONObject("data");
+    }
+
+
+    public JSONObject createVoucher(Long accountSetsId, VoucherDto dto) {
+        HttpRequest post = HttpUtil.createPost(API_SITE + "/voucher/"+accountSetsId);
+        post.body(JSON.toJSONString(dto), "application/json");
+        return execute(post, 0);
     }
 
     private JSONObject executeJson(Dict params, String api) {
         HttpRequest request = HttpUtil.createGet(API_SITE + api);
-        request.header("cookie","fv3token=c3032c9f-93f1-4669-9f1d-87c9d41b87cc; Max-Age=2592000; Expires=Thu, 27 Jun 2024 17:01:06 +0800; Path=/");
+        request.header("cookie","fv3token=f74f2747-eab1-4784-add1-4c8f918a49d9; Max-Age=2592000; Expires=Fri, 28 Jun 2024 14:27:40 +0800; Path=/");
         HttpResponse response = request.execute();
         if (response.isOk()) {
             log.debug("workflowFormsSchemasProcessCodes：{}", response.bodyBytes());
@@ -50,11 +64,12 @@ public final class Fenxi {
     }
 
     private JSONObject execute(HttpRequest post, int retry) {
+        post.header("cookie","fv3token=f74f2747-eab1-4784-add1-4c8f918a49d9; Max-Age=2592000; Expires=Fri, 28 Jun 2024 14:27:40 +0800; Path=/");
         HttpResponse response = post.execute();
         if (response.isOk()) {
             JSONObject jsonObject = JSON.parseObject(response.body());
             if (0 == jsonObject.getIntValue("error_code")) {
-                return jsonObject;
+                return jsonObject.getJSONObject("data");
             } else if (88 == jsonObject.getIntValue("error_code") && retry < 10) {
                 log.error("限流了，2后准备重试...");
                 ThreadUtil.safeSleep(2);
