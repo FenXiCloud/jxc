@@ -16,13 +16,13 @@
               <template v-slot:label>
                 <span class="white-color">账 号:</span>
               </template>
-              <Input type="text" style="border-radius: 10px;" v-model="form.username" autocomplete="off" placeholder="请输入登录账号"/>
+              <Input type="text" style="border-radius: 3px;" v-model="form.username" autocomplete="off" placeholder="请输入登录账号"/>
             </FormItem>
             <FormItem >
               <template v-slot:label>
                 <span class="white-color">密 码:</span>
               </template>
-              <Input type="password" style="border-radius: 10px;"  v-model="form.password" autocomplete="off" @keyup.enter="submitForm" placeholder="请输入密码"/>
+              <Input type="password" style="border-radius: 3px;"  v-model="form.password" autocomplete="off" @keyup.enter="submitForm" placeholder="请输入密码"/>
             </FormItem>
             <FormItem >
               <Button :loading="loading" class="login-form-btn" color="primary" @click="submitForm">登 录</Button>
@@ -135,7 +135,7 @@ export default {
     .login-logo {
       width: 110px;
       height: 38px;
-      //background: url(@/assets/logo.png) no-repeat;
+      background: url(@/assets/logo_login.png) no-repeat;
       background-size: 99%;
       padding-right: 12px;
 
@@ -149,13 +149,13 @@ export default {
       letter-spacing: 0.5px;
       font-weight: bold;
       border-left: 1px solid #bebebe;
-      color: #5C4E2E;
+      color: #5a5a5a;
     }
 
     .login-title-bot {
       display: block;
       font-size: 12px;
-      color: #84785E;
+      color: #5a5a5a;
       line-height: 1.6;
       letter-spacing: 0;
       font-weight: normal;
@@ -174,12 +174,12 @@ export default {
     float: right;
     width: 320px;
     height: 398px;
-    background: #315ba1;
+    background: #a7bcde;
     padding: 0 30px;
     .login-form-btn{
       width: 100%;
-      background-color: #4031a0;
-      border-radius: 10px;
+      background-color: #3d74ff;
+      border-radius: 3px;
     }
   }
 
@@ -189,7 +189,7 @@ export default {
 
     p {
       font-size: 13px;
-      color: #8a76ea;
+      color: #3d74ff;
       line-height: 1.6;
       margin: 0;
     }
@@ -201,7 +201,7 @@ export default {
   bottom: 0;
   width: 100%;
   height: 70px;
-  background: #315ba1;
+  background: #3d74ff;
   padding-top: 20px;
 
   .copyright {
